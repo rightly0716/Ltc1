@@ -1220,7 +1220,7 @@ Input: "2*3-4*5"
 (((2*3)-4)*5) = 10
 
 Output: [-34, -14, -10, -10, 10]
-"""
+
 # JAVA code with a clear idea on how to use DP
 class Solution {
 public:
@@ -1243,7 +1243,8 @@ public:
         return res;
     }
 };
-                
+"""
+
 """Partition Equal Subset Sum 相同子集和分割 
 Given a non-empty array containing only positive integers, find if the array 
 can be partitioned into two subsets such that the sum of elements in both subsets is equal.
@@ -4335,9 +4336,79 @@ def insertionSortList(head):
             next.next = tmp
     return new_head.next
 
+"""N Queens
+The n-queens puzzle is the problem of placing n queens on an n×n chessboard such that no two queens attack each other.
+Given an integer n, return all distinct solutions to the n-queens puzzle.
 
+Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a 
+queen and an empty space respectively.
 
+For example,
+There exist two distinct solutions to the 4-queens puzzle:
 
+[
+ [".Q..",  // Solution 1
+  "...Q",
+  "Q...",
+  "..Q."],
+
+ ["..Q.",  // Solution 2
+  "Q...",
+  "...Q",
+  ".Q.."]
+]
+"""
+from copy import deepcopy
+n = 4
+n = 8
+all_board = solveNQueens(n)
+len(all_board)
+
+def solveNQueens(n):
+    board = ['e'*n for i in range(n)] # e means empty, not controlled; . means controlled but no queen
+    res = []
+    helper(board, n, 0, res)
+    return res
+
+# put the queen on the row_index th row, and move on
+def helper(board, n, row_index, res):
+    if row_index == n:
+        res.append(board)
+        return None
+    for j in range(n):
+        #print('col=' + str(j))
+        if board[row_index][j] == 'e':
+            #print('Find e')
+            prev_board = deepcopy(board)
+            board[row_index] = board[row_index][:j] + 'Q' + board[row_index][(j+1):]
+            update(board, row_index, j)
+            helper(board, n, row_index+1, res)
+            # very important to recover the board!!
+            board = deepcopy(prev_board)
+    return None
+
+# update the board according to the new Queen that is placed at [i,j]
+def update(board, i, j):
+    for irow in range(n):
+        if board[irow][j] == 'e':
+            board[irow] = board[irow][:j] + '.' + board[irow][(j+1):]
+    for icol in range(n):
+        if board[i][icol] == 'e':
+            board[i] = board[i][:icol] + '.' + board[i][(icol+1):]
+    # four diagonal
+    cont = True
+    step = 1
+    while cont:
+        cnt = 0
+        for (curr_i, curr_j) in [(i-step, j-step), (i-step, j+step), (i+step, j-step), (i+step, j+step)]:
+            if 0 <= curr_i < n and 0 <= curr_j < n:
+                cnt = 1
+                if board[curr_i][curr_j] == 'e':
+                    board[curr_i] = board[curr_i][:curr_j] + '.' + board[curr_i][(curr_j+1):]
+        step = step + 1
+        if cnt == 0:
+            cont = False
+    return None
 
 
 
