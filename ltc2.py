@@ -2719,7 +2719,6 @@ len(geneParenthesis(4))
 
 
 """Longest Increasing Subsequence (LIS) (Size )
-
 https://en.wikipedia.org/wiki/Longest_increasing_subsequence
 https://www.geeksforgeeks.org/longest-monotonically-increasing-subsequence-size-n-log-n/
 https://stackoverflow.com/questions/3992697/longest-increasing-subsequence
@@ -4415,8 +4414,263 @@ def update(board, i, j):
     return None
 
 
+# Word Search ii
+# Given a 2D board and a list of words from the dictionary, find all words in the board.
+#
+# Each word must be constructed from letters of sequentially adjacent cell, where "adjacent" cells
+# are those horizontally or vertically neighboring. The same letter cell may not be used more than once in a word.
+#
+# For example,
+# Given words = ["oath","pea","eat","rain"] and board =
+# [
+#   ['o','a','a','n'],
+#   ['e','t','a','e'],
+#   ['i','h','k','r'],
+#   ['i','f','l','v']
+# ]
+# Return ["eat","oath"].
+# Note:
+# You may assume that all inputs are consist of lowercase letters a-z.
+# https://github.com/kamyu104/LeetCode/blob/master/Python/word-search-ii.py
+# Time:  O(m * n * l)
+# Space: O(l)
+
+words = ["oath", "pea", "eat", "rain", "hkh", "oe", "klal", "peflvn", "khtaaaoeii"]
+board = [
+    ['o', 'a', 'a', 'n'],
+    ['e', 't', 'a', 'e'],
+    ['i', 'h', 'k', 'r'],
+    ['i', 'f', 'l', 'v'],
+    ['p', 'e', 'a', 'n']]
+# Return ['oe', 'oath', 'eat', 'khtaaaoeii', 'peflvn', 'pea'].
+# Note:
+# You may assume that all inputs are consist of lowercase letters a-z.
+#
+findWords(board, words)
 
 
+def findWords(board, words):
+    nrow = len(board)
+    ncol = len(board[0])
+    visited = [[False] * ncol for _ in range(nrow)]
+    # Create the trie
+    trie = TrieNode()
+    for word in words:
+        trie.insert(word)
+    res = []
+    for i in range(nrow):
+        for j in range(ncol):
+            if board[i][j] in trie.leaves:
+                visited[i][j] = True
+                explore(board, i, j, visited, trie.leaves[board[i][j]], board[i][j], res)
+                visited[i][j] = False
+
+    return res
+
+
+def explore(board, i, j, visited, trie, curr, res):
+    if trie.is_end:
+        res.append(curr)
+        return None
+    for (cur_i, cur_j) in [(i - 1, j), (i, j - 1), (i + 1, j), (i, j + 1)]:
+        if 0 <= cur_i < len(visited) and 0 <= cur_j < len(visited[0]) and board[cur_i][cur_j] in trie.leaves:
+            if visited[cur_i][cur_j] is False:
+                visited[cur_i][cur_j] = True
+                explore(board, cur_i, cur_j, visited, trie.leaves[board[cur_i][cur_j]], curr + board[cur_i][cur_j], res)
+                visited[cur_i][cur_j] = False
+    return None
+
+
+class TrieNode(object):
+    # Initialize your data structure here.
+    def __init__(self):
+        self.is_end = False
+        self.leaves = {}
+        return None
+
+    # Inserts a word into the trie.
+    def insert(self, word):
+        cur = self
+        for w in word:
+            if w not in cur.leaves:
+                cur.leaves[w] = TrieNode()
+            cur = cur.leaves[w]
+        cur.is_end = True
+        return None
+
+
+"""Split Linked List in Parts 拆分链表成部分
+Given a (singly) linked list with head node root, write a function to split the 
+linked list into k consecutive linked list "parts".
+
+The length of each part should be as equal as possible: no two parts should have 
+a size differing by more than 1. This may lead to some parts being null.
+
+The parts should be in order of occurrence in the input list, and parts occurring
+earlier should always have a size greater than or equal parts occurring later.
+
+Return a List of ListNode's representing the linked list parts that are formed.
+
+Examples 1->2->3->4, k = 5 // 5 equal parts [ [1], [2], [3], [4], null ]
+Example 2:
+
+Input: 
+root = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10], k = 3
+Output: [[1, 2, 3, 4], [5, 6, 7], [8, 9, 10]]
+Explanation:
+The input has been split into consecutive parts with size difference at most 1, 
+and earlier parts are a larger size than the later parts.
+"""
+
+
+def splitListToParts(root, k):
+    cur = root
+    n = 0
+    while cur is not None:
+        cur = cur.next
+        n = n + 1
+    prev = Node()
+    prev.next = root
+    curr = root
+    rem = n % k
+    s = 0
+    res = []
+    for i in range(k):
+        res.append(curr)
+        length = n // k + 1 if s < rem else n // k
+        for j in range(length):
+            prev = curr
+            curr = curr.next
+        prev.next = None
+        prev = Node()
+        prev.next = curr
+        s = s + 1
+    return res
+
+
+"""Number of Distinct Islands 不同岛屿的个数
+Given a non-empty 2D array grid of 0's and 1's, an island is a group of 1's 
+(representing land) connected 4-directionally (horizontal or vertical.) You may 
+assume all four edges of the grid are surrounded by water.
+
+Count the number of distinct islands. An island is considered to be the same as 
+another if and only if one island can be translated (and not rotated or reflected) to equal the other.
+
+Given the above grid map, return 3.
+"""
+grid1 = ["11011", "10000", "00001", "11011"]
+grid2 = ["11011", "10000", "00011", "11001"]
+
+numDistinctIslands(grid2)
+
+
+def numDistinctIslands(grid):
+    nrow = len(grid)
+    ncol = len(grid[0])
+    visited = [[False] * ncol for _ in range(nrow)]
+    hs = set()
+    cnt = 0
+    for i in range(nrow):
+        for j in range(ncol):
+            if grid[i][j] == '1' and visited[i][j] == False:
+                island = ['']
+                explore(grid, visited, i, j, island)
+                if island[0] not in hs:
+                    hs.add(island[0])
+                    cnt = cnt + 1
+
+    return cnt
+
+
+def explore(grid, visited, i, j, curr_island):
+    visited[i][j] = True
+    for loc_i, loc_j in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
+        cur_i = i + loc_i
+        cur_j = j + loc_j
+        if 0 <= cur_i < len(grid) and 0 <= cur_j < len(grid[0]) and grid[cur_i][cur_j] == '1' and visited[cur_i][
+            cur_j] == False:
+            curr_island[0] = curr_island[0] + str(loc_i) + '_' + str(loc_j) + '+'
+            explore(grid, visited, cur_i, cur_j, curr_island)
+    return None
+
+
+"""132 Pattern
+Given a sequence of n integers a1, a2, ..., an, a 132 pattern is a subsequence ai, aj, ak such that i < j < k and 
+ai < ak < aj. Design an algorithm that takes a list of n numbers as input and checks whether there is a 132 pattern in the list.
+Note: n will be less than 15,000.
+Example 1:
+Input: [1, 2, 3, 4]
+Output: False
+Explanation: There is no 132 pattern in the sequence.
+Example 2:
+Input: [3, 1, 4, 2]
+Output: True
+Explanation: There is a 132 pattern in the sequence: [1, 4, 2].
+"""
+
+
+def find132pattern(nums):
+    third = float('-Inf')
+    sec_stack = [] # stack for 2nd number
+    # start from the end of nums
+    for numi in nums[::-1]:
+        if numi < third:
+            return True
+        if len(sec_stack) > 0 and numi > sec_stack[-1]:
+            while len(sec_stack) > 0 and numi > sec_stack[-1]:
+                temp = sec_stack.pop()
+                # the larger the better, for 3rd
+                if temp > third:
+                    third = temp
+            sec_stack.append(numi)
+    return False
+
+"""Remove K Digits 去掉K位数字
+Given a non-negative integer num represented as a string, remove k digits from the number so that the new number is the smallest possible.
+Note:
+The length of num is less than 10002 and will be ≥ k.
+The given num does not contain any leading zero.
+
+Example 1:
+Input: num = "1432219", k = 3
+Output: "1219"
+Explanation: Remove the three digits 4, 3, and 2 to form the new number 1219 which is the smallest.
+Example 2:
+Input: num = "10200", k = 1
+Output: "200"
+Explanation: Remove the leading 1 and the number is 200. Note that the output must not contain leading zeroes.
+"""
+# idea: reconstruct the string, starting from the very left, remove the large head, if bigger than a latter
+def removeKdigits(num, k):
+    res = ""
+    left_digit = k
+
+    for numi in num:
+        while len(res) > 0 and left_digit > 0 and int(numi) < int(res[-1]):
+            res.pop()
+            left_digit = left_digit - 1
+        res = res + numi
+    res = res[:(n-k)]
+    i = 0
+    while len(res) > 0 and res[i] == '0':
+        res = res[1:]
+    return res if len(res) > 0 else '0'
+
+removeKdigits('1432219', 3)
+removeKdigits('10200', 2)
+
+"""[LeetCode] Maximal Square 最大正方形
+Given a 2D binary matrix filled with 0's and 1's, find the largest square containing all 1's and return its area.
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+"""
+def maximalSquare(matrix):
+
+    return None
 
 
 
