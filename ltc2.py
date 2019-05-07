@@ -249,18 +249,22 @@ def Dijkstra(G, k):
     # 0 <= k <= len(G[0]) - 1
     dists = [float('inf')] * len(G[0])
     dists[k] = 0
-    previous = [None] * len(G[0])
+    previous = [None] * len(G[0]) # only for track the path
 
     q = []
     for i in range(len(G[0])):
-        heappush(q, (dists[i], i))
-        
+        heappush(q, (dist[i], i))
+    visit = set()
     while len(q) != 0:
         d, node = heappop(q)
+        visit.append(node)
         for i in range(len(G[0])):
-            if dist[i] < dist[node] + G[node, i]:
-                dist[i] = dist[node] + G[node, i]
-                previous[i] = node
+            if i not in visit:
+                if G[node, i] < float('Inf') and dist[i] > dist[node] + G[node, i]:
+                    dist[i] = dist[node] + G[node, i]
+                    previous[i] = node
+                    if i not in q:
+                        heappush(q, (dist[i], i))
     
     return dists    
 
@@ -4521,8 +4525,6 @@ Explanation:
 The input has been split into consecutive parts with size difference at most 1, 
 and earlier parts are a larger size than the later parts.
 """
-
-
 def splitListToParts(root, k):
     cur = root
     n = 0
