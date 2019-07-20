@@ -90,8 +90,9 @@ a = list(string)
 permute(a, 0, n - 1)
 
 
-# For the given binary tree, return a deep copy of it.
+
 """
+For the given binary tree, return a deep copy of it.
 Given a binary tree:
 
     1
