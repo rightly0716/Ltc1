@@ -88,3 +88,38 @@ string = "ABC"
 n = len(string)
 a = list(string)
 permute(a, 0, n - 1)
+
+
+# For the given binary tree, return a deep copy of it.
+"""
+Given a binary tree:
+
+    1
+   / \
+  2   3
+ / \
+4   5
+
+return the new binary tree with same structure and same value:
+
+    1
+   / \
+  2   3
+ / \
+4   5
+"""
+class Node:
+    def __init__(self, val):
+        self.val = val
+        self.left = Node(None)
+        self.right = Node(None)
+
+def copytree(node):
+    if node is None:
+        return None
+    else:
+        head = Node(node.val)
+        head.left = copytree(node.left)
+        head.right = copytree(node.right)
+    return head
+
