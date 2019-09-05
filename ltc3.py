@@ -91,6 +91,7 @@ permute(a, 0, n - 1)
 
 
 
+<<<<<<< HEAD
 """
 For the given binary tree, return a deep copy of it.
 Given a binary tree:
@@ -162,6 +163,8 @@ def accountsMerge(accounts):
     return None
 
 
+=======
+>>>>>>> b8428c62c0c4a305ddad763954d9f220b20513fc
 
 
 
