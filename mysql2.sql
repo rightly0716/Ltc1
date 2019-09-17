@@ -190,7 +190,7 @@ from table1
 group by Request_at
 
 
-/* Find median given frequency of numbers??? */
+/* 571 Find median given frequency of numbers??? */
 /*构造中间表t，包含列Number, Frequency, AccFreq（累积频率）, SumFreq（频率求和）, AccFreq范围在[SumFreq / 2, SumFreq / 2 + Frequency]的Number均值即为答案。
 
 因为，AccFreq本身介于[SumFreq / 2, SumFreq / 2 + 1]之间
@@ -211,6 +211,16 @@ where n.Frequency >= abs(
 
 
 
+/* 578 Get Highest Answer Rate Q
+*/
+select uid as survey_log from (
+select uid,
+sum(case when action='show' then 1 else 0 end) as num_show,
+sum(case when action='answer' then 1 else 0 end) as num_ans
+from survey_log
+group by uid
+) t1
+order by num_ans/num_show desc limit 1
 
 
 
