@@ -1,3 +1,17 @@
+/*
+IF(x=1, 1, 0) as y;
+
+case
+	when x=1 then 1
+	when x=2 then 2
+	else then 3
+end as y;
+
+select rank() over (partition by x order by y desc) as rk;
+
+*/
+
+
 /* Write your MySQL query statement below */
 
 select p.FirstName as FirstName, p.LastName as LastName, a.City as City, a.State as State from Person p
@@ -47,6 +61,7 @@ join Logs t2 on t1.id = t2.id - 1) t12
 join Logs t3 on t12.id = t3.id - 1
 ) t123
 where t123.Num1 = t123.Num2 and t123.Num2 = t123.Num3
+
 
 /*185 Department top 3 salaries*/
 select Department, Employee, Salary from (
@@ -221,6 +236,62 @@ from survey_log
 group by uid
 ) t1
 order by num_ans/num_show desc limit 1
+
+
+/* 585 Investments in 2016
+*/
+select sum(TIV_2016) from insurance
+where pid in (select pid from insurance group by lat, lon having count(*) = 1) and 
+pid in (select pid from insurance group by TIV_2015 having count(*)>1)
+
+
+/* 601 Human traffic of stadium
+*/
+select distinct t1.id
+from staduim t1, staduim t2, staduim t3
+where ((t1.id = t2.id - 1 and t2.id = t3.id - 1) or (t3.id = t2.id - 1 and t2.id = t1.id - 1) or (t2.id = t1.id - 1 and t1.id = t3.id - 1)) and min(t1.people, t2.people, t3.people) >= 100
+
+
+/* 602 Friend Request II: Who has the most friends
+*/
+select id, cnt from(
+	select id, count(id) as cnt from (
+	select request_id as id from request_accepted
+	union all
+	select accept_id as id from request_accepted
+	) t1
+) t2
+group by cnt desc
+limit 1
+
+/* 614 second degree follower
+*/
+select distinct t1.follower, t2.cnt as num from follow t1
+right join (select followee, count(*) as cnt
+from follow
+group by followee) t2
+on follow.follower=t2.followee
+order by t2.cnt desc
+
+
+/* 618 student report by Geography
+ I choose to use Python....
+*/
+d = {}
+for row in student.itertuples():
+	if row['continent'] in d:
+		d[row['continent']].append(row['name'])
+	else:
+		d[row['continent']] = [row['name']]
+# sort by alphabetic
+for k in d.keys():
+	d[k] = sorted(d[k])
+# create a df
+pd.DataFrame(dict([(k, pd.Series(v)) for (k,v) in d.items()]))
+
+
+
+
 
 
 
