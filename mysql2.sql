@@ -12,6 +12,7 @@ select rank() over (partition by x order by y desc) as rk;
 */
 
 
+
 /* Write your MySQL query statement below */
 
 select p.FirstName as FirstName, p.LastName as LastName, a.City as City, a.State as State from Person p
