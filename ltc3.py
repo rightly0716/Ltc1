@@ -135,8 +135,7 @@ Extra spaces between words should be distributed as evenly as possible. If the n
 
 For the last line of text, it should be left justified and no extra space is inserted between words.
 
-Note:
-
+NOTE:
 A word is defined as a character sequence consisting of non-space characters only.
 Each word's length is guaranteed to be greater than 0 and not exceed maxWidth.
 The input array words contains at least one word.
@@ -153,7 +152,6 @@ Output:
 ]
 
 Example 2:
-
 Input:
 words = ["What","must","be","acknowledgment","shall","be"]
 maxWidth = 16
@@ -168,7 +166,6 @@ Explanation: Note that the last line is "shall be    " instead of "shall     be"
              Note that the second line is also left-justified becase it contains only one word.
 
 Example 3:
-
 Input:
 words = ["Science","is","what","we","understand","well","enough","to","explain",
          "to","a","computer.","Art","is","everything","else","we","do"]
@@ -183,32 +180,63 @@ Output:
   "do                  "
 ]
 """
+text_justification(words, maxwidth=20)
 
 def text_justification(words, maxwidth):
+  # check whether any words length > maxwidth
   cum_len = 0
   output = []
   curr_words = []
   rest_words = words
-  while rest_words:
+  while len(rest_words) > 0:
       curr_line, rest_words = extract_line(rest_words, maxwidth)
       output.append(curr_line)
-
   return output
 
-def extract_line():
+def extract_line(words, maxwidth):
   # get evenly distributed word line
+  curr_len = 0
+  curr_words = []
+  rest_words = []
+  for i in range(len(words)):
+    curr_len += len(words[i])
+    if curr_len > maxwidth:
+      rest_words = words[i:]
+      break
+    else:
+      curr_words.append(words[i])
+      curr_len += 1
+  
+  if len(rest_words) == 0:
+    # if last line
+    curr_line = ''
+    for word in curr_words:
+      curr_line += word + ' '
+    curr_line += ' '*(maxwidth-len(curr_line))
+  else:
+    # put spaces between curr_words
+    total_space_num = maxwidth
+    for word in curr_words:
+      total_space_num -= len(word)
+    space_list = distribute_space(total_space_num, len(curr_words)-1)
+    curr_line = ''
+    for num_space, word in zip(space_list, curr_words):
+      curr_line = curr_line + word + ' '*num_space
+  return curr_line, rest_words
 
-  return 
-
-
+def distribute_space(n, k):
+  # split n spaces into k parts, left more
+  baseline_list = [n//k]*k
+  remainder_list = [1]*(n%k) + [0]*(k-n%k)
+  output = [i+j for i,j in zip(baseline_list, remainder_list)]
+  output.append(0)
+  return output
 
 
 # Given an array of integers and an integer k, 
 # you need to find the total number of continuous subarrays whose sum equals to k.
-
 # Example 1:
 # Input:nums = [1,1,1], k = 2
-
 # Output: 2
 def num_subarrays(nums, k):
   # first cumsum 
@@ -222,7 +250,6 @@ def num_subarrays(nums, k):
 
   return res
 
-
 def cumsum(nums):
   cumsum_arr = []
   sum_so_far = 0
@@ -235,6 +262,37 @@ def cumsum(nums):
     else:
       ht[sum_so_far]+=1
   return cumsum_arr, hs
+
+
+# s1 = [(1, 2), (1, 3), (3, 4), (4,6), (2,3)]
+# output: [[1,2,3,4,6], [1,3,4,6]]
+get_all_routes(s1)
+def get_all_routes(input_list):
+  # build a hash table saving: from -> to
+  map_to_dest = build_map(input_list)
+  start_city = 1
+  res = []
+  curr_res = [1]
+  dfs(res, curr_res, map_to_dest)
+  return res
+
+def dfs(res, curr_res, map_to_dest):
+  if curr_res[-1] not in map_to_dest:
+    res.append(curr_res)
+  else:
+    for next_city in map_to_dest[curr_res[-1]]:
+      dfs(res, curr_res + [next_city], map_to_dest)
+
+def build_map(input_list):
+  # build a hash table saving: from -> to
+  output_set = {}
+  for pair in input_list:
+    if pair[0] not in output_set:
+      output_set[pair[0]] = [pair[1]]
+    else:
+      output_set[pair[0]].append(pair[1])
+  
+  return output_set
 
 
 
