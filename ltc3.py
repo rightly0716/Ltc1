@@ -232,12 +232,14 @@ def distribute_space(n, k):
   output.append(0)
   return output
 
-
+"""
 # Given an array of integers and an integer k, 
 # you need to find the total number of continuous subarrays whose sum equals to k.
 # Example 1:
 # Input:nums = [1,1,1], k = 2
 # Output: 2
+"""
+
 def num_subarrays(nums, k):
   # first cumsum 
   res = 0
@@ -263,9 +265,10 @@ def cumsum(nums):
       ht[sum_so_far]+=1
   return cumsum_arr, hs
 
-
+"""
 # s1 = [(1, 2), (1, 3), (3, 4), (4,6), (2,3)]
 # output: [[1,2,3,4,6], [1,3,4,6]]
+"""
 get_all_routes(s1)
 def get_all_routes(input_list):
   # build a hash table saving: from -> to
@@ -294,6 +297,20 @@ def build_map(input_list):
   
   return output_set
 
+
+"""
+[LeetCode] 209. Minimum Size Subarray Sum 最短子数组之和
+Given an array of n positive integers and a positive integer s, find the minimal length of a contiguous subarray of which the sum >= s. If there isn't one, return 0 instead.
+
+Example: 
+Input: s = 7, nums = [2,3,1,2,4,3]
+Output: 2
+Explanation: the subarray [4,3] has the minimal length under the problem constraint.
+Follow up:
+If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log n). 
+
+讨论：本题有一个很好的 Follow up，就是去掉所有数字是正数的限制条件，而去掉这个条件会使得累加数组不一定会是递增的了，那么就不能使用二分法，同时双指针的方法也会失效，只能另辟蹊径了。其实博主觉得同时应该去掉大于s的条件，只保留 sum=s 这个要求，因为这样就可以在建立累加数组后用 2sum 的思路，快速查找 s-sum 是否存在，如果有了大于的条件，还得继续遍历所有大于 s-sum 的值，效率提高不了多少。
+"""
 
 
 
