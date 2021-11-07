@@ -8,7 +8,8 @@ Created on Mon Jan 22 16:17:05 2018
 
 # Union Find
 # Dykstra Algo
-"""01 matrix
+
+"""542: 01 matrix
 01matrix Given a matrix consists of 0 and 1, find the distance of the nearest 0
  for each cell.
 
@@ -73,7 +74,36 @@ updateMatrix([[0 ,0 ,0],[0, 1, 0],[1, 1, 1]])
 matrix = [[0 ,0 ,0],[0, 1, 0],[1, 1, 1]]
 
 
-"""
+# soln 2
+def updateMatrix2(M):
+    # build a visited mat
+    nrow, ncol = len(M), len(M[0])
+    res = [[float('Inf')]*ncol for i in range(nrow)]
+    visited = set()
+
+    q = deque()
+    for i in range(nrow):
+        for j in range(ncol):
+            if M[i][j] == 0:
+                visited.add((i,j))
+                res[i][j] = 0
+                q.append((i,j))
+
+    dist = 1  # dist of entris in curr queue
+    while len(q) != 0:
+        for _ in range(len(q)):
+            curr_i, curr_j = q.popleft()
+            for (nb_i, nb_j) in [(curr_i-1, curr_j), (), (), ()]:
+                if 0 <= nb_i < nrow and 0 <= nb_j < ncol and ((nb_i, nb_j)) not in visited:
+                    visited.add((nb_i, nb_j))
+                    res[nb_i][nb_j] = dist
+                    q.append((nb_i, nb_j))
+        dist = dist + 1
+
+    return res
+
+
+""" 752. Open the Lock
 Open the lock. You have a lock in front of you with 4 circular wheels. Each 
 wheel has 10 slots: '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'. The wheels 
 can rotate freely and wrap around: for example we can turn '9' to be '0', or '0' 
@@ -95,7 +125,7 @@ def openlock(deadends, target):
     depth = 0
     
     while len(q) > 0:
-        for i in range(len(q)):
+        for _ in range(len(q)):
             curr = q.popleft()
             if target == curr:
                 return depth
@@ -222,6 +252,8 @@ Note:
 3.The length of times will be in the range [1, 6000].
 4.All edges times[i] = (u, v, w) will have 1 <= u, v <= N and 1 <= w <= 100.
 
+What if w can be negative? Bellman-Ford : V*E
+https://www.cnblogs.com/gaochundong/p/bellman_ford_algorithm.html
 """
 
 from heapq import heappush
@@ -233,7 +265,7 @@ def networkDelayTime(times, N, k):
         G.append([float('inf')] * N)
 
     for item in times:
-        G[item[0] - 1, item[1] - 1] = item[2]
+        G[item[0] - 1][item[1] - 1] = item[2]
     dists = Dijkstra(G, k - 1)
     if float('Inf') in dists:
         return -1
@@ -243,30 +275,108 @@ def networkDelayTime(times, N, k):
 # Dijkstra: every time heappop the min dist node (mnode), and check whether 
 # (start, mnode) + (mnode, node i) is less than (start, node i) for all the i
 # remained in the heap
+# def Dijkstra(G, k):
+#     # 0 <= k <= len(G[0]) - 1
+#     dists = [float('inf')] * len(G[0])
+#     dists[k] = 0
+#     previous = [None] * len(G[0]) # only for track the path
+#
+#     q = []
+#     for i in range(len(G[0])):
+#         heappush(q, (dist[i], i))
+#     visit = set()
+#     while len(q) != 0:
+#         d, node = heappop(q)
+#         visit.append(node)
+#         for i in range(len(G[0])):
+#             if i not in visit:
+#                 if G[node][i] < float('Inf') and dist[i] > dist[node] + G[node][i]:
+#                     dist[i] = dist[node] + G[node, i]
+#                     previous[i] = node
+#                     if i not in q:
+#                         heappush(q, (dist[i], i))
+#
+#     return dists
+#
+
 def Dijkstra(G, k):
+    # #https://zhuanlan.zhihu.com/p/129373740
+    # O(V^2)
     # 0 <= k <= len(G[0]) - 1
+    passed = [k]  # S
+    nopass = [i for i in range(len(G)) if i !=k]  # V-S
+    # init dists
     dists = [float('inf')] * len(G[0])
     dists[k] = 0
-    previous = [None] * len(G[0]) # only for track the path
+    for i in nopass:
+        dists[i] = G[k][i]
 
-    q = []
-    for i in range(len(G[0])):
-        heappush(q, (dist[i], i))
-    visit = set()
-    while len(q) != 0:
-        d, node = heappop(q)
-        visit.append(node)
-        for i in range(len(G[0])):
-            if i not in visit:
-                if G[node, i] < float('Inf') and dist[i] > dist[node] + G[node, i]:
-                    dist[i] = dist[node] + G[node, i]
-                    previous[i] = node
-                    if i not in q:
-                        heappush(q, (dist[i], i))
-    
-    return dists    
+    # previous = [None] * len(G[0])  # only for track the path
 
-    
+    while len(nopass) != 0:
+        # find the vertex in nopass that has shortest path to start point, add into passed, update dists
+        shortest_path = float('Inf')
+        idx = None
+        for i in nopass:
+            if dists[i] < shortest_path:
+                idx = i
+                shortest_path = dists[i]
+
+        if idx is None:
+            # remaining vertex are all non-reachable
+            break
+
+        passed.append(idx)
+        nopass.remove(idx)
+
+        # use idx to update the nopass vertex dists
+        for i in nopass:
+            if dist[i] > dist[idx] + G[idx][i]:
+                dist[i] = dist[idx] + G[idx][i]
+
+    return dists
+
+
+def Dijkstra_save_path(G, k):
+    # the same as above but save the vertex paths of each vertex
+    path_dict = {}  # save paths of each vertex
+    # 0 <= k <= len(G[0]) - 1
+    passed = [k]  # S
+    nopass = [i for i in range(len(G)) if i !=k]  # V-S
+    # init dists
+    dists = [float('inf')] * len(G[0])
+    dists[k] = 0
+    for i in nopass:
+        dists[i] = G[k][i]
+        if dists[i] < float('Inf'):
+            path_dict[i] = [k]  # start vertex as previous vertex
+
+    while len(nopass) != 0:
+        # find the vertex in nopass that has shortest path to start point, add into passed, update dists
+        shortest_path = float('Inf')
+        idx = None
+        for i in nopass:
+            if dists[i] < shortest_path:
+                idx = i
+                shortest_path = dists[i]
+
+        if idx is None:
+            # remaining vertex are all non-reachable
+            break
+
+        passed.append(idx)
+        nopass.remove(idx)
+
+        # use idx to update the nopass vertex dists
+        for i in nopass:
+            if dist[i] > dist[idx] + G[idx][i]:
+                dist[i] = dist[idx] + G[idx][i]
+                path_dict[i] = path_dict[i] + [idx]
+
+    return dists
+
+
+
 times = []
 
 """
@@ -313,14 +423,14 @@ def shortestDistance(maze, start, destination):
             for (d_i, d_j) in direct:
                 x, y = loc_i, loc_j
                 dist = dists[x][y]
-                while 0 <= x < nr and 0 <= y < nc and maze[x][y] == 0:
+                while 0 <= x + d_i < nr and 0 <= y + d_j < nc and maze[x + d_i][y + d_j] == 0:
                     x = x + d_i
                     y = y + d_j
                     dist = dist + 1
                     
-                x = x - d_i
-                y = y - d_j
-                dist = dist - 1
+                # x = x - d_i
+                # y = y - d_j
+                # dist = dist - 1
                 if dist < dists[x][y]:
                     dists[x][y] = dist # update this stop cell
                     if x != destination[0] or y != destination[1]:
@@ -336,6 +446,31 @@ maze = [[0,0,1,0,0],
 
 shortestDistance(maze, (0, 4), (4, 4))
 
+
+def shortestDistance_v2(maze, start, destination):
+    q = deque()
+    q.append(start)
+    res = [[float('Inf')]*len(maze) for i in len(maze[0])]
+    res[start[0], start[1]] = 0
+
+    while len(q) > 0:
+        for _ in range(len(q)):
+            curr_row, curr_col = q.popleft()
+            for direct in [(0, -1), (0, 1), (-1, 0), (1, 0)]:
+                dist = res[curr_row][curr_col]
+                while 0<=curr_row+direct[0]<nrow and 0<=curr_col+direct[1]<ncol and maze[curr_row+direct[0]][curr_col+direct[1]]!=1:
+                    curr_row, curr_col = curr_row+direct[0], curr_col+direct[1]
+                    dist = dist + 1
+
+                if res[curr_row][curr_col] > dist:
+                    res[curr_row][curr_col] = dist
+                    if curr_row != destination[0] or curr_col != destination[1]:
+                        q.append([curr_row, curr_col])
+
+    res_dist = dists[destination[0]][destination[1]]
+    return res_dist if res_dist != float('Inf') else -1
+
+
 """
 Perfect Squares
 Given a positive integer n, find the least number of perfect square numbers 
@@ -347,17 +482,23 @@ return 2 because 13 = 4 + 9.
 def numSquares(n):
     if n <= 0:
         return 0
-    
+
     dp = [float('inf')] * (n+1)
     dp[0] = 0
-    
-    for i in range(int(n**0.5)):
+
+    for i in range(int(n**0.5)+1):
         dp[i**2] = 1
-    
-    for i in range(int(n**0.5)):
+
+    for i in range(int(n**0.5)+1):
         for j in [j for j in range(n) if i**2 + j <= n]:
             dp[i**2 + j] = min(dp[j] + 1, dp[i**2 + j])
+
+    print(dp)
     return dp[n]
+
+
+numSquares(13)
+
 
 """
 Number of Connected Components in an Undirected Graph 
