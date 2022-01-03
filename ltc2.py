@@ -1201,6 +1201,8 @@ class my_cmp(str):
         return int(a + b) >= int(b+a)
 
 def largestNumber(nums):
+    if set(nums) == {0}:
+        return "0"
     s_nums = [str(i) for i in nums]
     s = sorted(map(my_cmp, s_nums))[::-1]
     return "".join(s)
@@ -1221,21 +1223,25 @@ Could you come up with an one-pass algorithm using only constant space?
 """
 
 A = [1,2,1,0,0,1,2,2,0]
+A = [2,0,1]
+A = [1,2,0]
 
 def sortColors(A):
     i = 0
     begin = 0
     end = len(A) - 1
-    while i < end:
-        while A[i] == 0 and i > begin:
+    while i <= end:
+        if A[i] == 0:
             A[i] = A[begin]
             A[begin] = 0
             begin = begin + 1
-        while A[i] == 2 and i < end:
+            i = i + 1
+        elif A[i] == 2 and i <= end:
             A[i] = A[end]
             A[end] = 2
             end = end - 1
-        i = i + 1
+        else:
+            i = i + 1
     return A
 
 sortColors(A)
@@ -3007,7 +3013,7 @@ s = [100, 4, 200, 1, 3, 2]
 s = [100, 4, 200, 1, 3, 2,0]
 def longestConsecutive(s):
     hs = set(s)
-    max_length = 1
+    max_length = 0
     for i in set(s):
         if i in hs:
             begin, end = i,i
@@ -3027,7 +3033,7 @@ LCS(s)
 # use hash table / dict to record the visit status
 def LCS(s):
     ht = {x: True for x in s}
-    max_length = 1
+    max_length = 0
     for i in ht:
         if ht[i]:
             begin, end = i,i
