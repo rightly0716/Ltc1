@@ -2949,10 +2949,1492 @@ Output:
 
 The longest substring is "aaa", as 'a' is repeated 3 times.
 
+
+Two pointer
+https://leetcode.com/problems/longest-substring-with-at-least-k-repeating-characters/discuss/1655754/Python-2-Pointer-solution
+"""
+from collections import Counter
+
+class Solution:
+    def helper(self, s, k, start, end):
+        # length of longest substring of s[strat:end]
+        if len(s[start:end]) < k:
+            return 0
+        
+        m = Counter(s[start:end])
+        for i in range(start, end):
+            if m[s[i]] < k:
+                # curr_letter cannot be included 
+                return max(self.helper(s, k, start, i), self.helper(s, k, i+1, end))
+        
+        return end-start # all letters >=k
+
+    def longestSubstring(self, s: str, k: int) -> int:
+        return self.helper(s=s, k=k, start=0, end=len(s))
+
+
+sol = Solution()
+sol.longestSubstring("ababacb", 3)
+sol.longestSubstring("ababa", 3)
+sol.longestSubstring("a", 3)
+
+
+""" 386 · Longest Substring with At Most K Distinct Characters
+Description
+Given a string S, find the length of the longest substring T that contains at most k distinct characters.
+
+Example 1:
+
+Input: S = "eceba" and k = 3
+Output: 4
+Explanation: T = "eceb"
+
+Example 2:
+
+Input: S = "WORLD" and k = 4
+Output: 4
+Explanation: T = "WORL" or "ORLD"
+Challenge
+O(n) time
+
+# solution
+two pointer and one dict
 """
 
+def lengthOfLongestSubstringKDistinct(s, k):
+    l, r = 0, 0
+    n = len(s)
+    m = dict()
+    res = 0
+    while r < n:
+        m[s[r]] = 1 if r not in m else m[s[r]] + 1
+        while len(m) > k:
+            # if more than k in s[l:r+1] then move l till =k
+            m[s[l]] = m[s[l]] - 1
+            if m[s[l]] == 0:
+                del m[s[l]]
+            l = l + 1
+        r = r + 1
+        res = max(res, r-l+1)
+    return res
+        
 
 
+"""[LeetCode] Longest Repeating Character Replacement 最长重复字符置换
+
+Given a string that consists of only uppercase English letters, you 
+can replace any letter in the string with another letter at most k times. 
+Find the length of a longest substring containing all repeating letters 
+you can get after performing the above operations.
+
+Note:
+Both the string's length and k will not exceed 104.
+
+Example 1:
+
+Input:
+s = "ABAB", k = 2
+
+Output:
+4
+
+Explanation:
+Replace the two 'A's with two 'B's or vice versa.
+Example 2:
+
+Input:
+s = "AABABBA", k = 1
+
+Output:
+4
+
+"""
+from collections import Counter
+
+class Solution:
+    def characterReplacement(self, s: str, k: int) -> int:
+        # two pters
+        # condition: if r - l + 1 - maxCnt <= k then okay else move left pters
+        m = dict()
+        l = 0
+        maxCnt = 0  # maxCnt of letter in s[l:r+1]
+        res = 0
+        for r in range(len(s)):
+            m[s[r]] = m[s[r]] + 1 if s[r] in m else 1
+            maxCnt = max(maxCnt, m[s[r]])
+            while r - l + 1 - maxCnt > k:
+                # will not make r-l+1 as output
+                m[s[l]] = m[s[l]] - 1
+                l = l + 1
+                
+            res = max(res, r-l+1)
+        
+        return res
+
+
+"""[LeetCode] 76. Minimum Window Substring 最小窗口子串
+Given a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity O(n).
+
+Example:
+Input: S = "ADOBECODEBANC", T = "ABC"
+Output: "BANC"
+
+Example 2:
+
+Input: s = "a", t = "aa"
+Output: ""
+Explanation: Both 'a's from t must be included in the window.
+Since the largest window of s only has one 'a', return empty string.
+
+Note:
+If there is no such window in S that covers all characters in T, return the empty string "".
+If there is such window, you are guaranteed that there will always be only one unique minimum window in S.
+
+"""
+from collections import Counter
+
+s = "ADOBECODEBANC"; t = "ABC"
+s="cabwefgewcwaefgcf"; t="cae"
+
+class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        m = Counter(t)  # number of remaining letters
+        num_letters_covered = 0
+        l = 0
+        min_len = len(s) + 1
+        res = ""
+        for r in range(len(s)):
+            if s[r] in m:
+                m[s[r]] = m[s[r]] - 1
+                if m[s[r]] >= 0:
+                    num_letters_covered = num_letters_covered + 1
+
+            while num_letters_covered == len(t):
+                # move l 
+                if r+1-l < min_len:
+                    res = s[l:r+1]
+                    min_len = r+1-l
+                # if s[l:r+1] covers T
+                if s[l] in m:
+                    m[s[l]] = m[s[l]] + 1
+                    if m[s[l]] > 0:
+                        num_letters_covered = num_letters_covered - 1
+                l = l + 1
+                print(s[l:r+1])
+                print(m)
+                
+        return res
+
+class Solution2:
+    def minWindow(self, s: str, t: str) -> str:
+        m = Counter(t)  # number of remaining letters
+        l = 0
+        min_len = len(s) + 1
+        res = ""
+        for r in range(len(s)):
+            if s[r] in m:
+                m[s[r]] = m[s[r]] - 1
+            while max(m.values()) <= 0:
+                # if all gets covered
+                if r+1-l < min_len:
+                    res = s[l:r+1]
+                    min_len = r+1-l
+                # if s[l:r+1] covers T
+                if s[l] in m:
+                    m[s[l]] = m[s[l]] + 1
+                l = l + 1
+                
+        return res
+
+
+sol = Solution()
+sol.minWindow("cabwefgewcwaefgcf", "cae")
+sol.minWindow(s="ewcwae", t="cae")
+
+
+""" 1004. Max Consecutive Ones III
+Given a binary array nums and an integer k, return the maximum number of consecutive 
+1's in the array if you can flip at most k 0's.
+
+Example 1:
+
+Input: nums = [1,1,1,0,0,0,1,1,1,1,0], k = 2
+Output: 6
+Explanation: [1,1,1,0,0,1,1,1,1,1,1]
+Bolded numbers were flipped from 0 to 1. The longest subarray is underlined.
+"""
+class Solution:
+    def longestOnes(self, nums, k: int) -> int:
+        num_ones = 0
+        l = 0
+        res = 0
+        for r in range(len(nums)):
+            if nums[r] == 1:
+                num_ones = num_ones + 1
+            if num_ones + k >= r + 1 - l:
+                # fit
+                res = max(r - l + 1, res)
+            else:
+                # move l
+                while num_ones + k < r + 1 - l:
+                    num_ones = num_ones - 1 if nums[l] == 1 else num_ones
+                    l = l + 1
+        
+        return res
+
+
+nums = [0,0,1,1,0,0,1,1,1,0,1,1,0,0,0,1,1,1,1]; k = 3
+nums = [1,1,1,0,0,0,1,1,1,1,0]; k = 2
+sol = Solution()
+sol.longestOnes(nums, k)
+
+
+
+"""
+############################################################################
+宽度优先搜索（BFS）
+############################################################################
+迷宫遍历求最短路径
+建立距离场
+有向图遍历
+拓扑排序
+"""
+
+"""[LeetCode] 102. Binary Tree Level Order Traversal 二叉树层序遍历
+ 
+
+Given a binary tree, return the level order traversal of its nodes' values. 
+(ie, from left to right, level by level).
+
+For example:
+Given binary tree {3,9,20,#,#,15,7},
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+ 
+
+return its level order traversal as:
+
+[
+  [3],
+  [9,20],
+  [15,7]
+]
+"""
+
+# Definition for a binary tree node.
+from collections import deque
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if not root:
+            return root
+        res = []
+        q = deque()
+        q.append(root)
+        while len(q) > 0:
+            curr_res = []
+            for _ in range(len(q)):
+                curr_node = q.popleft()
+                if curr_node:
+                    curr_res.append(curr_node.val)
+                    q.append(curr_node.left)
+                    q.append(curr_node.right)
+            if len(curr_res) > 0:
+                res.append(curr_res)
+        
+        return res
+
+
+# recursive solution
+# use a list of list
+# use level to indicate where to push
+# use level and res.size() to decide whether add a [] to res
+class Solution:
+    def levelOrder(self, root: Optional[TreeNode]) -> List[List[int]]:
+        res = []
+        self.helper(root, 0, res)
+        return res
+
+    def helper(self, root, level, res):
+        if root is None:
+            return None
+        
+        if len(res) < level+1:
+            # key: create [] for level
+            res.append([])
+        res[level].append(root.val)
+
+        self.helper(root.left, level+1, res)
+        self.helper(root.right, level+1, res)
+        return None
+
+
+
+"""Serialize and Deserialize Binary Tree 二叉树的序列化和去序列化
+Serialization is the process of converting a data structure or object into a sequence of bits so that it can be stored
+in a file or memory buffer, or transmitted across a network connection link to be reconstructed later in the same or
+another computer environment.
+
+Design an algorithm to serialize and deserialize a binary tree. There is no restriction on how your
+serialization/deserialization algorithm should work. You just need to ensure that a binary tree can be serialized to a
+ string and this string can be deserialized to the original tree structure.
+
+For example, you may serialize the following tree
+    1
+   / \
+  2   3
+     / \
+    4   5
+as "[1,2,3,null,null,4,5]", just the same as how LeetCode OJ serializes a binary tree. You do not necessarily need to
+follow this format, so please be creative and come up with different approaches yourself.
+"""
+# Definition for a binary tree node.
+class TreeNode(object):
+    def __init__(self, x):
+        self.val = x
+        self.left = None
+        self.right = None
+
+# solution 1: BFS
+class Codec:
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+        
+        :type root: TreeNode
+        :rtype: str
+        """
+        res = ""
+        q = deque()
+        q.append(root)
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr_node = q.popleft()
+                if curr_node:
+                    res = f"{res}{curr_node.val},"
+                    q.append(curr_node.left)
+                    q.append(curr_node.right)
+                else:
+                    res = f"{res}#,"
+        # 1,2,3,#,#,4,5,#,#,#,#
+        return res.strip(',')  # remove the end comma
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+        
+        :type data: str
+        :rtype: TreeNode
+        """
+        data = data.split(',')
+        if data[0] == '#':
+            return None
+        root = TreeNode(int(data[0]))
+        q = deque()
+        q.append(root)
+        idx = 1
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr_node = q.popleft()
+                if data[idx] != '#':
+                    curr_node.left = TreeNode(int(data[idx]))
+                    q.append(curr_node.left)
+                idx = idx + 1
+                if data[idx] != '#':
+                    curr_node.right = TreeNode(int(data[idx]))
+                    q.append(curr_node.right)
+                idx = idx + 1
+        
+        return root
+
+        
+# solution 2: di gui ???
+class Codec:
+    def serialize(self, root):
+        """Encodes a tree to a single string.
+        
+        :type root: TreeNode
+        :rtype: str
+        """
+        res = ""
+        self.serialize_helper(root, res)
+        return res.strip(",")
+    
+    def serialize_helper(self, root, res):
+        if root is None:
+            res = f"{res}#,"
+        else:
+            res = f"{res}{root.val},"
+            self.serialize_helper(root.left, res)
+            self.serialize_helper(root.right, res)
+        return None
+
+    def deserialize(self, data):
+        """Decodes your encoded data to tree.
+        
+        :type data: str
+        :rtype: TreeNode
+        """
+        data = data.split(',')
+        if data[0] == '' or data[0] == '#':
+            return None
+        return self.deserialize_helper(data)
+
+        # root = TreeNode(int(data[0]))
+        # data = ','.join(data[1:])
+        # root.left = self.deserialize(data)
+        # root.right = self.deserialize(data)
+        # return root
+        
+    def deserialize_helper(self, res):
+        # res is a list
+        if res[0] == '#':
+            return None
+        root = TreeNode(int(res[0]))
+        res = res[1:]
+        root.left = self.deserialize_helper(res)
+        root.right = self.deserialize_helper(res)
+        return root
+
+
+class Codec: # ???
+    def serialize(self, root):
+        return ','.join(self.serialize_helper(root))
+    
+    def serialize_helper(self, root):
+        # write your code here
+        if not root:
+            return ['#']
+        ans = []
+        ans.append(str(root.val))
+        ans += self.serialize(root.left)
+        ans += self.serialize(root.right)
+        return ans
+
+    def deserialize(self, data):
+        return self.deserialize_helper(data.split(','))
+
+    def deserialize_helper(self, data):
+        # write your code here
+        ch = data.pop(0)
+        if ch == '#':
+            return None
+        else:
+            root = TreeNode(int(ch))
+        root.left = self.deserialize(data)
+        root.right = self.deserialize(data)
+        return root
+
+
+"""[LeetCode] 314. Binary Tree Vertical Order Traversal 二叉树的竖直遍历
+
+Given a binary tree, return the vertical order traversal of its nodes' values. (ie, from top to bottom, column by column).
+
+If two nodes are in the same row and column, the order should be from left to right.
+
+Examples 1:
+Input: 
+[3,9,20,null,null,15,7]
+
+   3
+  /\
+ /  \
+ 9  20
+    /\
+   /  \
+  15   7 
+
+Output:
+
+[
+  [9],
+  [3,15],
+  [20],
+  [7]
+]
+
+BFS: use (node, order_idx (vertical order), time (horizontal order)) to push, 
+left child has order_idx - 1, right + 1
+for every new node, has time+1  # in case order, if order and val is the same, need to use time to sort
+用一个 TreeMap 来建立序号和其对应的节点值的映射，用 TreeMap 的另一个好处是其自动排序功能可以让列从左到右
+"""
+# Definition for a binary tree node.
+from collections import defaultdict
+
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution_BFS:
+    # recommend DFS below
+    def verticalTraversal(self, root: Optional[TreeNode]) -> List[List[int]]:
+        
+        # when level + 1, then left child order =- 1, right order =+ 1
+        q = deque()
+        q.append((0, root, 0))  # order, node, time
+        m = defaultdict(list)  # key as order, value as (time, node.val)
+        while len(q) > 0:
+            for _ in range(len(q)):
+                order_idx, curr_node, t = q.popleft()
+                if curr_node:
+                    m[order_idx].append((t, curr_node.val))
+                    if curr_node.left:
+                        q.append((order_idx-1, curr_node.left, t+1))  # time(horizontal order)+1
+                    if curr_node.right:
+                        q.append((order_idx+1, curr_node.right, t+1))
+        
+        res = []
+        for k in sorted(m.keys()):
+            sorted_tup = sorted(m[k], key=lambda x:(x[0], x[1])) # sort by time and val
+            res.append([tup[1] for tup in sorted_tup])  
+        
+        return res
+
+# DFS: similarly, build a hashmap, and recursively save vertical, horizontal locations and val
+# then sort by vertical, horizontal and val
+class Solution_DFS:
+    def verticalTraversal(self, root: Optional[TreeNode]) -> List[List[int]]:
+        if root is None:
+            return []
+        m = defaultdict(list)
+        self.dfs_helper(root, 0, 0, m)
+        res = []
+        for k in sorted(m.keys()): # sort by v
+            sorted_tup = sorted(m[k], key=lambda x: (x[0], x[1])) # sort by h and val
+            res.append([tup[1] for tup in sorted_tup])
+        return res
+
+    def dfs_helper(self, node, v, h, m):
+        if node is None:
+            return None
+        m[v].append((h, node.val))
+        self.dfs_helper(node.left, v-1, h+1, m)
+        self.dfs_helper(node.right, v+1, h+1, m)
+        return None
+
+
+""" Clone Graph
+Given a reference of a node in a connected undirected graph.
+
+Return a deep copy (clone) of the graph.
+
+Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
+
+class Node {
+    public int val;
+    public List<Node> neighbors;
+}
+"""
+from collections import deque, defaultdict
+
+class Node:
+    def __init__(self, val = 0, neighbors = None):
+        self.val = val
+        self.neighbors = neighbors if neighbors is not None else []
+
+class Solution:
+    # BFS
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        if node is None:
+            return None
+        m = defaultdict()  # map from old node to new node
+        q = deque()
+        q.append(node)
+        new_node = Node(node.val)
+        m[node] = new_node
+        while len(q) > 0:
+            curr_old_node = q.popleft()
+            for old_neighbor in curr_old_node.neighbors:
+                if old_neighbor not in m:
+                    new_neighbor = Node(old_neighbor.val)
+                    m[old_neighbor] = new_neighbor
+                    q.append(old_neighbor)
+                
+                m[curr_old_node].neighbors.append(m[old_neighbor])
+
+        return m[node]
+
+
+# DFS
+class Solution:
+    def cloneGraph(self, node: 'Node') -> 'Node':
+        if node is None:
+            return None
+        m = defaultdict()  # map from old node to new node
+        # new_node = Node(node.val)
+        # m[node] = new_node
+        self.helper(node, m)
+        return m[node]
+
+    def helper(self, node, m):
+        if node in m:
+            return m[node]
+        m[node] = Node(node.val)
+        # given old node and m, given the new node
+        for old_neighbor in node.neighbors:
+            m[old_neighbor] = self.helper(old_neighbor, m)
+            m[node].neighbors.append(m[old_neighbor])
+
+        return m[node]
+
+
+
+"""[LeetCode] 815. Bus Routes 公交线路
+
+We have a list of bus routes. Each routes[i] is a bus route that the i-th bus repeats forever. 
+For example if routes[0] = [1, 5, 7], this means that the first bus (0-th indexed) 
+travels in the sequence 1->5->7->1->5->7->1->... forever.
+
+We start at bus stop S (initially not on a bus), and we want to go to bus stop T. 
+Travelling by buses only, what is the least number of buses we must take to reach our 
+destination? Return -1 if it is not possible.
+
+Example:
+Input: 
+routes = [[1, 2, 7], [3, 6, 7]]
+S = 1
+T = 6
+Output: 2
+"""
+
+routes = [[7,12],[4,5,15],[6],[15,19],[9,12,13]]
+source = 15
+target = 12
+
+from collections import defaultdict, deque
+
+class Solution:
+    def numBusesToDestination(self, routes: List[List[int]], source: int, target: int) -> int:
+        if source == target:
+            return 0
+        
+        stop2bus = defaultdict(list)
+        for bus_idx, route in enumerate(routes):
+            for stop in route:
+                stop2bus[stop].append(bus_idx)
+        
+        res = 1
+        q = deque()
+        visited_bus = set()
+        for bus in stop2bus[source]:
+            q.append(bus)
+            visited_bus.add(bus)
+
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr_bus = q.popleft()
+                if target in routes[curr_bus]:
+                    return res
+                for stop_in_curr_bus in routes[curr_bus]:
+                    for next_bus in stop2bus[stop_in_curr_bus]:
+                        if next_bus not in visited_bus:
+                            q.append(next_bus)
+                            visited_bus.add(next_bus)
+
+            res = res + 1
+        return -1
+
+
+routes = [[1,2,7],[3,6,7]]
+source = 1
+target = 6
+# use stop instead of bus
+class Solution:
+    def numBusesToDestination(self, routes: List[List[int]], source: int, target: int) -> int:        
+        stop2bus = defaultdict(list)
+        for bus_idx, route in enumerate(routes):
+            for stop in route:
+                stop2bus[stop].append(bus_idx)
+        
+        q = deque()
+        q.append((source, 0))
+        visited_stop = set([source])
+
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr_stop, curr_step = q.popleft()
+                if curr_stop == target:
+                    return curr_step
+                for curr_bus in stop2bus[curr_stop]:
+                    for stop in routes[curr_bus]:
+                        if stop not in visited_stop:
+                            q.append((stop, curr_step+1))
+                            visited_stop.add(stop)
+                    routes[curr_bus] = []  # set empty 
+        
+        return -1
+
+
+"""Shortest Distance from All Buildings 建筑物的最短距离 
+You want to build a house on an empty land which reaches all buildings in the 
+shortest amount of distance. You can only move up, down, left and right. You 
+are given a 2D grid of values 0, 1 or 2, where:
+•Each 0 marks an empty land which you can pass by freely.
+•Each 1 marks a building which you cannot pass through.
+•Each 2 marks an obstacle which you cannot pass through.
+
+For example, given three buildings at (0,0), (0,4), (2,2), and an obstacle at (0,2):
+1 - 0 - 2 - 0 - 1
+|   |   |   |   |
+0 - 0 - 0 - 0 - 0
+|   |   |   |   |
+0 - 0 - 1 - 0 - 0
+
+The point (1,2) is an ideal empty land to build a house, as the total travel 
+distance of 3+3+1=7 is minimal. So return 7.
+
+Note:
+There will be at least one building. If it is not possible to build such house 
+according to the above rules, return -1.
+
+BFS遍历，对每个building都建立一个dist的距离场，加起来。实际中可以有一个去cumulate
+"""
+grid = [
+    [1, 0, 2, 0, 1], 
+    [0, 0, 0, 0, 0], 
+    [0, 0, 1, 0, 0]
+    ]
+
+grid = [
+    [1, 0, 1, 0, 1], 
+    [0, 0, 0, 0, 0], 
+    [0, 0, 1, 0, 0]
+    ]
+"""
+Step 0 initial dist matrix
+[[inf, 0, inf, 0, inf], 
+[0, 0, 0, 0, 0], 
+[0, 0, inf, 0, 0]]
+
+Step 1 dist matrix
+[[<inf>, 1, inf, 5, inf], 
+[1, 2, 3, 4, 5], 
+[2, 3, inf, 5, 6]]
+
+Step 2 cumulatively add dist
+[[inf, 2, <inf>, 6, inf], 
+[4, 4, 4, 6, 8], 
+[6, 6, inf, 8, 10]]
+"""
+
+def shortestDistance(grid):
+    num_buildings = 0
+    nrows = len(grid)
+    ncols = len(grid[0])
+    dist = [[float('Inf') for _ in range(ncols)] for _ in range(nrows)]
+    visitable = [[0 for _ in range(ncols)] for _ in range(nrows)]
+    for i in range(nrows):
+        for j in range(ncols):
+            if grid[i][j] == 1:
+                num_buildings += 1
+                update_distance(i, j, grid, dist, visitable)
+    res = float('Inf')
+    for i in range(nrows):
+        for j in range(ncols):
+            if visitable[i][j] == num_buildings:
+                # (i,j) reachable by num of buildings
+                res = min(res, dist[i][j])
+    
+    return res if res < float('Inf') else -1
+
+
+def update_distance(i, j, grid, dist, visitable):
+    nrows = len(grid)
+    ncols = len(grid[0])
+    # for building X at gird[i][j], update dist matrix
+    visited = [[False for _ in range(ncols)] for _ in range(nrows)]
+    q = deque()
+    q.append((i, j, 0))
+    visited[i][j] = True
+    directs = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+    while len(q) > 0:
+        for _ in range(len(q)):
+            curr_i, curr_j, curr_dist = q.popleft()
+            for direct in directs:
+                next_i, next_j = curr_i+direct[0], curr_j+direct[1]
+                if 0<=next_i<nrows and 0<=next_j<ncols and grid[next_i][next_j]==0 and visited[next_i][next_j] is False:
+                    q.append((next_i, next_j, curr_dist+1))
+                    visitable[next_i][next_j] += 1
+                    visited[next_i][next_j] = True
+                    if dist[next_i][next_j] == float('Inf'):
+                        dist[next_i][next_j] = curr_dist+1
+                    else:
+                        dist[next_i][next_j] = dist[next_i][next_j] + curr_dist+1
+
+    return None
+
+
+shortestDistance(grid)
+
+
+"""1293. Shortest Path in a Grid with Obstacles Elimination
+You are given an m x n integer matrix grid where each cell is either 0 (empty) or 1 (obstacle). 
+You can move up, down, left, or right from and to an empty cell in one step.
+
+Return the minimum number of steps to walk from the upper left corner (0, 0) to the lower 
+right corner (m - 1, n - 1) given that you can eliminate at most k obstacles. If it is not possible to find such walk return -1.
+
+hint: use a triple to save status, (row, col, curr_k) (how many elimination happens) in stead of (row, col)
+"""
+
+grid = [[0,0,0],[1,1,0],[0,0,0],[0,1,1],[0,0,0]]; k = 1  # 6
+grid = [[0,1,1],[1,1,1],[1,0,0]]; k = 1  # -1
+grid = [[0,0],[1,0],[1,0],[1,0],[1,0],[1,0],[0,0],[0,1],[0,1],[0,1],[0,0],[1,0],[1,0],[0,0]]; k=4  # 14
+
+class Solution:
+    def shortestPath(self, grid, k: int) -> int:
+        nrows, ncols = len(grid), len(grid[0])
+        visited = set((0, 0, 0))
+        q = deque()
+        q.append((0, 0, 0, 0))  # i, j, dist, k
+        directs = [(-1, 0), (0, -1), (1, 0), (0, 1)]
+
+        while len(q) > 0:
+            for _ in range(len(q)):
+                i, j, curr_dist, curr_k = q.popleft()
+                if i==nrows-1 and j == ncols - 1:
+                    return curr_dist
+                    # print(curr_dist)
+                for direct in directs:
+                    next_i, next_j = i+direct[0], j+direct[1]
+                    if 0<=next_i<nrows and 0<=next_j<ncols:
+                        # two scenarios:
+                        if grid[next_i][next_j] == 0 and (next_i, next_j, curr_k) not in visited:
+                            visited.add((next_i, next_j, curr_k))
+                            q.append((next_i, next_j, curr_dist+1, curr_k))
+                        elif grid[next_i][next_j] == 1 and curr_k + 1 <= k and (next_i, next_j, curr_k+1) not in visited:
+                            visited.add((next_i, next_j, curr_k+1))
+                            q.append((next_i, next_j, curr_dist+1, curr_k+1))
+        
+        return -1
+
+
+sol=Solution()
+sol.shortestPath(grid, k)
+
+
+
+"""Sequence Reconstruction 序列重建
+Check whether the original sequence org can be uniquely reconstructed from the sequences in seqs. The org sequence is a 
+permutation of the integers from 1 to n, with 1 ≤ n ≤ 104. Reconstruction means building a shortest common supersequence
+ of the sequences in seqs (i.e., a shortest sequence so that all sequences in seqs are subsequences of it). Determine 
+ whether there is only one sequence that can be reconstructed from seqs and it is the org sequence.
+
+Example 1:
+
+Input:
+org: [1,2,3], seqs: [[1,2],[1,3]]
+
+Output:
+false
+
+Example 3:
+
+Input:
+org: [1,2,3], seqs: [[1,2],[1,3],[2,3]]
+
+Output:
+true
+
+Input:org = [4,1,5,2,6,3], seqs = [[5,2,6,3],[4,1,5,2]]
+Output:true
+
+和course schedule ii 思路相似，利用seqs来重构org，如果发现1）无法重构2）有多种情况就返回false
+多种情况的判断基于是否每一步q里都只有一个元素加进来（indegree为0的只有一个）
+# https://www.lintcode.com/problem/605/solution/34974
+"""
+from collections import defaultdict, deque
+
+org = [1,2,3]; seqs = [[1,2],[1,3]]
+org = [4,1,5,2,6,3]; seqs = [[5,2,6,3],[4,1,5,2]]
+# idea, [1,2,3] the position of 2 is confirmed only when we see [1,2], therefore [1,3] does not mean anything
+def sequenceReconstruction(org, seqs):
+    pre_m = defaultdict(list)  # m[p] = c: p is before c
+    indegree = dict()  # how many numbers in front
+    for seq in seqs:
+        for i in range(len(seq)-1):
+            pre_m[seq[i]].append(seq[i+1])
+            indegree[seq[i+1]] = 1 if seq[i+1] not in indegree else indegree[seq[i+1]] + 1
+            # indegree[seq[i+1]] = indegree.get(seq[i+1], 0) + 1
+    
+    n_org = len(org)
+    q = deque()
+    for seq in seqs:
+        for i in range(len(seq)): 
+            if seq[i] < 1 or seq[i] > n_org:
+                # 1-n
+                # print(-1)
+                return False
+            # put all numbers that have no pre in the queue
+            if seq[i] not in indegree:
+                q.append(seq[i])
+    res = []  # reconstruct results
+    while len(q) > 0:
+        if len(q) > 1:
+            # have +1 option for the next
+            return False
+        curr_num = q.popleft()
+        res.append(curr_num)
+        # update indegree based on pre_m
+        for num in pre_m[curr_num]:
+            indegree[num] -= 1
+            if indegree[num] == 0:
+                q.append(num)
+    if res == org:
+        return True 
+    return False
+
+
+sequenceReconstruction(org, seqs)
+sequenceReconstruction([4,1,5,2,6,3], [[5,2,6,3],[4,1,5,2]])
+
+
+"""[LeetCode] 269. Alien Dictionary 另类字典
+There is a new alien language which uses the latin alphabet. However, the order 
+among letters are unknown to you. You receive a list of non-empty words from the 
+dictionary, where words are sorted lexicographically by the rules of this new language. 
+Derive the order of letters in this language.
+
+Example 1:
+Input: ["wrt","wrf","er","ett","rftt"]
+Output："wertf"
+
+Example 2
+Input：["z","x"]
+Output："zx"
+Explanation：
+from "z" and "x"，we can get 'z' < 'x'
+So return "zx"
+
+# 如果同时在indegree==0的字符里出现了 b 和 c，先输出正常字典序最小的，所以这里使用最小堆很对口。
+"""
+
+from collections import defaultdict
+import heapq
+words = ["wrt","wrf","er","ett","rftt"]
+words = ["ca", "cb"]  # abc
+alienOrder(words)
+
+def alienOrder(words):
+    # Write your code here
+    n_words = len(words)
+    pre_m = defaultdict(list)
+    indegree = dict()
+    set_unique_letters = set(''.join(words))
+    num_unique_letters = len(set_unique_letters)
+
+    # first go through word by word: no such limitation!!!!
+    # for word in words:
+    #     for i in range(len(word)-1):
+    #         if word[i] != word[i+1] and word[i+1] not in pre_m[word[i]]:
+    #             pre_m[word[i]].append(word[i+1])  # p -> c
+    #             indegree[word[i+1]] = indegree.get(word[i+1], 0) + 1
+
+    # second go through index of diff words
+    for word_idx in range(n_words - 1):
+        curr_word, next_word = words[word_idx], words[word_idx+1]
+        min_word_len = min(len(curr_word), len(next_word))
+        for loc_idx in range(min_word_len):
+            if curr_word[loc_idx] == next_word[loc_idx]:
+                continue
+            if next_word[loc_idx] not in pre_m[curr_word[loc_idx]]:
+                pre_m[curr_word[loc_idx]].append(next_word[loc_idx])  # p -> c
+                indegree[next_word[loc_idx]] = indegree.get(next_word[loc_idx], 0) + 1
+                break
+    
+    # q = deque()  # not meet lexicograph condition
+    q = []
+    heapq.heapify(q)  # due to lexigraphical order, ["ca", "cb"] -> abc not cab
+    for letter in set_unique_letters:
+        if letter not in indegree:
+            heapq.heappush(q, letter)
+    
+    res = ""
+    while len(q) > 0:
+        curr_letter = heapq.heappop(q)
+        res = res + curr_letter
+        for next_letter in pre_m[curr_letter]:
+            indegree[next_letter] = indegree[next_letter] - 1
+            if indegree[next_letter] <= 0:
+                # same letter can be de-indegree for several times, "attt"
+                q.append(next_letter)
+    
+    return res if len(res) == num_unique_letters else ""
+
+        
+"""
+##############################################################################
+深度优先搜索（DFS）
+##############################################################################
+1) 图中（有向无向皆可）的符合某种特征（比如最长）的路径以及长度
+2）排列组合
+3）遍历一个图（或者树）
+4）找出图或者树中符合题目要求的全部方案
+"""
+
+"""[LeetCode] Diameter of Binary Tree 二叉树的直径 !!!
+Given a binary tree, you need to compute the length of the diameter of the tree. 
+The diameter of a binary tree is the length of the longestpath between any two nodes 
+in a tree. This path may or may not pass through the root.
+
+Example:
+Given a binary tree 
+
+          1
+         / \
+        2   3
+       / \     
+      4   5    
+
+
+Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
+根结点1的左右两个子树的深度之和呢。那么我们只要对每一个结点求出其左右子树深度之和，
+这个值作为一个候选值，然后再对左右子结点分别调用求直径对递归函数，这三个值相互比较，
+取最大的值更新结果res，因为直径不一定会经过根结点，所以才要对左右子结点再分别算一次。
+
+为了减少重复计算，我们用哈希表建立每个结点和其深度之间的映射，这样某个结点的深度之前计算过了，就不用再次计算了
+"""
+# Definition for a binary tree node.
+class TreeNode:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class Solution:
+    def __init__(self):
+        self.m = dict()
+    
+    def diameterOfBinaryTree(self, root) -> int:
+        if root is None:
+            return 0
+        res = self.getHeight(root.left) + self.getHeight(root.right)
+        res = max(res, self.diameterOfBinaryTree(root.left))
+        res = max(res, self.diameterOfBinaryTree(root.right))
+        return res
+    
+    def getHeight(self, root):
+        if root is None:
+            return 0
+        if root in self.m:
+            return self.m[root]
+        return 1 + max(self.getHeight(root.left), self.getHeight(root.right))
+    
+
+"""[LeetCode] Invert Binary Tree 翻转二叉树
+
+Invert a binary tree.
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+
+     4
+   /   \
+  2     7
+ / \   / \
+1   3 6   9
+to
+
+     4
+   /   \
+  7     2
+ / \   / \
+9   6 3   1
+
+# can you use two approaches: recursive and non-recursive? 
+"""
+
+class Solution_DFS:
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root is None:
+            return None
+        temp_node = root.left
+        root.left = self.invertTree(root.right)
+        root.right = self.invertTree(temp_node)
+        return root
+
+
+class Solution_BFS:
+    # 先把根节点排入队列中，然后从队中取出来，交换其左右节点，如果存在则分别将
+    # 左右节点在排入队列中，以此类推直到队列中木有节点了停止循环，返回root即可
+    def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
+        if root is None:
+            return None
+        q = deque()
+        q.append(root)
+        while len(q) > 0:
+            curr_node = q.popleft()
+            # swap left and right
+            temp_node = curr_node.left
+            curr_node.left = curr_node.right
+            curr_node.right = temp_node
+            if curr_node.left:
+                q.append(curr_node.left)
+            if curr_node.right:
+                q.append(curr_node.right)
+        
+        return root 
+
+            # add left and right into queue
+
+
+"""[LeetCode] Symmetric Tree 判断对称树
+ 
+
+Given a binary tree, check whether it is a mirror of itself (ie, symmetric around its center).
+
+For example, this binary tree is symmetric:
+    1
+   / \
+  2   2
+ / \ / \
+3  4 4  3
+
+But the following is not:
+
+    1
+   / \
+  2   2
+   \   \
+   3    3
+
+Note:
+Bonus points if you could solve it both recursively and iteratively.
+"""
+class Solution_DFS:
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        if root is None or (root.left is None and root.right is None):
+            return True
+        return self.isSymPair(root.left, root.right)
+    
+    def isSymPair(self, node1, node2):
+        # whether node1 and node2 are sym trees
+        if node1 is None and node2 is None:
+            return True
+        if (node1 and not node2) or (not node1 and node2):
+            return False
+        if node1.val != node2.val:
+            return False
+        return self.isSymPair(node1.left, node2.right) and self.isSymPair(node1.right, node2.left)
+
+
+class Solution_BFS:
+    def isSymmetric(self, root: Optional[TreeNode]) -> bool:
+        # use two queues for left and right child
+        if root is None or (root.left is None and root.right is None):
+            return True
+        if (root.left and not root.right) or (not root.left and root.right):
+            return False
+        
+        q1 = deque()
+        q2 = deque()
+        q1.append(root.left)
+        q2.append(root.right)
+
+        while len(q1) >0 and len(q2)>0:
+            curr_l_node = q1.popleft()
+            curr_r_node = q2.popleft()
+            if not curr_l_node and not curr_r_node:
+                continue
+            elif curr_l_node and curr_r_node: 
+                if curr_l_node.val != curr_r_node.val:
+                    return False
+                q1.append(curr_l_node.left)
+                q2.append(curr_r_node.right)
+                q1.append(curr_l_node.right)
+                q2.append(curr_r_node.left)
+            else:
+                return False
+        
+        return True
+
+
+"""[LeetCode] 951. Flip Equivalent Binary Trees 翻转等价二叉树
+
+For a binary tree T, we can define a flip operation as follows: 
+choose any node, and swap the left and right child subtrees.
+
+A binary tree X is flip equivalent to a binary tree Y if and only 
+if we can make X equal to Y after some number of flip operations.
+
+Write a function that determines whether two binary trees are flip equivalent.  
+The trees are given by root nodes root1 and root2.
+"""
+
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def flipEquiv(self, root1: Optional[TreeNode], root2: Optional[TreeNode]) -> bool:
+        if root1 is None and root2 is None:
+            return True
+        if (root1 and not root2) or (not root1 and root2):
+            return False
+        if root1.val != root2.val:
+            return False
+        opt1 = self.flipEquiv(root1.left, root2.left) and self.flipEquiv(root1.right, root2.right)
+        opt2 = self.flipEquiv(root1.left, root2.right) and self.flipEquiv(root1.right, root2.left)
+        return opt1 or opt2
+
+
+"""Binary Tree Maximum Path Sum !!!
+A path in a binary tree is a sequence of nodes where each pair of adjacent nodes in 
+the sequence has an edge connecting them. A node can only appear in the sequence at 
+most once. Note that the path does not need to pass through the root.
+
+The path sum of a path is the sum of the node's values in the path.
+
+Given the root of a binary tree, return the maximum path sum of any non-empty path.
+Example 1:
+
+Input: [1,2,3]
+
+       1
+      / \
+     2   3
+
+Output: 6
+Example 2:
+
+Input: [-10,9,20,null,null,15,7]
+
+   -10
+   / \
+  9  20
+    /  \
+   15   7
+
+Output: 42
+
+
+讨论：这道题有一个很好的 Follow up，就是返回这个最大路径，那么就复杂很多，因为这样递归函数就不能返回路径和了，
+而是返回该路径上所有的结点组成的数组，递归的参数还要保留最大路径之和，同时还需要最大路径结点的数组，
+然后对左右子节点调用递归函数后得到的是数组，要统计出数组之和，并且跟0比较，如果小于0，和清零，数组清空。
+然后就是更新最大路径之和跟数组啦，还要拼出来返回值数组，代码长了很多
+"""
+class Solution:
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        self.res = float('-Inf')
+        if root is None:
+            return 0
+        self.helper(root)
+        return self.res
+    
+    def helper(self, node):
+        # 返回值的定义是以当前结点为终点的 path 之和
+        # res saves the required answer so far (based on current node)
+        if node is None:
+            return 0
+        # always first calculate the child before node
+        left_max = max(0, self.helper(node.left))
+        right_max = max(0, self.helper(node.right))
+        # if child is larger, it will not update res
+        self.res = max(self.res, left_max + right_max + node.val)
+        return node.val + max(left_max, right_max)
+
+
+class Solution:
+    # TLE
+    def maxPathSum(self, root: Optional[TreeNode]) -> int:
+        if root is None:
+            return 0
+        res_including_root = root.val + \
+            max(self.maxPathOnOneSide(root.left), 0) + \
+            max(self.maxPathOnOneSide(root.right), 0)
+        max_left = self.maxPathSum(root.left) if root.left else float('-Inf')  # repeat maxPathOnOneSide, should use a dict to save
+        max_right = self.maxPathSum(root.right) if root.right else float('-Inf')
+        res = max(max_left, max_right)
+        return max(res, res_including_root)
+
+    def maxPathOnOneSide(self, root):
+        # via root
+        if root is None:
+            return 0
+        left_max = max(self.maxPathOnOneSide(root.left), 0)
+        right_max = max(self.maxPathOnOneSide(root.right), 0)
+        return root.val + max(left_max, right_max)
+
+
+
+""" LeetCode 1644. Lowest Common Ancestor of a Binary Tree II
+Similar to 236, but possible that p or q not in the binary tree. 
+
+Given the root of a binary tree, return the lowest common ancestor (LCA) of two given nodes, p and q. 
+If either node p or q does not exist in the tree, return null. All values of the nodes in the tree are unique.
+
+According to the definition of LCA on Wikipedia: 
+"The lowest common ancestor of two nodes p and q in a binary tree T is the lowest node that 
+has both p and q as descendants (where we allow a node to be a descendant of itself)". 
+A descendant of a node x is a node y that is on the path from node x to some leaf node.
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+Output: 3
+Explanation: The LCA of nodes 5 and 1 is 3.
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 4
+Output: 5
+Explanation: The LCA of nodes 5 and 4 is 5. A node can be a descendant of itself according to the definition of LCA.
+
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 10
+Output: null
+Explanation: Node 10 does not exist in the tree, so return null.
+
+Follow up: what if treenode has a attribute of parental node? - use a hash set to store parents of p (till root),
+then from q go to root till the node is in set(). Return the node
+
+
+Solution 1: ltc236 + first pass check whether both p and q are in tree
+Solution 2: use (node, num of nodes) as return, only when node and num = 2 return true
+https://www.bilibili.com/video/BV1sf4y1x7Kn/
+
+"""
+class Solution:
+    def lowestCommonAncestor2(self, root, p, q):
+        res, num = helper(root, p, q)
+        if res and num == 2:
+            return res
+        return None
+
+    def helper(self, root, p, q):
+        if root is None:
+            return (None, 0)
+        left_node, left_num = self.helper(root.left)
+        right_node, right_num = self.helper(root.left)
+        if root == p or root == q:
+            return (root, 1 + left_num + right_num)
+        if left_node and right_node:
+            return (root, 2)
+        return (left_node, left_num) if left_node else (right_node, right_num)
+
+
+
+"""[LeetCode] 105. Construct Binary Tree from Preorder and Inorder Traversal 
+由先序和中序遍历建立二叉树
+ 
+Given preorder and inorder traversal of a tree, construct the binary tree.
+
+Note:
+You may assume that duplicates do not exist in the tree.
+
+For example, given
+
+preorder = [3,9,20,15,7]
+inorder = [9,3,15,20,7]
+Return the following binary tree:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+Output: [3,9,20,null,null,15,7]
+
+
+Solution: 由于先序的顺序的第一个肯定是根，所以原二叉树的根节点可以知道，题目中给了一个很关键的条件就是树中没有相同元素，
+有了这个条件就可以在中序遍历中也定位出根节点的位置，并以根节点的位置将中序遍历拆分为左右两个部分，分别对其递归调用原函数
+preorder:
+    3,      [9,                   ]   [20,                 15,7]
+l   rleft   rleft+1, rleft+i-ileft 
+r                                     rleft+i-ileft+1,    pright
+
+inorder: 
+    [9,        ] 3,   [15,20,7]
+l   ileft,  i-1, (i)
+r                      i+1,  iright    
+"""
+class Solution:
+    def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
+        return self.helper(preorder, 0, len(preorder)-1, inorder, 0, len(inorder)-1)
+    
+    def helper(self, preorder, pleft, pright, inorder, ileft, iright):
+        # use preorder to find the root, then locate its position in inorder
+        # then use the location to split both
+        if ileft > iright or pleft > pright:
+            # otherwise ileft may be out of index 
+            return None
+
+        curr_node_val = preorder[pleft]
+        curr_node = TreeNode(val=curr_node_val)
+
+        # locate left and right
+        # pleft + i - ileft -> left
+        # pleft 
+        loc = 0
+        for i in range(ileft, iright+1):
+            if inorder[i] == curr_node_val:
+                loc = i
+                break
+        # based on diff of i and ileft, i and iright to move p
+        curr_node.left = self.helper(preorder, pleft+1, pleft+loc-ileft, inorder, ileft, loc-1)
+        curr_node.right = self.helper(preorder, pleft+loc-ileft+1, pright, inorder, loc+1, iright) 
+        return curr_node
+
+
+"""[LeetCode] 106. Construct Binary Tree from Inorder and Postorder Traversal 由中序和后序遍历建立二叉树
+Given inorder and postorder traversal of a tree, construct the binary tree.
+Note:
+You may assume that duplicates do not exist in the tree.
+
+inorder = [9,3,15,20,7]
+postorder = [9,15,7,20,3]
+
+Return the following binary tree:
+
+    3
+   / \
+  9  20
+    /  \
+   15   7
+hint: the last num in postorder is root
+"""
+# omit 
+
+
+"""[LeetCode] 1485. Clone Binary Tree With Random Pointer
+A binary tree is given such that each node contains an additional random pointer which could point 
+to any node in the tree or null.
+
+Return a deep copy of the tree.
+
+The tree is represented in the same input/output way as normal binary trees where each node is 
+represented as a pair of [val, random_index] where:
+
+val: an integer representing Node.val
+random_index: the index of the node (in the input) where the random pointer points to, or null 
+if it does not point to any node.
+You will be given the tree in class Node and you should return the cloned tree in class NodeCopy. 
+NodeCopy class is just a clone of Node class with the same attributes and constructors.
+
+Input: root = [[1,null],null,[4,3],[7,0]]
+Output: [[1,null],null,[4,3],[7,0]]
+Explanation: The original binary tree is [1,null,4,7].
+The random pointer of node one is null, so it is represented as [1, null].
+The random pointer of node 4 is node 7, so it is represented as [4, 3] 
+where 3 is the index of node 7 in the array representing the tree.
+The random pointer of node 7 is node 1, so it is represented as [7, 0] 
+where 0 is the index of node 1 in the array representing the tree.
+
+Solution: 
+既然是深度复制，又是树的遍历，所以比较直观的感受是用BFS或者DFS做，在遍历树的每个节点的同时，将每个节点复制，用hashmap储存。
+
+首先是BFS。还是常规的层序遍历的思路去遍历树的每个节点，但是注意在做层序遍历的时候，
+只需要将左孩子和右孩子加入queue进行下一轮遍历，不需要加入random节点。
+
+时间O(n)
+空间O(n)
+"""
 
 
 

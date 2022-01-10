@@ -116,35 +116,37 @@ return the minimum total number of turns required to open the lock, or -1 if
 it is impossible.
 """
 format(10, '04d')
-
-def openlock(deadends, target):
-    hs = set()
-    q = deque()
-    hs.add("0000")
-    q.append("0000")
-    depth = 0
-    
-    while len(q) > 0:
-        for _ in range(len(q)):
-            curr = q.popleft()
-            if target == curr:
-                return depth
-            for j in neighbor(curr):
-                if j not in hs and j not in deadends:
-                    q.append(j)
-                    hs.add(j)
-        depth = depth + 1
-    return -1
+class Solution:
+    def openLock(self, deadends: List[str], target: str) -> int:
+        if '0000' in deadends or target in deadends:
+            return -1
+        hs = set()
+        q = deque()
+        hs.add("0000")
+        q.append("0000")
+        depth = 0
         
-def neighbor(s):
-    nbs = []
-    for i in range(4):
-        tmp = str(int(s[i]) + 1 if int(s[i]) < 9 else '0')
-        nbs.append(s[:i] + tmp + s[i+1:])
-        tmp = str(int(s[i]) - 1  if int(s[i]) > 0 else '9')
-        nbs.append(s[:i] + tmp + s[i+1:])
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr = q.popleft()
+                if target == curr:
+                    return depth
+                for j in self.neighbor(curr):
+                    if j not in hs and j not in deadends:
+                        q.append(j)
+                        hs.add(j)
+            depth = depth + 1
+        return -1
         
-    return nbs
+    def neighbor(self, s):
+        nbs = []
+        for i in range(4):
+            tmp = str(int(s[i]) + 1 if int(s[i]) < 9 else '0')
+            nbs.append(s[:i] + tmp + s[i+1:])
+            tmp = str(int(s[i]) - 1  if int(s[i]) > 0 else '9')
+            nbs.append(s[:i] + tmp + s[i+1:])
+            
+        return nbs
 
 openlock(deadends, target)
 deadends, target = ["0201","0101","0102","1212","2002"], "0202"
@@ -439,15 +441,44 @@ def shortestDistance(maze, start, destination):
     return res if res != float('inf') else -1
     
 maze = [[0,0,1,0,0],
-[0,0,0,0,0],
-[0,0,0,1,0],
-[1,1,0,1,1],
-[0,0,0,0,0]]
+        [0,0,0,0,0],
+        [0,0,0,1,0],
+        [1,1,0,1,1],
+        [0,0,0,0,0],]
+        # [0,0,0,0,0]]
 
+start, destination = (0, 4), (4, 4)
 shortestDistance(maze, (0, 4), (4, 4))
-
+shortestDistance_v2(maze, (0, 4), (4, 4))
 
 def shortestDistance_v2(maze, start, destination):
+    nrow, ncol = len(maze), len(maze[0])
+    directs = [(-1, 0), (0 ,-1), (1, 0), (0, 1)]
+    q = deque()
+    visited = [[False] * ncol for i in range(nrow)]  # record whether visit
+    q.append((start[0], start[1], 0))  # also store distance
+    visited[start[0]][start[1]] = True
+    res = -1
+    while len(q) > 0:
+        for _ in range(len(q)):
+            x0, y0, dist0 = q.popleft()
+            for curr_d in directs:
+                x, y, curr_dist = x0, y0, dist0
+                while 0<=x+curr_d[0]<=nrow-1 and 0<=y+curr_d[1]<=ncol-1 and maze[x+curr_d[0]][y+curr_d[1]]==0:
+                    x = x+curr_d[0]
+                    y = y+curr_d[1]
+                    curr_dist = curr_dist + 1
+                
+                if x==destination[0] and y==destination[1]:
+                    res = min(res, curr_dist) if res!=-1 else curr_dist
+                if visited[x][y] is False:
+                    q.append((x, y, curr_dist))
+                visited[x][y] = True
+    
+    return res
+
+
+def shortestDistance_v3(maze, start, destination):
     q = deque()
     q.append(start)
     res = [[float('Inf')]*len(maze) for i in len(maze[0])]
@@ -500,8 +531,7 @@ def numSquares(n):
 numSquares(13)
 
 
-"""
-Number of Connected Components in an Undirected Graph 
+"""323 Number of Connected Components in an Undirected Graph 
 Given n nodes labeled from 0 to n - 1 and a list of undirected edges (each edge
  is a pair of nodes),
  write a function to find the number of connected components in an undirected graph.
@@ -726,6 +756,7 @@ def findOrder(numCourses, prerequisites):
         return []
     else:
         return order
+    # return order if len(order) == numCourses else []
 
 findOrder(4, [[1,0],[2,0],[3,1],[3,2]])
 
@@ -832,6 +863,7 @@ def solve(board):
     return board
 
 def dfs(j, i, board):
+    m,n = len(board), len(board[0])
     if j < 0 or j > m-1 or i < 0 or i > n-1 or board[j][i] in ['I', 'X']:
         return None
     else:
@@ -847,7 +879,7 @@ solve([['X', 'X', 'X', 'X'], ['X', 'O', 'O', 'X'], ['X', 'X', 'O','X'],
 solve([['O', 'X', 'X', 'X'], ['X', 'X', 'O', 'X'], ['O', 'O', 'X','X'], 
          ['X', 'O', 'X', 'X']])
     
-"""
+""" 103. Binary Tree Zigzag Level Order Traversal
 Given a binary tree, return the zigzag level order traversal of its nodes' values. 
 (ie, from left to right, then right to left for the next level and alternate between).
 
@@ -1745,28 +1777,7 @@ def helper(set1):
         end = end - 1
     return res
 
-"""Shortest Distance from All Buildings 建筑物的最短距离 
-You want to build a house on an empty land which reaches all buildings in the 
-shortest amount of distance. You can only move up, down, left and right. You 
-are given a 2D grid of values 0, 1 or 2, where:
-•Each 0 marks an empty land which you can pass by freely.
-•Each 1 marks a building which you cannot pass through.
-•Each 2 marks an obstacle which you cannot pass through.
 
-For example, given three buildings at (0,0), (0,4), (2,2), and an obstacle at (0,2):
-1 - 0 - 2 - 0 - 1
-|   |   |   |   |
-0 - 0 - 0 - 0 - 0
-|   |   |   |   |
-0 - 0 - 1 - 0 - 0
-
-The point (1,2) is an ideal empty land to build a house, as the total travel 
-distance of 3+3+1=7 is minimal. So return 7.
-
-Note:
-There will be at least one building. If it is not possible to build such house 
-according to the above rules, return -1.
-"""
 
 
 """Minimum Height Trees 最小高度树 
@@ -2439,10 +2450,32 @@ for "ABDEFGABEF" are "BDEFGA" and "DEFGAB", with length 6. For "BBBB" the longes
 substring is “B”, with length 1. For “GEEKSFORGEEKS”, there are two longest 
 substrings shown in the below diagrams, with length 7.
 """
-
 s = "ABDEFGABEF"
+class Solution:
+    def lengthOfLongestSubstring(self, s: str):
+        m = dict()
+        l = 0
+        res = ""
+        max_len = 0
+        for r in range(len(s)):
+            m[s[r]] = m[s[r]] + 1 if s[r] in m else 1
+            if m[s[r]] <= 1:
+                # s[l:r+1] still unique
+                if max_len < r+1-l:
+                    res = s[l:r+1]
+                    max_len = r+1-l
+            else:
+                # s[l:r+1] contain s[r]
+                while m[s[r]] > 1:
+                    if s[l] in m:
+                        m[s[l]] = m[s[l]] - 1
+                    l = l + 1
+        
+        return max_len
+
+
 # idea is to use start to seperate the part that is abandoned
-def longestUniqueSubsttr(s):
+def lengthOfLongestSubstring(s):
     ht = {}
     res = 0
     temp_len = 0
@@ -2460,10 +2493,11 @@ def longestUniqueSubsttr(s):
                 
     return max(res, temp_len)
 
-longestUniqueSubsttr("ECBA")
-longestUniqueSubsttr("AAAABBCBA")
-longestUniqueSubsttr("ABDEFGABEF")
-longestUniqueSubsttr("GEEKSFORGEEKS")
+
+lengthOfLongestSubstring("ECBA")
+lengthOfLongestSubstring("AAAABBCBA")
+lengthOfLongestSubstring("ABDEFGABEF")
+lengthOfLongestSubstring("GEEKSFORGEEKS")
 
 
 """Simplify Path
@@ -2695,6 +2729,8 @@ defined between two nodes v and w as the lowest node in T that has both v and w
 For example, the lowest common ancestor (LCA) of nodes 5 and 1 is 3. Another example
 is LCA of nodes 5 and 4 is 5, since a node can be a descendant of itself according
 to the LCA definition.
+
+Follow up 1644. (not guarantee p and q exist)
 """
 def lowestCommonAncestor(root, p, q):
     if root == None or p == root or q == root:
@@ -4398,8 +4434,6 @@ def reverseList2(node):
     return head
 
 """Sequence Reconstruction 序列重建
- 
-
 Check whether the original sequence org can be uniquely reconstructed from the sequences in seqs. The org sequence is a 
 permutation of the integers from 1 to n, with 1 ≤ n ≤ 104. Reconstruction means building a shortest common supersequence
  of the sequences in seqs (i.e., a shortest sequence so that all sequences in seqs are subsequences of it). Determine 
