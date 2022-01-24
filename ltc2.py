@@ -1345,6 +1345,7 @@ def nextGreaterElements(nums):
                 res[stack[-1]] = nums[curr_i]
                 stack.pop()
         if i < n:
+            # 因为 res 的长度必须是n，超过n的部分我们只是为了给之前栈中的数字找较大值，所以不能压入栈，
             stack.append(i)
     return res
 
@@ -1863,7 +1864,7 @@ def findMinHeightTrees(n, edges):
     return [i for i in q]
 
 
-"""Decode String
+"""394. Decode String
 Given an encoded string, return it's decoded string.
 
 The encoding rule is: k[encoded_string], where the encoded_string inside the 
@@ -1881,43 +1882,9 @@ Examples:
 s = "3[a]2[bc]", return "aaabcbc".
 s = "3[a2[c]]", return "accaccacc".
 s = "2[abc]3[cd]ef", return "abcabccdcdcdef".
+
+See ltc2021.py
 """
-s = "2[abc]3[cd]ef"
-
-decodeString("3[a]2[bc]")
-decodeString("3[a2[c]]")
-decodeString("2[abc]3[cd]ef")
-
-def decodeString(s):
-
-    n = len(s)
-    res = ""
-    temp_num = ""
-    temp_str = ""
-    s_num = [] # stack for num
-    s_str = [] # stack for string
-    for i in range(n):
-        if s[i].isdigit():
-            temp_num = temp_num + s[i]
-        if s[i].isalpha():
-            temp_str = temp_str + s[i]
-            if i < n - 1 and (s[i+1].isdigit() or s[i+1] == ']'):
-                s_str.append(temp_str)
-                temp_str = ""
-        if s[i] == '[':
-            s_num.append(int(temp_num))
-            temp_num = ""
-        if s[i] == ']':
-            num0 = s_num.pop()
-            str0 = s_str.pop()
-            rep_str = str0 * num0
-            if len(s_str) == 0:
-                res = res + rep_str
-            else:
-                s_str.append(s_str.pop() + rep_str)
-            temp_str = ""
-            temp_num = ""
-    return res + temp_str
 
 """Basic Calculator 基本计算器 
 Implement a basic calculator to evaluate a simple expression string.
@@ -2398,7 +2365,26 @@ def phone(s):
             
 phone(s)
 
-
+class Solution:
+    def letterCombinations(self, digits: str) -> List[str]:
+        if len(digits) == 0:
+            return []
+        ht = {}
+        ht['1'] = ''   ; ht['2'] = 'abc'; ht['3'] = 'def'
+        ht['4'] = 'ghi'; ht['5'] = 'jkl'; ht['6'] = 'mno'
+        ht['7'] = 'pqrs'; ht['8'] = 'tuv'; ht['9'] = 'wxyz'
+        q = deque()
+        q.append('')
+        for i in digits:
+            if i == '1':
+                continue
+            for _ in range(len(q)):
+                tmp = q.popleft()
+                for j in ht[i]:
+                    q.append(tmp + j)
+        return list(q)
+            
+        
 """Converting Decimal Number lying between 1 to 3999 to Roman Numerals
 Given a number, find its corresponding Roman numeral.
  Example: 
@@ -2863,8 +2849,25 @@ def helper(out, s, nl, nr):
     helper(out, s+'(', nl-1, nr)
     helper(out, s+')', nl, nr-1)
     return None
-    
 
+class Solution:
+    def generateParenthesis(self, n: int) -> List[str]:
+        self.res = []
+        curr_str = ""
+        self.helper(curr_str, n, 0)
+        return self.res
+
+    def helper(self, curr_str, rem_left, curr_l_minus_r):
+        if rem_left ==0 and curr_l_minus_r == 0:
+            self.res.append(curr_str)
+            return None
+        if rem_left < 0 or curr_l_minus_r < 0:
+            return None
+        self.helper(curr_str + "(", rem_left-1, curr_l_minus_r+1)
+        self.helper(curr_str + ")", rem_left, curr_l_minus_r-1)
+        return None
+
+    
 geneParenthesis(3)
 len(geneParenthesis(4))
 
@@ -4705,39 +4708,43 @@ another if and only if one island can be translated (and not rotated or reflecte
 
 Given the above grid map, return 3.
 """
-grid1 = ["11011", "10000", "00001", "11011"]
-grid2 = ["11011", "10000", "00011", "11001"]
+grid1 = ["11011", "10000", "00001", "11011"]  # 3
+grid2 = ["11011", "10000", "00011", "11011"]  # 3
+grid3 = ["11011", "10000", "00011", "11001"]  # 3
+grid4 = ["11011", "01000", "00011", "11001"]  # 2
 
+numDistinctIslands(grid1)
 numDistinctIslands(grid2)
-
+numDistinctIslands(grid3)
+numDistinctIslands(grid4)
 
 def numDistinctIslands(grid):
     nrow = len(grid)
     ncol = len(grid[0])
-    visited = [[False] * ncol for _ in range(nrow)]
+    visited = [[False for _ in range(ncol)] for _ in range(nrow)]
     hs = set()
-    cnt = 0
     for i in range(nrow):
         for j in range(ncol):
             if grid[i][j] == '1' and visited[i][j] == False:
-                island = ['']
-                explore(grid, visited, i, j, island)
-                if island[0] not in hs:
-                    hs.add(island[0])
-                    cnt = cnt + 1
+                visited[i][j] = True
+                curr_island = [""]
+                explore(grid, visited, i,j, i, j, curr_island)
+                if curr_island[0] not in hs:
+                    hs.add(curr_island[0])
 
-    return cnt
+    return len(hs)
 
-
-def explore(grid, visited, i, j, curr_island):
-    visited[i][j] = True
+def explore(grid, visited, i, j, origin_i, origin_j, curr_island):
+    # need origin_i and j to calculate the relative location of curr_i, j to them
     for loc_i, loc_j in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
         cur_i = i + loc_i
         cur_j = j + loc_j
         if 0 <= cur_i < len(grid) and 0 <= cur_j < len(grid[0]) and grid[cur_i][cur_j] == '1' and visited[cur_i][
             cur_j] == False:
-            curr_island[0] = curr_island[0] + str(loc_i) + '_' + str(loc_j) + '+'
-            explore(grid, visited, cur_i, cur_j, curr_island)
+            visited[cur_i][cur_j] = True
+            curr_island[0] = curr_island[0] + str(cur_i-origin_i) + '_' + str(cur_j-origin_j) + '+'
+            explore(grid, visited, cur_i, cur_j, origin_i, origin_j, curr_island)
+                   
     return None
 
 

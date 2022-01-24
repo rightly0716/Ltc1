@@ -232,14 +232,14 @@ def distribute_space(n, k):
   output.append(0)
   return output
 
-"""
+
+""" 560. Subarray Sum Equals K
 # Given an array of integers and an integer k, 
 # you need to find the total number of continuous subarrays whose sum equals to k.
 # Example 1:
 # Input:nums = [1,1,1], k = 2
 # Output: 2
 """
-
 def num_subarrays(nums, k):
   # first cumsum 
   res = 0
@@ -265,7 +265,8 @@ def cumsum(nums):
       ht[sum_so_far]+=1
   return cumsum_arr, hs
 
-"""
+
+""" 797. All Paths From Source to Target
 # s1 = [(1, 2), (1, 3), (3, 4), (4,6), (2,3)]
 # output: [[1,2,3,4,6], [1,3,4,6]]
 """
@@ -300,7 +301,8 @@ def build_map(input_list):
 
 """
 [LeetCode] 209. Minimum Size Subarray Sum 最短子数组之和
-Given an array of n positive integers and a positive integer s, find the minimal length of a contiguous subarray of which the sum >= s. If there isn't one, return 0 instead.
+Given an array of n positive integers and a positive integer s, find the minimal length 
+of a contiguous subarray of which the sum >= s. If there isn't one, return 0 instead.
 
 Example: 
 Input: s = 7, nums = [2,3,1,2,4,3]
@@ -309,7 +311,62 @@ Explanation: the subarray [4,3] has the minimal length under the problem constra
 Follow up:
 If you have figured out the O(n) solution, try coding another solution of which the time complexity is O(n log n). 
 
-讨论：本题有一个很好的 Follow up，就是去掉所有数字是正数的限制条件，而去掉这个条件会使得累加数组不一定会是递增的了，那么就不能使用二分法，同时双指针的方法也会失效，只能另辟蹊径了。其实博主觉得同时应该去掉大于s的条件，只保留 sum=s 这个要求，因为这样就可以在建立累加数组后用 2sum 的思路，快速查找 s-sum 是否存在，如果有了大于的条件，还得继续遍历所有大于 s-sum 的值，效率提高不了多少。
+下面再来看看 O(nlgn) 的解法，这个解法要用到二分查找法，思路是，建立一个比原数组长一位的 sums 数组，
+其中 sums[i] 表示 nums 数组中 [0, i - 1] 的和，然后对于 sums 中每一个值 sums[i]，
+用二分查找法找到子数组的右边界位置，使该子数组之和大于 sums[i] + s，然后更新最短长度的距离即可。
+
+讨论：本题有一个很好的 Follow up，就是去掉所有数字是正数的限制条件，而去掉这个条件会使得累加数组不一定会是递增的了，
+那么就不能使用二分法，同时双指针的方法也会失效，只能另辟蹊径了。其实博主觉得同时应该去掉大于s的条件，
+只保留 sum=s 这个要求，因为这样就可以在建立累加数组后用 2sum 的思路，快速查找 s-sum 是否存在，
+如果有了大于的条件，还得继续遍历所有大于 s-sum 的值，效率提高不了多少。
+"""
+
+""" 862. Shortest Subarray with Sum at Least K
+Given an integer array nums and an integer k, return the length of the shortest 
+non-empty subarray of nums with a sum of at least k. If there is no such subarray, return -1.
+
+A subarray is a contiguous part of an array.
+
+Example 1:
+Input: nums = [1], k = 1
+Output: 1
+
+Example 2:
+Input: nums = [1,2], k = 4
+Output: -1
+
+Example 3:
+Input: nums = [2,-1,2], k = 3
+Output: 3
+
+-105 <= nums[i] <= 105
+
+但即便是有了累加和数组，遍历所有区间和还是会超时。用累加数组计算任意区间 [i, j] 的累加和是用 [0, j] 区间和
+减去 [0, i-1] 区间和得到的，只有两个区间和差值大于等于K的时候，才会更新结果，所有小于K的区间差是不需要计算的。
+这样的话，假如能使得所有区间和按照从小到大的顺序排列，那么当前区间和按顺序减去队列中的区间和，一旦差值小于K了，
+后面的区间和就不用再检验了，这样就可以节省很多运算
+
+用一个最小堆，里面放一个数对儿，由区间和跟其结束位置组成。遍历数组中所有的数字，累加到 sum，表示区间 [0, i] 内数字和，
+判断一下若 sum 大于等于K，则用 i+1 更新结果 res。然后用一个 while 循环，看 sum 和堆顶元素的差值，
+若大于等于K，移除堆顶元素并更新结果 res。循环退出后将当前 sum 和i组成数对儿加入最小堆，
+最后看若结果 res 还是整型最大值，返回 -1，否则返回结果 res
+
+class Solution {
+public:
+    int shortestSubarray(vector<int>& A, int K) {
+        int n = A.size(), res = INT_MAX, sum = 0;
+        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;
+        for (int i = 0; i < n; ++i) {
+            sum += A[i];
+            if (sum >= K) res = min(res, i + 1);
+            while (!pq.empty() && sum - pq.top().first >= K) {
+                res = min(res, i - pq.top().second);
+                pq.pop();
+            }
+            pq.push({sum, i});
+        }
+        return res == INT_MAX ? -1 : res;
+    }
 """
 
 
