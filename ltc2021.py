@@ -14,13 +14,11 @@ OrderedDict: popitem() will pop the most recent item
 
 """[LeetCode] 148. Sort List 链表排序
 Sort a linked list in O(n log n) time using constant space complexity.
-
 Example 1:
-
 Input: 4->2->1->3
 Output: 1->2->3->4
-Example 2:
 
+Example 2:
 Input: -1->5->3->4->0
 Output: -1->0->3->4->5
 """
@@ -72,13 +70,12 @@ Find the kth largest element in an unsorted array. Note that it is the kth large
 sorted order, not the kth distinct element.
 
 Example 1:
-
 Input: 
 [3,2,1,5,6,4] 
 and k = 2
 Output: 5
-Example 2:
 
+Example 2:
 Input: 
 [3,2,3,1,2,4,5,5,6] 
 and k = 4
@@ -86,9 +83,8 @@ Output: 4
 Note: 
 You may assume k is always valid, 1 ≤ k ≤ array's length.
 """
-# solution 1: use maxheap
+# solution 1: use maxheap nlogn+klogn
 from heapq import heappush, heappop 
-
 class Solution(object):
     def findKthLargest(self, nums, k):
         """
@@ -100,14 +96,11 @@ class Solution(object):
         hp = []
         for i in nums:
             heappush(hp, i)
-        
         for i in range(len(nums)-k):
             heappop(hp)
-        
         return heappop(hp)
 
-
-# solution 2: use quick sort 
+# solution 2: use quick sort , nlogn
 class Solution2(object):
     def findKthLargest(self, nums, k):
         left = 0
@@ -141,25 +134,19 @@ class Solution2(object):
         return r
 
 
-
-"""[LeetCode] 4. Median of Two Sorted Arrays 两个有序数组的中位数
+"""[LeetCode] 4. Median of Two Sorted Arrays 两个有序数组的中位数 !!!
 There are two sorted arrays nums1 and nums2 of size m and n respectively.
-
 Find the median of the two sorted arrays. The overall run time complexity should be O(log (m+n)).
-
 You may assume nums1 and nums2 cannot be both empty.
 
 Example 1:
-
 nums1 = [1, 3]
 nums2 = [2]
-
 The median is 2.0
-Example 2:
 
+Example 2:
 nums1 = [1, 2]
 nums2 = [3, 4]
-
 The median is (2 + 3)/2 = 2.5
 """
 # https://zxi.mytechroad.com/blog/algorithms/binary-search/leetcode-4-median-of-two-sorted-arrays/
@@ -170,29 +157,29 @@ class Solution:
         n2 = len(nums2)
         if n1 > n2:
             return self.findMedianSortedArrays(nums2, nums1)
+        k = int((n1 + n2 + 1)/2)  # if n1+n2 is odd, then kth largest is median, else avg of k and k+1
         
-        k = int((n1 + n2 + 1)/2)
-        l = 0
-        r = n1
-        # find m1, m2 such that if n1+n2 is odd, then c1 is median
-        # else c1 + c2 /2 
+        # find m1 from nums1, m2 from nums2, such that nums1[m1]=nums[m2] and m1+m2=k, (not always exists)
+        # c1 = max(nums1[m1-1], nums2[m2-1]) if m1>0 and m2>0
+        # if n1+n2 is odd, then c1 is median
+        # else (c1 + c2) /2, where c2 is next number to c1, which is min(nums2[m2], nums1[m1]) (ignore corner case)
+        l = 0; r = n1
         while l < r:
-            m1 = int(l + (r-l)/2)
+            m1 = l + (r-l)//2
             m2 = k - m1
             if nums1[m1] < nums2[m2-1]:
                 l = m1 + 1
             else:
                 r = m1
-        
         # l=r
         m1 = l
         m2 = k - l
         # now need to decide whether m1 exceeds k (m1<=0 or m2<=0)
         if m1 <= 0:
-            # nums1 all larger than nums2
+            # nums1 all larger than nums2, m2=k
             c1 = nums2[m2 - 1]
         elif m2 <= 0:
-            # nums2 all larger than nums1
+            # nums2 all larger than nums1, m1=k
             c1 = nums1[m1 - 1]
         else:
             # max of the two chosen
@@ -212,8 +199,6 @@ class Solution:
             c2 = min(nums2[m2], nums1[m1])
         
         return (c1 + c2) * 0.5
-
-
 
 
 """
@@ -253,10 +238,10 @@ class Solution:
         else:
             return slow.next
 
+
 """[LeetCode 160] Intersection of Two Linked Lists 求两个链表的交点
 Write a program to find the node at which the intersection of two singly linked lists begins.
 For example, the following two linked lists:
-
 A:          a1 → a2
                       ↘
                         c1 → c2 → c3
@@ -265,12 +250,10 @@ B:     b1 → b2 → b3
 begin to intersect at node c1.
 
 Notes:
-
 If the two linked lists have no intersection at all, return null.
 The linked lists must retain their original structure after the function returns.
 You may assume there are no cycles anywhere in the entire linked structure.
 Your code should preferably run in O(n) time and use only O(1) memory.
- 
 
 Credits:
 Special thanks to @stellari for adding this problem and creating all test cases.
@@ -338,12 +321,12 @@ Output: tail connects to node index 1
 Explanation: There is a cycle in the linked list, where tail connects to the second node.
 
 这个求单链表中的环的起始点是之前那个判断单链表中是否有环的延伸，可参之前那道 Linked List Cycle。这里还是要设快慢指针，
-不过这次要记录两个指针相遇的位置，当两个指针相遇了后，让其中一个指针从链表头开始，一步两步，一步一步似爪牙，似魔鬼的步伐。。。
-哈哈，打住打住。。。此时再相遇的位置就是链表中环的起始位置，为啥是这样呢，这里直接贴上热心网友「飞鸟想飞」的解释哈，
+不过这次要记录两个指针相遇的位置，当两个指针相遇了后，让其中一个指针从链表头开始，
+此时再相遇的位置就是链表中环的起始位置，为啥是这样呢，这里直接贴上热心网友「飞鸟想飞」的解释哈，
 因为快指针每次走2，慢指针每次走1，快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。所以 head 
 到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。现在重新开始，head 运行到环起点 和 相遇点到环起点 
 的距离也是相等的，相当于他们同时减掉了 环的起点到他们相遇的点的距离。
-
+because AB = m*l, then BC-AC=l-CB-AC=l-m*l  (A:head, B: fast catch slow, C: head of cycle)
 class Solution {
 public:
     ListNode *detectCycle(ListNode *head) {
@@ -411,19 +394,15 @@ class Solution:
         return newhead
 
 
-
-    
-
-
-
-
 """
 ############################################################################
 堆（Heap or Priority Queue）、栈（Stack）、队列（Queue）、哈希表类（Hashmap、Hashset）
 ############################################################################
+Stack: string processing, calculator, 
+(de)Queue: streaming data
 """
 
-""" Stack and queue in python
+""" Stack and (de)queue in python
 stack = []
 stack.append('a')
 print(stack.pop())   # pop the last
@@ -438,19 +417,13 @@ d[-1] # peek from right
 d.popleft() 
 d[0]  # peek from left
 d.extend('jkl')  # add multiple elements at once
-
-
 """
 
 
-
 """[LeetCode] 346. Moving Average from Data Stream 从数据流中移动平均值
- 
-
 Given a stream of integers and a window size, calculate the moving average of all integers in the sliding window.
 
 Example:
-
 MovingAverage m = new MovingAverage(3);
 m.next(1) = 1
 m.next(10) = (1 + 10) / 2
@@ -460,7 +433,6 @@ m.next(5) = (10 + 3 + 5) / 3
 # Your MovingAverage object will be instantiated and called as such:
 # obj = MovingAverage(size)
 # param = obj.next(val)
-
 class MovingAverage:
     """
     @param: size: An integer
@@ -470,7 +442,6 @@ class MovingAverage:
         self.size = size
         self.queue = []
         self.sum = 0
-
     """
     @param: val: An integer
     @return:  
@@ -498,7 +469,6 @@ Follow up: What if you are given k 1d vectors? How well can your code be extende
 Clarification for the follow up question:
 The "Zigzag" order is not clearly defined and is ambiguous for k > 2 cases. If "Zigzag" does not look right to you, 
 replace "Zigzag" with "Cyclic". For example:
-
 Input:
 [1,2,3]
 [4,5,6,7]
@@ -511,7 +481,6 @@ Output:
 # solution, result = ZigzagIterator(v1, v2), []
 # while solution.hasNext(): result.append(solution.next())
 # Output result
-
 class ZigzagIterator:
     """
     @param: v1: A 1d vector
@@ -563,10 +532,7 @@ class ZigzagIterator:
             return True
 
 
-
 """[LeetCode] 362. Design Hit Counter 设计点击计数器
- 
-
 Design a hit counter which counts the number of hits received in the past 5 minutes.
 
 Each function accepts a timestamp parameter (in seconds granularity) and you may assume that calls are 
@@ -576,31 +542,21 @@ You may assume that the earliest timestamp starts at 1.
 It is possible that several hits arrive roughly at the same time.
 
 Example:
-
 HitCounter counter = new HitCounter();
-
 // hit at timestamp 1.
 counter.hit(1);
-
 // hit at timestamp 2.
 counter.hit(2);
-
 // hit at timestamp 3.
 counter.hit(3);
-
 // get hits at timestamp 4, should return 3.
 counter.getHits(4);
-
 // hit at timestamp 300.
 counter.hit(300);
-
 // get hits at timestamp 300, should return 4.
 counter.getHits(300);
-
 // get hits at timestamp 301, should return 3.
 counter.getHits(301); 
-Follow up:
-What if the number of hits per second could be very large? Does your design scale?
 
 Follow up:
 What if the number of hits per second could be very large? Does your design scale?
@@ -623,17 +579,14 @@ https://www.cnblogs.com/grandyang/p/5605552.html
 
 """[LeetCode] Max Stack 最大栈
 Design a max stack that supports push, pop, top, peekMax and popMax.
-
 push(x) -- Push element x onto stack.
 pop() -- Remove the element on top of the stack and return it.
 top() -- Get the element on the top.
 peekMax() -- Retrieve the maximum element in the stack.
 popMax() -- Retrieve the maximum element in the stack, and remove it. If you find more than one maximum elements, 
 only remove the top-most one.
- 
 
 Example 1:
-
 MaxStack stack = new MaxStack();
 stack.push(5); 
 stack.push(1);
@@ -688,28 +641,24 @@ class MaxStack:
 
 
 """[LeetCode] Evaluate Reverse Polish Notation 计算逆波兰表达式
- 
-
 Evaluate the value of an arithmetic expression in Reverse Polish Notation.
-
 Valid operators are +, -, *, /. Each operand may be an integer or another expression.
-
 Note:
 
 Division between two integers should truncate toward zero.
 The given RPN expression is always valid. That means the expression would always evaluate to a result and there won't be any divide by zero operation.
-Example 1:
 
+Example 1:
 Input: ["2", "1", "+", "3", "*"]
 Output: 9
 Explanation: ((2 + 1) * 3) = 9
-Example 2:
 
+Example 2:
 Input: ["4", "13", "5", "/", "+"]
 Output: 6
 Explanation: (4 + (13 / 5)) = 6
-Example 3:
 
+Example 3:
 Input: ["10", "6", "9", "3", "+", "-11", "*", "/", "*", "17", "+", "5", "+"]
 Output: 22
 Explanation: 
@@ -744,19 +693,16 @@ class Solution:
 Implement a basic calculator to evaluate a simple expression string.
 
 The expression string may contain open ( and closing parentheses ), the plus + or minus sign -, non-negative integers and empty spaces .
-
 The expression string contains only non-negative integers, +, -, *, / operators , open ( and closing parentheses ) 
 and empty spaces . The integer division should truncate toward zero.
 
 You may assume that the given expression is always valid. All intermediate results will be in the range of [-2147483648, 2147483647].
 
 Some examples:
-
 "1 + 1" = 2
 " 6-4 / 2 " = 4
 "2*(5+5*2)/3+(6/2+8)" = 21
 "(2+6* 3+5- (3*14/7+2)*5)+3"=-12
- 
 
 Note: Do not use the eval built-in library function.
 """
@@ -772,8 +718,7 @@ def calculator(s):
     stack = []  # may not need 
     i = 0
     while i < n: # cannot use FOR because i needs to update in loop at '('
-        if s[i].isdigit():
-            # 1-9
+        if s[i].isdigit(): # 0-9
             curr_num = curr_num + s[i]
         if s[i] in ['(']:
             # treat the part between ( and ) as a number (curr_num)
@@ -803,15 +748,12 @@ def calculator(s):
                 stack.append(int(previous_num / int(curr_num)))
             op = s[i]
             curr_num = ''
-
         i = i + 1
     
     res = 0
     while len(stack) > 0:
         res = res + stack.pop()
-    
     return res
-
 
 calculator(s1) # -12
 calculator(s2) # 21
@@ -823,15 +765,14 @@ You have a browser of one tab where you start on the homepage and you can visit 
 back in the history number of steps or move forward in the history number of steps.
 
 Implement the BrowserHistory class:
-
 BrowserHistory(string homepage) Initializes the object with the homepage of the browser.
 void visit(string url) Visits url from the current page. It clears up all the forward history.
 string back(int steps) Move steps back in history. If you can only return x steps in the history and steps > x, 
 you will return only x steps. Return the current url after moving back in history at most steps.
 string forward(int steps) Move steps forward in history. If you can only forward x steps in the history and steps > x,
- you will forward only x steps. Return the current url after forwarding in history at most steps.
-Example:
+you will forward only x steps. Return the current url after forwarding in history at most steps.
 
+Example:
 Input:
 ["BrowserHistory","visit","visit","visit","back","back","forward","visit","forward","back","back"]
 [["leetcode.com"],["google.com"],["facebook.com"],["youtube.com"],[1],[1],[1],["linkedin.com"],[2],[2],[7]]
@@ -861,8 +802,8 @@ At most 5000 calls will be made to visit, back, and forward.
 
 # for example 
 # suppose [1,2,(3),4] # () means where curr page is
-# if back(1) -> [1,(2),3,4]
-# if forward(2) -> [1,2,3,(4)]
+# if back(1) -> [1,(2),3,4]  # idx=1
+# if forward(1) -> [1,2,(3),4]  # idx=2
 # if visit(5) -> [1,2,3,(5)]
 class BrowserHistory:
 
@@ -871,7 +812,6 @@ class BrowserHistory:
         self.size = 1
         self.curr = 0  # curr location
         
-
     def visit(self, url: str) -> None:
         while len(self.stack) > self.curr + 1:
             self.stack.pop()
@@ -879,12 +819,10 @@ class BrowserHistory:
         self.curr = self.curr + 1
         self.size = self.curr + 1
 
-        
     def back(self, steps: int) -> str:
         self.curr = max(0, self.curr - steps)
         return self.stack[self.curr]
         
-
     def forward(self, steps: int) -> str:
         self.curr = min(self.curr+steps, self.size-1)
         return self.stack[self.curr]
@@ -898,27 +836,29 @@ We repeatedly make k duplicate removals on s until we no longer can.
 Return the final string after all such duplicate removals have been made. It is guaranteed that the answer is unique.
 
 Example 1:
-
 Input: s = "abcd", k = 2
 Output: "abcd"
 Explanation: There's nothing to delete.
-Example 2:
 
+Example 2:
 Input: s = "deeedbbcccbdaa", k = 3
 Output: "aa"
 Explanation: 
 First delete "eee" and "ccc", get "ddbbbdaa"
 Then delete "bbb", get "dddaa"
 Finally delete "ddd", get "aa"
-Example 3:
 
+Example 3:
 Input: s = "pbbcggttciiippooaais", k = 2
 Output: "ps"
+
+Follow-up: can you do it at O(n)
 """
 # note that recursively call the function will raise time limit error
 # so can only run through the string once
 s = 'abcd'
 k=2
+# duplicate is defined as exact k rep
 class Solution:
     def removeDuplicates(self, s: str, k: int) -> str:
         n = len(s)
@@ -936,14 +876,12 @@ class Solution:
                     stack.append((s[i], 1))
             else:
                 stack.append((s[i], 1))
-        
         res = ''
         while len(stack) > 0:
             letter, val = stack.pop()
             res = letter * val + res
         
         return res
-
 
 # if duplicate is defined as equal or larger than k instead
 def removeDuplicates2(s: str, k: int) -> str:
@@ -963,21 +901,19 @@ def removeDuplicates2(s: str, k: int) -> str:
                 # if diff from previous
                 if stack[-1][1] >= k:
                     stack.pop()
-                    continue
+                    continue # no i+=1!
                 else:
                     stack.append((s[i], 1))
                     i = i + 1
         else:
             stack.append((s[i], 1))
             i = i + 1
-    
     res = ''
     while len(stack) > 0:
         letter, val = stack.pop()
         res = letter * val + res
     
     return res
-
 
 s1 = 'cabbbaabbc'
 s2 = 'cabbbdaabbc'
@@ -996,8 +932,8 @@ Formally, a parentheses string is valid if and only if:
 It is the empty string, contains only lowercase characters, or
 It can be written as AB (A concatenated with B), where A and B are valid strings, or
 It can be written as (A), where A is a valid string.
-Example 1:
 
+Example 1:
 Input: s = "lee(t(c)o)de)"
 Output: "lee(t(c)o)de"
 Explanation: "lee(t(co)de)" , "lee(t(c)ode)" would also be accepted.
@@ -1040,7 +976,6 @@ Find out the state of the asteroids after all collisions. If two asteroids meet,
 will explode. If both are the same size, both will explode. Two asteroids moving in the same direction will never meet.
 
 Example 1:
-
 Input: 
 asteroids = [5, 10, -5]
 Output: [5, 10]
@@ -1082,8 +1017,8 @@ asteroids = [10,2,-5]
 sol = Solution()
 sol.asteroidCollision(asteroids)
 
-        
-"""[LeetCode] 146. LRU Cache 最近最少使用页面置换缓存器
+
+"""[LeetCode] 146. LRU Cache 最近最少使用页面置换缓存器 !!! (linked list solution)
 Design and implement a data structure for Least Recently Used (LRU) cache. It should support the following operations: get and put.
 
 get(key) - Get the value (will always be positive) of the key if the key exists in the cache, otherwise return -1.
@@ -1109,9 +1044,7 @@ cache.get(4);       // returns 4
 """
 # in python, one can use OrderedDict (a dict that has pipitem() to remove the last or first key)
 from collections import OrderedDict
-
 class LRUCache(object):
-
     def __init__(self, capacity):
         """
         :type capacity: int
@@ -1119,7 +1052,6 @@ class LRUCache(object):
         self.hashmap = OrderedDict()
         self.capacity = capacity
         
-
     def get(self, key):
         """
         :type key: int
@@ -1129,10 +1061,9 @@ class LRUCache(object):
             return -1
         else:
             value = self.hashmap.pop(key)
-            self.hashmap[key] = value
+            self.hashmap[key] = value  # reset time order of this key
             return value
         
-
     def put(self, key, value):
         """
         :type key: int
@@ -1156,25 +1087,48 @@ class LRUCache(object):
 # obj.put(key,value)
 
 # if not using OrderedDict, need to use linked list to achieve O(1) runtime
-# https://www.lintcode.com/problem/134/solution/16614
+# need to define linked list, and always append the latest node from left
+# use O(1) to remove any node (def remove(self, node):)
 # https://leetcode.com/problems/lru-cache/discuss/1655397/Python3-Dictionary-%2B-LinkedList-or-Clean-%2B-Detailed-Explanation-or-O(1)-Time-For-All-Operations
 
 
 """[LeetCode] Set Matrix Zeroes 矩阵赋零
 Given a m x n matrix, if an element is 0, set its entire row and column to 0. Do it in place.
-
-click to show follow up.
-
 Follow up:
 Did you use extra space?
+
 A straight forward solution using O(mn) space is probably a bad idea.
 A simple improvement uses O(m + n) space, but still not the best solution.
 Could you devise a constant space solution?
 """
 # idea: to avoid using extra space, we use first row and col of matrix to record zeros
-# omit
-
-
+class Solution:
+    def setZeroes(self, matrix: List[List[int]]) -> None:
+        m = len(matrix)
+        n = len(matrix[0])
+        first_row_has_zero = False
+        first_col_has_zero = False
+        # iterate through matrix to mark the zero row and cols
+        for row in range(m):
+            for col in range(n):
+                if matrix[row][col] == 0:
+                    if row == 0:
+                        first_row_has_zero = True
+                    if col == 0:
+                        first_col_has_zero = True
+                    matrix[row][0] = matrix[0][col] = 0
+        # iterate through matrix to update the cell to be zero if it's in a zero row or col
+        for row in range(1, m):
+            for col in range(1, n):
+                matrix[row][col] = 0 if matrix[0][col] == 0 or matrix[row][0] == 0 else matrix[row][col]
+        # update the first row and col if they're zero
+        if first_row_has_zero:
+            for col in range(n):
+                matrix[0][col] = 0
+        if first_col_has_zero:
+            for row in range(m):
+                matrix[row][0] = 0
+        return None
 
 
 """[LeetCode] 380. Insert Delete GetRandom O(1) 常数时间内插入删除和获得随机数
@@ -1186,7 +1140,6 @@ getRandom: Returns a random element from current set of elements. Each
 element must have the same probability of being returned. 
 
 Example:
-
 // Init an empty set.
 RandomizedSet randomSet = new RandomizedSet();
 
@@ -1211,12 +1164,14 @@ randomSet.insert(2);
 // Since 1 is the only number in the set, getRandom always return 1.
 randomSet.getRandom();
 """
+# 删除操作是比较 tricky 的，还是要先判断其是否在 HashMap 里，如果没有，直接返回 false。由于 HashMap 的
+# 删除是常数时间的，而数组并不是，为了使数组删除也能常数级，实际上将要删除的数字和数组的最后一个数字
+# 调换个位置，然后修改对应的 HashMap 中的值，这样只需要删除数组的最后一个元素即可，保证了常数时间
+# 内的删除。而返回随机数对于数组来说就很简单了，只要随机生成一个位置，返回该位置上的数字即可
 import random
-
 class RandomizedSet:
-
     def __init__(self):
-        self.hashmap = dict()
+        self.hashmap = dict() # val -> location of ele in vector
         self.vector = []
         self.size = 0
 
@@ -1230,6 +1185,7 @@ class RandomizedSet:
             return True
 
     def remove(self, val: int) -> bool:
+        # swap val location with the last one, then pop from vector
         if val in self.hashmap:
             location = self.hashmap[val]
             self.vector[location], self.vector[-1] = self.vector[-1], self.vector[location]
@@ -1246,10 +1202,6 @@ class RandomizedSet:
         return self.vector[rand_index]
 
 
-# 删除操作是比较 tricky 的，还是要先判断其是否在 HashMap 里，如果没有，直接返回 false。由于 HashMap 的
-# 删除是常数时间的，而数组并不是，为了使数组删除也能常数级，实际上将要删除的数字和数组的最后一个数字
-# 调换个位置，然后修改对应的 HashMap 中的值，这样只需要删除数组的最后一个元素即可，保证了常数时间
-# 内的删除。而返回随机数对于数组来说就很简单了，只要随机生成一个位置，返回该位置上的数字即可
 # Your RandomizedSet object will be instantiated and called as such:
 obj = RandomizedSet()
 param_1 = obj.insert(0); obj.vector; obj.hashmap
@@ -1264,7 +1216,6 @@ param_3 = obj.getRandom(); param_3
 Given an array of strings, group anagrams together.
 
 Example:
-
 Input: 
 ["eat", "tea", "tan", "ate", "nat", "bat"]
 ,
@@ -1275,12 +1226,10 @@ Output:
   ["bat"]
 ]
 Note:
-
 All inputs will be in lowercase.
 The order of your output does not matter.
 """
 # use sort to tell whether Anagrams
-
 class Solution:
     def groupAnagrams(self, strs: List[str]) -> List[List[str]]:
         hashmap = dict() # record anagrams
@@ -1310,8 +1259,6 @@ friend's guess.
 The hint should be formatted as "xAyB", where x is the number of bulls and y is the number of cows.
  Note that both secret and guess may contain duplicate digits.
 
- 
-
 Example 1:
 
 Input: secret = "1807", guess = "7810"
@@ -1325,7 +1272,7 @@ Explanation: Bulls are connected with a '|' and cows are underlined:
 # omit
 # you can only go through strings for once (see below)
 # can also run through twice, note that when secret[i] == guess[i], do not add in hashmap (B)
-def (secret, guess):
+def getHint(secret, guess):
     bulls, cows = 0, 0
         dp1, dp2 = {}, {} # keep dictionaries of values which are not bulls
         for n1, n2 in zip(secret, guess):
@@ -1339,7 +1286,6 @@ def (secret, guess):
             if v2 is not None:
                 cows += min(v, v2)
         return str(bulls) + "A" + str(cows) + "B"
-
 
 
 """Design Tic-Tac-Toe 设计井字棋游戏 
@@ -1361,9 +1307,7 @@ Follow up中让我们用更高效的方法，那么根据提示中的，我们�
 还有变量对角线diag和逆对角线rev_diag，这种方法的思路是，如果玩家1在第一行某一列放了一个子，那么rows[0]自增1，
 如果玩家2在第一行某一列放了一个子，则rows[0]自减1，那么只有当rows[0]等于n或者-n的时候，
 表示第一行的子都是一个玩家放的，则游戏结束返回该玩家即可，其他各行各列，对角线和逆对角线都是这种思路，参见代码如下：
-
 """
-
 
 
 """
@@ -1373,7 +1317,16 @@ Heap／Priority Queue题目
 # https://www.geeksforgeeks.org/time-complexity-of-building-a-heap/
 # insert/remove max from max heap is O(logn)
 # find max is O(1)
+# use case: k largest/smallest, k most frequent
 ############################################################################
+import heapq # python only support min heap
+heapq.heappush(q, x); x=heapq.heappop(q) # min
+heapq.nsmallest(k, q, key) # return the k smallest
+heapq.nlargest(k, q, key=None)  # return k largest 
+
+# example: 
+tags = [ ("python", 30), ("ruby", 25), ("c++", 50), ("lisp", 20) ]
+heapq.nlargest(2, tags, key=lambda e:e[1]) # Gives [ ("c++", 50), ("python", 30) ]
 """
 
 """[LeetCode] 973. K Closest Points to Origin 最接近原点的K个点
@@ -1382,7 +1335,6 @@ We have a list of points on the plane.  Find the K closest points to the origin 
 You may return the answer in any order.  The answer is guaranteed to be unique (except for the order that it is in.)
 
 Example 1:
-
 Input: points = [[1,3],[-2,2]], K = 1
 Output: [[-2,2]]
 Explanation:
@@ -1390,8 +1342,8 @@ The distance between (1, 3) and the origin is sqrt(10).
 The distance between (-2, 2) and the origin is sqrt(8).
 Since sqrt(8) < sqrt(10), (-2, 2) is closer to the origin.
 We only want the closest K = 1 points from the origin, so the answer is just [[-2,2]].
-Example 2:
 
+Example 2:
 Input: points = [[3,3],[5,-1],[-2,4]], K = 2
 Output: [[3,3],[-2,4]]
 (The answer [[-2,4],[3,3]] would also be accepted.)
@@ -1406,7 +1358,6 @@ class Solution:
 import heapq
 class Solution:
     def kClosest(self, points: List[List[int]], k: int) -> List[List[int]]:
-        
         q = []
         for x,y in points:
             heapq.heappush(q, [x*x + y*y,[x,y]])
@@ -1421,8 +1372,8 @@ Given a non-empty array of integers, return the k most frequent elements.
 Example 1:
 Input: nums = [1,1,1,2,2,3], k = 2
 Output: [1,2]
-Example 2:
 
+Example 2:
 Input: nums = [1], k = 1
 Output: [1]
 Note:
@@ -1445,12 +1396,9 @@ class Solution:
 
 
 """[LeetCode] 23. Merge k Sorted Lists 合并k个有序链表
- 
-
 Merge k sorted linked lists and return it as one sorted list. Analyze and describe its complexity.
 
 Example:
-
 Input:
 [
   1->4->5,
@@ -1461,22 +1409,16 @@ Output: 1->1->2->3->4->4->5->6
 
 利用了最小堆这种数据结构，首先把k个链表的首元素都加入最小堆中，它们会自动排好序。然后每次取出最小的那个元素
 加入最终结果的链表中，然后把取出元素的下一个元素再加入堆中，下次仍从堆中取出最小的元素做相同的操作，
-以此类推，直到堆中没有元素了，此时k个链表也合并为了一个链表，返回首节点即可
-
-Anther idea is merge sort based on merging two sorted linked list
+以此类推，直到堆中没有元素了，此时k个链表也合并为了一个链表，返回首节点即可, logk * n
+Anther idea is merge sort based on merging two sorted linked list, n*k
 """
-
-
 # Definition for singly-linked list.
 lists = [ListNode(5), ListNode(2), ListNode(3)]
-
 import heapq
-
 class ListNode:
     def __init__(self, val=0, next=None):
         self.val = val
         self.next = next
-
 
 class Solution:
     def mergeKLists(self, lists: List[Optional[ListNode]]) -> Optional[ListNode]:
@@ -1485,7 +1427,7 @@ class Solution:
         head = ListNode()
         dummy = head
         while len(q) > 0:
-            _, min_idx = heapq.heappop(q)
+            _, min_idx = heapq.heappop(q) # from which linked list
             head.next = lists[min_idx]
             head = head.next
             lists[min_idx] = lists[min_idx].next
@@ -1496,18 +1438,13 @@ class Solution:
 
 
 """[LeetCode] 264. Ugly Number II 丑陋数之二
- 
-
 Write a program to find the n-th ugly number.
-
 Ugly numbers are positive numbers whose prime factors only include 2, 3, 5. 
 
 Example:
-
 1, 2, 3, 4, 5, 6, 8, 9, 10, 12
 10
 Note:  
-
 1 is typically treated as an ugly number.
 n does not exceed 1690.
 Hint:
@@ -1519,13 +1456,11 @@ Most numbers are not ugly. Try to focus your effort on generating only the ugly 
 
 这道题是之前那道 Ugly Number 的拓展，这里让找到第n个丑陋数，还好题目中给了很多提示，
 基本上相当于告诉我们解法了，根据提示中的信息，丑陋数序列可以拆分为下面3个子列表：
-
 (1) 1x2,  2x2, 2x2, 3x2, 3x2, 4x2, 5x2...
 (2) 1x3,  1x3, 2x3, 2x3, 2x3, 3x3, 3x3...
 (3) 1x5,  1x5, 1x5, 1x5, 2x5, 2x5, 2x5...
 仔细观察上述三个列表，可以发现每个子列表都是一个丑陋数分别乘以 2，3，5，
 而要求的丑陋数就是从已经生成的序列中取出来的，每次都从三个列表中取出当前最小的那个加入序列，请参见代码如下：
-
 
 我们也可以使用最小堆来做，首先放进去一个1，然后从1遍历到n，每次取出堆顶元素，为了确保没有重复数字，
 进行一次 while 循环，将此时和堆顶元素相同的都取出来，然后分别将这个取出的数字乘以 2，3，5，
@@ -1554,45 +1489,60 @@ class Solution:
 soln = Solution()
 soln.nthUglyNumber(11)
 
+# use min heap
+class Solution(object):
+    # The idea is to keep a heap that stores a tuple (val, fact).
+    # The fact value stores the last factor the number was multiplied to.
+    # So every time I extract the minimum and look at the queue, I know
+    # it must be multiplied by queue and next factor, otherwise I will have a
+    # duplicate. 
+    # 2(*2,3,5): 2, 4, 6 ...; 3(*3,5): 3, 9, 15, ...; 5(*5): 5, 25, ..
+    # For example, we have 2 and 5 with fact 2 and fact 5. When I extract
+    # 2 and fact 2, I will insert 2 * 5 = 10 with fact 5. Then, when I extract 5 from queue
+    # 5, if I do 5 * 2 (fact 2) = 10,
+    # I will have a duplicate. So every number coming from
+    # the k-th fact must be multiplied only by the factor fact and higher.
+    def nthUglyNumber(self, n):
+        if n is 1:
+            return 1
+        h, val = [(2, 2), (3, 3), (5, 5)], 1
+        for i in range(1, n):
+            val, fact = heapq.heappop(h)
+            heapq.heappush(h, (val * 5, 5))
+            if fact <= 3:
+                heapq.heappush(h, (val * 3, 3))
+            if fact is 2:
+                heapq.heappush(h, (val * 2, 2))
+        return val
+
 
 """ [LeetCode] 1086. High Five
-Description
 Each student has two attributes ID and scores. Find the average of the top five scores for each student.
-
-Example
 Example 1:
-
 Input: 
 [[1,91],[1,92],[2,93],[2,99],[2,98],[2,97],[1,60],[1,58],[2,100],[1,61]]
 Output:
 1: 72.40
 2: 97.40
-
 时间O(nlogn)
 空间O(n)
 """
-# use a max heap to store top 5 scores
-
+# use a max heap to store all scores of a student
 results = [[1,91],[1,92],[2,93],[2,99],[2,98],[2,97],[1,60],[1,58],[2,100],[1,61]]
-
 import heapq
-
+from collections import defaultdict
 class Solution:
     # @param {Record[]} results a list of <student_id, score>
     # @return {dict(id, average)} find the average of 5 highest scores for each person
     # <key, value> (student_id, average_score)
     def highFive(self, results):
         # Write your code here
-        hashmap = dict()
+        hashmap = defaultdict(list)
         top5_res = dict()
         for result in results:
-            id, score = result
-            if id not in hashmap:
-                hashmap[id] = [score]
-                heapq.heapify(hashmap[id])
-            else:
-                heapq.heappush(hashmap[id], score)
-        
+            sid, score = result
+            heapq.heappush(hashmap[sid], score)
+
         for k,v in hashmap.items():
             top5_scores = heapq.nlargest(5, v)
             top5_res[k] = sum(top5_scores) / 5
@@ -1616,18 +1566,15 @@ first m elements denote the elements that should be merged, and the last n eleme
 are set to 0 and should be ignored. nums2 has a length of n.
 
 Example 1:
-
 Input: nums1 = [1,2,3,0,0,0], m = 3, nums2 = [2,5,6], n = 3
 Output: [1,2,2,3,5,6]
 Explanation: The arrays we are merging are [1,2,3] and [2,5,6].
 The result of the merge is [1,2,2,3,5,6] with the underlined elements coming from nums1.
 
 Follow up: Can you come up with an algorithm that runs in O(m + n) time?
-
 """
 # O(m + n)
 # fill from the end (largest)
-
 class Solution:
     def merge(self, nums1, m, nums2, n):
         """
@@ -1636,7 +1583,6 @@ class Solution:
         end1 = m-1
         end2 = n-1
         end = m+n-1
-
         while end1 >= 0 and end2 >= 0:
             if nums1[end1] < nums2[end2]:
                 nums1[end] = nums2[end2]
@@ -1649,43 +1595,36 @@ class Solution:
         if end2 >= 0:
             # nums1 all used
             nums1[:end2+1] = nums2[:end2+1]
-        
         return None
-
 
 nums1 = [1,2,3,0,0,0]; m = 3; nums2 = [2,5,6]; n = 3
 nums1 = [2,2,7,0,0,0]; m = 3; nums2 = [1,5,6]; n = 3
-
 sol = Solution()
 sol.merge(nums1, m, nums2, n); nums1
 
 
-"""[LeetCode] 378. Kth Smallest Element in a Sorted Matrix 有序矩阵中第K小的元素
+"""[LeetCode] 378. Kth Smallest Element in a Sorted Matrix 有序矩阵中第K小的元素 !!!
 Given an n x n matrix where each of the rows and columns is sorted in ascending order, 
 return the kth smallest element in the matrix.
 
 Note that it is the kth smallest element in the sorted order, not the kth distinct element.
 
-You must find a solution with a memory complexity better than O(n2).
+You must find a solution with a memory complexity better than O(n^2).
 
 Example 1:
-
 Input: matrix = [[1,5,9],[10,11,13],[12,13,15]], k = 8
 Output: 13
 
 Follow up:
-
 Could you solve the problem with a constant memory (i.e., O(1) memory complexity)?
 Could you solve the problem in O(n) time complexity? 
 The solution may be too advanced for an interview but you may find reading this paper fun.
 """
-
 # memory O(k): use a max heap of size k, and pop when size>k, top will be kth smallest
 # memory O(1): !!!
 matrix = [[1,5,9],[10,11,13],[12,13,15]]
 k = 8
 val = 13
-
 class Solution:
     def kthSmallest(self, matrix, k: int) -> int:
         low, high = matrix[0][0], matrix[-1][-1]
@@ -1693,6 +1632,7 @@ class Solution:
             mid = low + (high - low) // 2
             small_num = self.findRank(matrix, mid)
             if small_num < k:
+                # note that mid may not be in matrix
                 low = mid + 1
             else:
                 # if =k, then should be higher bound
@@ -1704,13 +1644,13 @@ class Solution:
         # find how many ele smaller or equal than val
         res = 0
         for row in matrix:
-            low_idx, high_idx = 0, len(row) - 1
-            while low_idx <= high_idx:
+            low_idx, high_idx = 0, len(row)
+            while low_idx < high_idx:
                 mid_idx = low_idx + (high_idx - low_idx)//2
                 if row[mid_idx] <= val:
                     low_idx = mid_idx + 1
                 else:
-                    high_idx = mid_idx - 1
+                    high_idx = mid_idx
             res = res + low_idx
         return res
     
@@ -1727,22 +1667,20 @@ sol = Solution()
 sol.kthSmallest(matrix, k)
 
 
-
-"""295. Find Median from Data Stream
+"""295. Find Median from Data Stream !!!
 Share
 The median is the middle value in an ordered integer list. If the size of the list is even, 
 there is no middle value and the median is the mean of the two middle values.
 
 For example, for arr = [2,3,4], the median is 3.
 For example, for arr = [2,3], the median is (2 + 3) / 2 = 2.5.
-Implement the MedianFinder class:
 
+Implement the MedianFinder class:
 MedianFinder() initializes the MedianFinder object.
 void addNum(int num) adds the integer num from the data stream to the data structure.
 double findMedian() returns the median of all elements so far. Answers within 10-5 of the actual answer will be accepted.
 
 Follow up:
-
 If all integer numbers from the stream are in the range [0, 100], how would you optimize your solution?
 If 99% of all integer numbers from the stream are in the range [0, 100], how would you optimize your solution?
 
@@ -1755,17 +1693,19 @@ If the number of elements is even, take both tops / 2 and return the median, if 
 of the lower half.
 
 Follow up: bucket search
-
 """
+# Your MedianFinder object will be instantiated and called as such:
+# obj = MedianFinder()
+# obj.addNum(num)
+# param_2 = obj.findMedian()
 import heapq
-
 class MedianFinder:
     def __init__(self):
         self.size = 0
         self.q_low_maxheap = []  # top is max
         self.q_high_minheap = [] # top is min
-        heapq.heapify(self.q_low_maxheap)
-        heapq.heapify(self.q_high_minheap)
+        # heapq.heapify(self.q_low_maxheap)
+        # heapq.heapify(self.q_high_minheap)
         
     def addNum(self, num: int) -> None:
         if self.size % 2 == 0:
@@ -1773,9 +1713,7 @@ class MedianFinder:
             heapq.heappush(self.q_low_maxheap, -1 * num)
         else:
             heapq.heappush(self.q_high_minheap, num)
-        
         self.size = self.size + 1
-
         if self.size > 1:
             # adjust to make sure q_low always < q_high
             if -1 * self.q_low_maxheap[0] > self.q_high_minheap[0]:
@@ -1793,12 +1731,6 @@ class MedianFinder:
             high_median = self.q_high_minheap[0]
             return (low_median + high_median) / 2
 
-        
-# Your MedianFinder object will be instantiated and called as such:
-# obj = MedianFinder()
-# obj.addNum(num)
-# param_2 = obj.findMedian()
-
 
 """[LeetCode] 767. Reorganize String 重构字符串
 Given a string S, check if the letters can be rearranged so that two characters that 
@@ -1807,11 +1739,10 @@ are adjacent to each other are not the same.
 If possible, output any possible result.  If not possible, return the empty string.
 
 Example 1:
-
 Input: S = "aab"
 Output: "aba"
-Example 2:
 
+Example 2:
 Input: S = "aaab"
 Output: ""
 Note:
@@ -1830,7 +1761,6 @@ class Solution:
         heapq.heapify(q)
         prev_freq, prev_letter = heapq.heappop(q)
         res = prev_letter
-
         while len(q) > 0:
             freq, letter = heapq.heappop(q)
             res = res + letter
@@ -1844,8 +1774,7 @@ class Solution:
             return ''
 
 
-
-"""[LeetCode] 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit
+"""[LeetCode] 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit !!!
 Given an array of integers nums and an integer limit, return the size of the longest non-empty 
 subarray such that the absolute difference between any two elements of this subarray is 
 less than or equal to limit.
@@ -1877,18 +1806,70 @@ minQueue不为空且minQueue的最后一个元素大于当前元素nums[end]了�
 
 空间O(n)
 """
-
+# Solution 1: binary insert and remove, O(n^2), sliding window left-right
+# Keep an increasing list L. Binary insert the current element nums[right].
+# If the L[L.size() - 1] - L[0] > limit, binary search the position of nums[left] and remove it from the list.
+import bisect
 class Solution:
-    def longestSubarray(self, nums: List[int], limit: int) -> int:
-        
+    def longestSubarray(self, nums, limit):
+        l, L, n = 0, [], len(nums)
+        res = 0
+        for r in range(n):
+            bisect.insort(L, nums[r])
+            if L[-1] - L[0] > limit:
+                L.pop(bisect.bisect(L, nums[l]) - 1) # can only pop the most left
+                l += 1
+            res = max(res, r-l+1)
+        return res
+
+# Solution 2: two deques O(n), to track max and min of sliding window
+# while diff>limit, move left till diff<=limit, pop from queue if q[0]==nums[left]
+class Solution:
+    def longestSubarray(self, nums, limit):
+        max_q, min_q = deque(), deque()  # mono q
+        # max_q mono decrease and min_q mono increase
+        # so that max_q[0] is max and min_q[0] is min in the window
+        l = 0 # left side of window
+        res = 0
+        for r in range(len(nums)):
+            while len(max_q) > 0 and max_q[-1] < nums[r]:
+                max_q.pop()  # popright
+            while len(min_q) > 0 and min_q[-1] > nums[r]:
+                min_q.pop()
+            max_q.append(nums[r])
+            min_q.append(nums[r])
+            while max_q[0] - min_q[0] > limit:
+                # remove very left elem
+                if max_q[0] == nums[l]:
+                    max_q.popleft()
+                if min_q[0] == nums[l]:
+                    min_q.popleft()
+                l += 1
+            res = max(res, r-l+1)
+        return res
+
+# Solution 3: use heap to replace deque, each operation takes logn, O(nlogn)
+class Solution:
+    def longestSubarray(self, nums, limit):
+        maxq, minq = [], []
+        res = left = 0
+        for right, num in enumerate(nums):
+            heapq.heappush(maxq, [-num, right])  # val, idx
+            heapq.heappush(minq, [num, right])
+            while -maxq[0][0] - minq[0][0] > limit:
+                # as long as diff > limit, remove the prev elems
+                left = min(maxq[0][1], minq[0][1]) + 1 # min idx before which needs to remove
+                while maxq[0][1] < left: 
+                    heapq.heappop(maxq)
+                while minq[0][1] < left: 
+                    heapq.heappop(minq)
+            res = max(res, right - left + 1)
+        return res
 
 
-
-"""[LeetCode] 895. Maximum Frequency Stack 最大频率栈
-
+"""[LeetCode] 895. Maximum Frequency Stack 最大频率栈 !!!
 Implement `FreqStack`, a class which simulates the operation of a stack-like data structure.
 FreqStack has two functions:
-
 push(int x), which pushes an integer xonto the stack.
 pop(), which removes and returns the most frequent element in the stack.
 If there is a tie for most frequent element, the element closest to the top of the stack is removed and returned.
@@ -1912,38 +1893,26 @@ The stack becomes [5,7,4].
 pop() -> returns 4.
 The stack becomes [5,7].
 """
-
+from collections import defaultdict
 class FreqStack:
-
     def __init__(self):
         self.max_Freq = 0
-        self.m_f2n = dict()  # freq -> [numbers]
-        self.m_n2f = dict()  # number -> freq
+        self.m_f2n = defaultdict(list)  # freq -> [numbers]
+        self.m_n2f = defaultdict(lambda: 0)  # number -> freq
         
-
     def push(self, val: int) -> None:
         # update n2f
-        if val in self.m_n2f:
-            self.m_n2f[val] = self.m_n2f[val] + 1
-        else:
-            self.m_n2f[val] = 1
-        
+        self.m_n2f[val] += 1
         # update f2n
-        if self.m_n2f[val] in self.m_f2n:
-            self.m_f2n[self.m_n2f[val]].append(val)  # later to right
-        else:
-            self.m_f2n[self.m_n2f[val]] = [val]
-        
+        self.m_f2n[self.m_n2f[val]].append(val)  # later to right
         # update max_Freq
         if self.m_n2f[val] > self.max_Freq:
             self.max_Freq = self.m_n2f[val]
-
 
     def pop(self) -> int:
         val = self.m_f2n[self.max_Freq].pop()  # take from right
         if len(self.m_f2n[self.max_Freq]) == 0:
             self.max_Freq = self.max_Freq - 1
-        
         self.m_n2f[val] = self.m_n2f[val] - 1
         return val
         
@@ -1961,7 +1930,6 @@ obj.pop()
 obj.pop()
 
 
-
 """
 ############################################################################
 二分法（Binary Search)
@@ -1971,6 +1939,9 @@ https://www.cnblogs.com/grandyang/p/6854825.html
 
 若 right 初始化为了 nums.size()，那么就必须用 left < right，而最后的 right 的赋值必须用 right = mid。
 但是如果我们 right 初始化为 nums.size() - 1，那么就必须用 left <= right，并且right的赋值要写成 right = mid - 1，不然就会出错
+
+Find the peak is an exceptional. Use left, right = 0, len-1 and while left < right. 
+Because condition is nums[mid] < nums[mid+1] and mid+1 can out of range if right=len
 """
 # note: if ascending
 # if finish: l = r + 1
@@ -2029,12 +2000,10 @@ If target is not found in the array, return [-1, -1].
 You must write an algorithm with O(log n) runtime complexity.
 
 Example 1:
-
 Input: nums = [5,7,7,8,8,10], target = 8
 Output: [3,4]
 
 Example 2:
-
 Input: nums = [5,7,7,8,8,10], target = 6
 Output: [-1,-1]
 """
@@ -2053,16 +2022,15 @@ class Solution:
 
     def bs(self, nums, target):
         # return index
-        l, r = 0, len(nums) - 1
-        while l <= r:
+        l, r = 0, len(nums)
+        while l < r:
             mid = l + (r-l)//2
             if nums[mid] == target:
                 return mid
             elif nums[mid] < target:
                 l = mid + 1
             else:
-                r = mid - 1
-        
+                r = mid
         return -1
 
 
@@ -2080,7 +2048,6 @@ or false if it is not in nums.
 You must decrease the overall operation steps as much as possible.
 
 Example 1:
-
 Input: nums = [2,5,6,0,0,1,2], target = 0
 Output: true
 
@@ -2092,29 +2059,27 @@ Solution
 目标值3既可以在左边又可以在右边，那怎么办么，对于这种情况其实处理非常简单，只要把最右值向左一位即可继续循环，
 如果还相同则继续移，直到移到不同值为止，然后其他部分还采用 Search in Rotated Sorted Array 中的方法
 """
-
 class Solution:
     def search(self, nums: List[int], target: int) -> bool:
-        low, high = 0, len(nums) - 1
-        while low <= high:
+        low, high = 0, len(nums)
+        while low < high: # [, )
             mid = low + (high - low) // 2
             if nums[mid] == target:
                 return True
-            if nums[mid] < nums[high]:
+            if nums[mid] < nums[high-1]:  # nums[high] if [, ]
                 # then right half is sorted
-                if target > nums[mid] and target <= nums[high]:
+                if target > nums[mid] and target <= nums[high-1]:
                     low = mid + 1
                 else:
-                    high = mid - 1
-            elif nums[mid] > nums[high]:
+                    high = mid
+            elif nums[mid] > nums[high-1]:
                 # left half is sorted
                 if target >= nums[low] and target < nums[mid]:
-                    high = mid - 1
+                    high = mid
                 else:
                     low = mid + 1
             else:
                 high = high - 1
-        
         return False
 
 
@@ -2136,12 +2101,10 @@ Submissions making more than 100 calls to MountainArray.get will be judged Wrong
 Also, any solutions that attempt to circumvent the judge will result in disqualification.
 
 Example 1:
-
 Input: array = [1,2,3,4,5,3,1], target = 3
 Output: 2
 Explanation: 3 exists in the array, at index=2 and index=5. Return the minimum index, which is 2.
 """
-
 # """
 # This is MountainArray's API interface.
 # You should not implement it, or speculate about its implementation
@@ -2161,7 +2124,8 @@ class Solution:
         return left_idx if left_idx!=-1 else (right_idx if right_idx!=-1 else -1)
 
     def find_peak(self, mountain_arr):
-        low, high = 0, mountain_arr.length() - 1
+        low, high = 0, mountain_arr.length() - 1  
+        # not mountain_arr.length() o.w. mid+1 is out of range
         while low < high:
             mid = low + (high - low) // 2
             if mountain_arr.get(mid) < mountain_arr.get(mid+1):
@@ -2171,6 +2135,7 @@ class Solution:
         return low
 
     def find_target(self, mountain_arr, low, high, target, asc):
+        # include high as a candidate res
         while low <= high:
             mid = low + (high - low) // 2
             if mountain_arr.get(mid) == target:
@@ -2187,46 +2152,50 @@ class Solution:
                     low = mid + 1
         return -1
 
-        
+mountain_arr = [0,1,2,4,2,1]; target = 3
+mountain_arr = [1,2,3,5,3]; target = 0
+
+
 """[LeetCode] Find Peak Element 求数组的局部峰值 !!!
 A peak element is an element that is greater than its neighbors.
-
 Given an input array nums, where nums[i] ≠ nums[i+1], find a peak element and return its index.
-
 The array may contain multiple peaks, in that case return the index to any one of the peaks is fine.
-
 You may imagine that nums[-1] = nums[n] = -∞.
 
 Example 1:
-
-Input: nums = 
-[1,2,3,1]
-
+Input: nums = [1,2,3,1]
 Output: 2
 Explanation: 3 is a peak element and your function should return the index number 2.
-Example 2:
 
-Input: nums = 
-[
-1,2,1,3,5,6,4]
+Example 2:
+Input: nums = [1,2,1,3,5,6,4]
 Output: 1 or 5 
 Explanation: Your function can return either index number 1 where the peak element is 2, 
              or index number 5 where the peak element is 6.
 Note:
-
 Your solution should be in logarithmic complexity!
 
 由于题目中提示了要用对数级的时间复杂度，那么我们就要考虑使用类似于二分查找法来缩短时间，
 由于只是需要找到任意一个峰值，那么我们在确定二分查找折半后中间那个元素后，和紧跟的那个元素比较下大小，
 如果大于，则说明峰值在前面，如果小于则在后面。这样就可以找到一个峰值了
 """
-# omit
+class Solution(object):
+    def findPeakElement(self, nums):
+        l, r = 0, len(nums)-1
+        while l < r:
+            mid = l + (r-l)//2
+            if (mid-1<0 or nums[mid]>nums[mid-1]) and (nums[mid]>nums[mid+1]):
+                return mid
+            if nums[mid] < nums[mid+1]:
+                l = mid + 1
+            else:
+                r = mid 
+        return l
+
 
 """[LeetCode] 240. Search a 2D Matrix II 搜索一个二维矩阵之二
-
 Write an efficient algorithm that searches for a target value in an m x n integer matrix. 
 The matrix has the following properties:
-
 Integers in each row are sorted in ascending from left to right.
 Integers in each column are sorted in ascending from top to bottom.
 
@@ -2238,28 +2207,27 @@ Input: matrix =
 [18,21,23,26,30]], target = 5
 Output: true
 
-Solution
+Solution O(m+n)
 如果我们观察题目中给的那个例子，可以发现有两个位置的数字很有特点，左下角和右上角的数。左下角的 18，
 往上所有的数变小，往右所有数增加，那么就可以和目标数相比较，如果目标数大，就往右搜，如果目标数小，
 就往上搜。这样就可以判断目标数是否存在。当然也可以把起始数放在右上角，往左和下搜，停止条件设置正确就行。
+
+Solution 2: O(mlogn)
+For each row, if row[0]<target<row[-1], then use binary search
 """
-# omit
+# skip
 
 
 
 """[LeetCode] 69. Sqrt(x) 求平方根
 Implement int sqrt(int x).
-
 Compute and return the square root of x, where x is guaranteed to be a non-negative integer.
-
 Since the return type is an integer, the decimal digits are truncated and only the integer part of the result is returned.
 
 Example 1:
-
 Input: 4
 Output: 2
 Example 2:
-
 Input: 8
 Output: 2
 Explanation: The square root of 8 is 2.82842..., and since 
@@ -2268,18 +2236,17 @@ Explanation: The square root of 8 is 2.82842..., and since
 # first element greater than - 1
 class Solution:
     def mySqrt(self, x: int) -> int:
-        l, r = 0, x
-        while l <= r:
+        l, r = 0, x+1
+        while l < r:
             mid = l + (r-l)//2
             if mid * mid <= x:
                 l = mid + 1
             else:
-                r = mid - 1
+                r = mid
         return l - 1
-        
+
 
 """[LeetCode] Single Element in a Sorted Array 有序数组中的单独元素
-
 Given a sorted array consisting of only integers where every element appears twice except 
 for one element which appears once. Find this single element that appears only once.
 
@@ -2293,11 +2260,10 @@ Output: 10
 
 Note: Your solution should run in O(log n) time and O(1) space.
 """
-
 class Solution:
     def singleNonDuplicate(self, nums: List[int]) -> int:
-        low, high = 0, len(nums) - 1
-        while low <= high:
+        low, high = 0, len(nums)
+        while low < high:
             mid = low + (high - low) // 2
             if mid == len(nums)-1 or mid == 0:
                 return nums[mid]
@@ -2306,10 +2272,10 @@ class Solution:
                     # single on right
                     low = mid + 1
                 else:
-                    high = mid - 1
+                    high = mid
             elif nums[mid] == nums[mid - 1]:
                 if mid % 2 == 0:
-                    high = mid - 1
+                    high = mid
                 else:
                     low = mid + 1
             else:
@@ -2318,21 +2284,17 @@ class Solution:
         return nums[low-1]
 
 
-""" 617 · Maximum Average Subarray II
-Description
+""" 617 · Maximum Average Subarray II ???
 Given an array with positive and negative numbers, find the maximum average subarray 
 which length should be greater or equal to given length k.
 Example 1:
-Input:
-[1,12,-5,-6,50,3]
-3
-Output:
-15.667
+Input: nums=[1,12,-5,-6,50,3]; k=3
+Output: 15.667
 Explanation:
  (-6 + 50 + 3) / 3 = 15.667
 
 Solution 1: 双指针遍历 用hashmap存cumsum方便计算 O(n^2)
-Solution 2: O(nlogn)
+Solution 2: O(nlog (max - min))
 先更新累加和数组 sums，注意这个累加和数组不是原始数字的累加，而是它们和 mid 相减的差值累加。
 我们的目标是找长度大于等于k的子数组的平均值大于 mid，由于每个数组都减去了 mid，
 那么就转换为找长度大于等于k的子数组的差累积值大于0。建立差值累加数组的意义就在于通过 sums[i] - sums[j] 
@@ -2354,10 +2316,9 @@ class Solution:
     def maxAverage(self, nums, k):
         # write your code here
         low, high = min(nums), max(nums)
-
         while low <= high - 1e-05:
             mid = low + (high - low) / 2
-            is_exist = self.check(nums, k, mid)  # whether exists a subarray (>k) with avg>=mid
+            is_exist = self.check(nums, k, mid)  # whether exists a subarray (>=k) with avg>=mid
             if is_exist:
                 low = mid
             else:
@@ -2366,20 +2327,24 @@ class Solution:
         return low
 
     def check(self, nums, k, target):
-        # whether exists a subarray (>k) with avg>=target
-        cumsums = [nums[0]]
-        for i in range(1, len(nums)):
-            cumsums[i] = cumsums[i - 1] + nums[i] - target
-        
+        # whether exists a subarray (>=k) with avg>=target
+        # index starts with k
+        # 那么在nums[0:index]中，长度>=k的子数组，区间和最大为pre[index - 1] - min{pre[0 : index - k]}
+        cumsums = [0] * (len(nums) + 1)
+        for i in range(1, len(nums)+1):
+            cumsums[i] = cumsums[i - 1] + nums[i-1] - target
+        # find a subarray with len >=k and avg > 0
         minSum = 0
-        for i in range(len(nums)):
+        for i in range(k, len(nums)+1):
             minSum = min(minSum, cumsums[i-k])
-            if i>=k and cumsums[i-k] > minSum:
+            if cumsums[i] > minSum:
                 return True
         
         return False
 
 
+sol=Solution()
+sol.maxAverage(nums, k)
 
 """[LeetCode] Random Pick with Weight 根据权重随机取点
 Given an array w of positive integers, where w[i] describes the weight of index i,
@@ -2395,30 +2360,27 @@ For example, if w = [1, 3], the probability of picking index 0 is 1 / (1 + 3) = 
 
 """
 import random
-
 class Solution:
     def __init__(self, w):
         self.size = len(w)
         total_wts = sum(w)
         self.cumsums = [0] * self.size
         self.cumsums[0] = w[0] / total_wts
+        # 1, 3, -> 0.25, 1
         for i in range(1, self.size):
             self.cumsums[i] = self.cumsums[i - 1] + w[i]/total_wts
         
-
     def pickIndex(self) -> int:
         rand = random.uniform(0, 1)
-        low, high = 0, self.size - 1
+        low, high = 0, self.size
         # find the smallest index that larger than rand
-        while low <= high:
+        while low < high:
             mid = low + (high - low) // 2
             if self.cumsums[mid] > rand:
-                high = mid - 1
+                high = mid
             else:
                 low = mid + 1
-
         return low
-
 
 # Your Solution object will be instantiated and called as such:
 obj = Solution(w)
@@ -2426,7 +2388,6 @@ obj.cumsums
 obj.pickIndex()
 obj.pickIndex()
 obj.pickIndex()
-
 
 """[LeetCode] 1300. Sum of Mutated Array Closest to Target
 Given an integer array arr and a target value target, return the integer value such that when we 
@@ -2438,16 +2399,15 @@ In case of a tie, return the minimum such integer.
 Notice that the answer is not necessarily a number from arr. 
 
 Example 1:
-
 Input: arr = [4,9,3], target = 10
 Output: 3
 Explanation: When using 3 arr converts to [3, 3, 3] which sums 9 and that's the optimal answer.
-Example 2:
 
+Example 2:
 Input: arr = [2,3,5], target = 10
 Output: 5
-Example 3:
 
+Example 3:
 Input: arr = [60864,25176,27249,21296,20204], target = 56803
 Output: 11361
 
@@ -2460,16 +2420,34 @@ Solution
 # suspicious O(N) solution
 # https://leetcode.com/problems/sum-of-mutated-array-closest-to-target/discuss/1390461/Python-average-O(N)-solution
 """
-
-# omit
-
-
-
+class Solution:
+    def findBestValue(self, arr, target: int) -> int:
+        # Binary search to find the largest v (as the final lo) 
+        # such that the sum is smaller than or equal to target
+        lo, hi = 0, max(arr)+1
+        while lo < hi:
+            mid = lo + (hi-lo)//2
+            curr_value = get_sum(arr, mid)
+            if curr_value == target:
+                return mid
+            if curr_value < target:
+                lo = mid + 1
+            else:
+                hi = mid
+        # Check if (lo + 1) results in a smaller absolute difference
+        # Note: get_sum(lo) <= target
+        #       get_sum(lo + 1) > target if lo < max(arr)
+        if target - get_sum(arr, lo-1) <= abs(get_sum(arr, lo) - target):
+            return lo - 1
+        return lo
+    
+def get_sum(arr, threshold):
+    return sum([threshold if a > threshold else a for a in arr])
 
 
 """ Leetcode 1060 Missing Element in Sorted Array  !!!
 Given a sorted array A of unique numbers, find the K-th missing number starting from the leftmost number of the array.
- 
+
 Example 1:
 Input: A = [4,7,9,10], K = 1
 Output: 5
@@ -2513,21 +2491,22 @@ class Solution:
         total_miss = nums[-1] - nums[0] + 1 - n
         if k > total_miss:
             return nums[-1] + k - total_miss
-        low, high = 0, n - 1
+        low, high = 0, n
         # find the first idx s.t. num_miss on left >= k
-        while low <= high:
+        # or the last idx s.t. num_miss on left < k (commented return line)
+        while low < high:
             mid = low + (high - low) // 2
             num_miss_mid = self.get_num_miss(nums, mid)
             if num_miss_mid >= k:
-                high = mid - 1
+                high = mid
             else:
                 low = mid + 1
-        
         # low: smallest idx that has miss>=k
         # find the missing idx: delta is self.get_num_miss(nums, low) - k
         # even no delta, still move left by 1
         # e.g., nums = [4,7,9,10]; K = 1
         return nums[low]-1 - (self.get_num_miss(nums, low) - k)
+        # return nums[low-1] + k - self.get_num_miss(nums, low-1)
     
     def get_num_miss(self, nums, idx):
         # number of missing on left of nums[idx]
@@ -2536,33 +2515,7 @@ class Solution:
 
 sol = Solution()
 sol.missingElement(nums, K)
-
-
-"""[LeetCode] 1044. Longest Duplicate Substring 最长重复子串
-Given a string s, consider all duplicated substrings: (contiguous) substrings of s 
-that occur 2 or more times. The occurrences may overlap.
-
-Return any duplicated substring that has the longest possible length. If s does not 
-have a duplicated substring, the answer is "".
-
-Example 1:
-
-Input: s = "banana"
-Output: "ana"
-Example 2:
-
-Input: s = "abcd"
-Output: ""
-Constraints:
-
-2 <= s.length <= 3 * 104
-s consists of lowercase English letters.
-
-# https://www.cnblogs.com/grandyang/p/14497723.html
-
-"""
-
-
+nums = [4,7,9,10,11,12,13,14]; K = 3  # 8
 
 
 """ 1891 - Cutting Ribbons
@@ -2588,21 +2541,21 @@ arr = [1, 2, 3, 4, 9]; k = 5 # Output: 3
 
 def greatestLength(arr, k):
     # assume k > 0
-    low, high = 1, max(arr)  # size
+    low, high = 1, max(arr) + 1 # size
     # find size <= size(k), i.e. smallest size making >=k ribbons
-    while low <= high:
+    while low < high:
         mid = low + (high - low) // 2  # candidate size
         num_ribbon = get_num_ribbons(arr, mid)
         # if num_ribbon == k:
         #     return mid
-        if num_ribbon > k:
+        if num_ribbon >= k:
             # bigger size
             low = mid + 1
         else:
             # need smaller size
-            high = mid - 1
+            high = mid
 
-    return low
+    return low-1
 
 def get_num_ribbons(arr, size):
     res = 0
@@ -2611,7 +2564,6 @@ def get_num_ribbons(arr, size):
     return res
 
 greatestLength(arr, k)
-
 
 
 """
@@ -5838,7 +5790,6 @@ Output: [""]
 # if consecutive, only consider the first one to avoid duplication
 # time complexity O(2^(l+r)) where l and r are the number of open/close parentheses need to be removed 
 # space com O(l+r)^2 - O(n^2)
-
 class Solution:
     def removeInvalidParentheses(self, s: str):
         # first calculate number of l and r need to remove 
@@ -5860,7 +5811,6 @@ class Solution:
     def helper(self, s, start, l, r):
         if l == 0 and r == 0 and self.is_valid(s):
             self.res.append(s)
-        
         for i in range(start, len(s)):
             # only remove the first parenthes if there are consecutive ones to avoid duplications.
             if i != start and s[i] == s[i-1]:
@@ -5895,7 +5845,6 @@ sol.removeInvalidParentheses("(a)())()")
 """
 class Solution2:
     def removeInvalidParentheses(self, s: str) -> List[str]:
-        
         def is_valid(w):
             if not w:
                 return True
@@ -6880,7 +6829,6 @@ sol.wordBreak("catsand", ["cat","cats","and","sand","dog"])
 
 """72. Edit Distance
 Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2.
-
 You have the following three operations permitted on a word:
 
 Insert a character
@@ -9124,6 +9072,2508 @@ public:
 
 
 
+"""
+############################################################################
+扫描线算法（Sweep Line）
+############################################################################
+一个很巧妙的解决时间安排冲突的算法
+"""
 
+"""[LeetCode] 253. Meeting Rooms II 会议室之二
+Given an array of meeting time intervals consisting of start and end times [[s1,e1],[s2,e2],...] (si < ei), 
+find the minimum number of conference rooms required.
+
+Example 1:
+
+Input: 
+intervals = [[0, 30],[5, 10],[15, 20]]
+
+Output: 2
+
+Example 2:
+
+Input: [[7,10],[2,4]]
+Output: 1
+NOTE: input types have been changed on April 15, 2019. Please reset to default code definition to get new method signature.
+
+Solution:
+遍历时间区间，可以按照每个区间的起点排序,对于起始时间，映射值自增1，对于结束时间，映射值自减1，然后定义结果变量 res，和房间数 rooms
+NlogN
+"""
+from collections import defaultdict
+def minMeetingRooms(intervals):
+    m = defaultdict(lambda :0)
+    for interval in intervals:
+        m[interval[0]] = m[interval[0]] + 1
+        m[interval[1]] = m[interval[1]] - 1
+    
+    curr_rooms = 0
+    res = 0
+    for k, v in sorted(m.items(), key=lambda x: x[0]):
+        # sort by time
+        curr_rooms += v
+        res = max(res, curr_rooms)
+    
+    return res
+
+
+"""218. The Skyline Problem  ???
+A city's skyline is the outer contour of the silhouette formed by all the buildings 
+in that city when viewed from a distance. Given the locations and heights of all the buildings, 
+return the skyline formed by these buildings collectively.
+
+The geometric information of each building is given in the array buildings where buildings[i] = [lefti, righti, heighti]:
+
+lefti is the x coordinate of the left edge of the ith building.
+righti is the x coordinate of the right edge of the ith building.
+heighti is the height of the ith building.
+
+You may assume all buildings are perfect rectangles grounded on an absolutely flat surface at height 0.
+
+There must be no consecutive horizontal lines of equal height in the output skyline. 
+For instance, [...,[2 3],[4 5],[7 5],[11 5],[12 7],...] is not acceptable; 
+the three lines of height 5 should be merged into one in the final output as such: [...,[2 3],[4 5],[12 7],...]
+
+Input: buildings = [[2,9,10],[3,7,15],[5,12,12],[15,20,10],[19,24,8]]
+Output: [[2,10],[3,15],[7,12],[12,0],[15,10],[20,8],[24,0]]
+Explanation:
+Figure A shows the buildings of the input.
+Figure B shows the skyline formed by those buildings. The red points in figure B represent the key points in the output list.
+
+Input: buildings = [[0,2,3],[2,5,3]]
+Output: [[0,3],[5,0]]
+
+Pseudo code:
+events = {{x: left, h: heights, type:enter}, {x:right, h:heights, type:leaving}}
+events.sorted(by=(x, type, h*type))
+ds = DS()  # provide 1) max, 2) remove a given element
+for e in events:
+    if e.type == enter:
+        if e.h > ds.max():
+            res.append([e.x, e.h])
+        ds.add(e.h)
+    if e.type == leaving:
+        ds.remove(e.h)
+        if e.h > ds.max():
+            # current e.h is the max before removing
+            res.append([x, ds.max()])
+
+"""
+# https://zxi.mytechroad.com/blog/tree/leetcode-218-the-skyline-problem/
+# https://leetcode.com/problems/the-skyline-problem/discuss/954585/Python-O(n-log-n)-solution-using-heap-explained
+# O(nlogn) time. O(n) space
+from heapq import heappush, heappop
+class Solution:
+    def getSkyline(self, buildings):
+        left_points = [(l, h, -1, i) for i, (l, _, h) in enumerate(buildings)] # -1 means enter 
+        right_points = [(r, h, 1, i) for i, (_, r, h) in enumerate(buildings)]  # 1 means leave
+        points = left_points + right_points
+        # x first, then 1) enter always before leave 2) if both enter, higher first, 3) if both leave, smaller first
+        points = sorted(points, key=lambda x: (x[0], x[2], x[1]*x[2]))  # sort asce
+        heap = [(0, -1)]  # use -height as max height heap
+        active = set([-1])  # record idx of building that in current location
+        res = []
+        for x, h, status, idx in points:
+            if status == -1:
+                active.add(idx)
+            else:
+                active.remove(idx)
+
+            if status == -1:
+                # enter
+                if h > -1 * heap[0][0]:
+                    # new enter is max, add into res
+                    res.append([x, h])
+                # always add new h into heap
+                heappush(heap, (-h, idx))
+            else:
+                # leave the max, need to rm inactive buildings from heap
+                while len(heap) > 0 and heap[0][1] not in active:
+                    heappop(heap)
+                if heap[0][0] * -1 != res[-1][1]:
+                    res.append([x, heap[0][0] * -1])
+
+        return res
+                
+
+"""[LeetCode] Employee Free Time 职员的空闲时间
+We are given a list schedule of employees, which represents the working time for each employee.
+Each employee has a list of non-overlapping Intervals, and these intervals are in sorted order.
+Return the list of finite intervals representing common, positive-length free time for all employees, 
+also in sorted order.
+
+Example 1:
+Input: schedule = [[[1,2],[5,6]],[[1,3]],[[4,10]]]
+Output: [[3,4]]
+Explanation:
+There are a total of three employees, and all common
+free time intervals would be [-inf, 1], [3, 4], [10, inf].
+We discard any intervals that contain inf as they aren't finite.
+
+Example 2:
+Input: schedule = [[[1,3],[6,7]],[[2,4]],[[2,5],[9,12]]]
+Output: [[5,6],[7,9]]
+
+(Even though we are representing Intervals in the form [x, y], 
+the objects inside are Intervals, not lists or arrays. For example, 
+schedule[0][0].start = 1, schedule[0][0].end = 2, and schedule[0][0][0] is not defined.)
+
+Also, we wouldn't include intervals like [5, 5] in our answer, as they have zero length.
+"""
+from collections import defaultdict
+def employeeFreeTime(schedule):
+    m = defaultdict(lambda :0)
+    for intervals in schedule:
+        for interval in intervals:
+            m[interval[0]] += 1
+            m[interval[1]] -= 1
+    
+    cnt = 0
+    res = []
+    free_start = False
+    for k,v in sorted(m.items(), key=lambda x:x[0]):
+        cnt += v
+        if cnt == 0:
+            res.append([k, float('Inf')])
+            free_start = True
+        if cnt > 0 and len(res) > 0 and free_start:
+            res[-1][1] = k
+            free_start = False
+    
+    # last will always be [end, inf]
+    return res[:-1] if len(res) > 0 else []
+
+
+
+
+
+
+"""
+############################################################################
+TreeMap 
+############################################################################
+OrderedDict: popitem() will pop the most recent item
+基于红黑树（平衡二叉搜索树）的一种树状 hashmap，增删查改、找求大最小均为logN复杂度，Python当中可以使用SortedDict替代
+SortedDict继承了普通的dict全部的方法，除此之外还可以peekitem(k)来找key里面第k大的元素，
+popitem(k)来删除掉第k大的元素，弥补了Python自带的heapq没法logN时间复杂度内删除某个元素的缺陷
+"""     
+
+"""729. My Calendar I
+You are implementing a program to use as your calendar. We can add a new event if adding the event 
+will not cause a double booking.
+
+A double booking happens when two events have some non-empty intersection (i.e., some moment is 
+common to both events.).
+
+The event can be represented as a pair of integers start and end that represents a booking on the 
+half-open interval [start, end), the range of real numbers x such that start <= x < end.
+
+Implement the MyCalendar class:
+
+MyCalendar() Initializes the calendar object.
+boolean book(int start, int end) Returns true if the event can be added to the calendar 
+successfully without causing a double booking. Otherwise, return false and 
+do not add the event to the calendar.
+
+Example 1:
+
+Input
+["MyCalendar", "book", "book", "book"]
+[[], [10, 20], [15, 25], [20, 30]]
+Output
+[null, true, false, true]
+
+0 <= start < end <= 10**9
+At most 1000 calls will be made to book.
+"""
+
+# method 1: for each new interval, compare with each existing interval and see whether overlap O(n)
+
+# method 2: use binary search, O(logn), below
+
+""" Note on bisect
+bisect.bisect_left
+The returned insertion point i partitions the array a into two halves so that 
+all(val < x for val in a[lo : i]) for the left side and 
+all(val >= x for val in a[i : hi]) for the right side.
+
+bisect.bisect
+The returned insertion point i partitions the array a into two halves so that 
+all(val <= x for val in a[lo : i]) for the left side and 
+all(val > x for val in a[i : hi]) for the right side.
+"""
+# binary search tree sol in Python
+# https://leetcode.com/problems/my-calendar-i/discuss/109476/Binary-Search-Tree-python
+import bisect
+intervals = [[10, 20], [15, 25]]
+start, end  = 20, 30
+class MyCalendar:
+    def __init__(self):
+        self.d = dict()  # map from end to start
+        #self.starts = []
+        self.ends = []  # save end for binary search
+
+    def book(self, start: int, end: int) -> bool:
+        position = bisect.bisect_left(self.ends, start)
+        if position < len(self.ends) and self.d[self.ends[position]] <= end-1:
+            # becasue [start, end)  -> [start, end-1]
+            return False
+        
+        else:
+            self.d[end-1] = start
+            bisect.insort(self.ends, end-1)  # insert [start, end-1] 
+            return True
+
+
+sol=MyCalendar()
+sol.book(10, 20)
+sol.book(15, 25)
+sol.book(20, 30)
+
+"""Tree map solution
+class MyCalendar {
+public:
+    MyCalendar() {}
+    
+    bool book(int start, int end) {
+        auto it = cal.lower_bound(start);
+        if (it != cal.end() && it->first < end) return false;
+        if (it != cal.begin() && prev(it)->second > start) return false;
+        cal[start] = end;
+        return true;
+    }
+
+private:
+    map<int, int> cal;
+};
+"""
+from sortedcontainers import SortedDict
+import bisect
+
+class MyCalendar:
+    def __init__(self):
+        self.treemap = SortedDict()        
+
+    def book(self, start: int, end: int) -> bool:
+        if start in self.treemap:
+            return False
+        keys = self.treemap.keys() # sorted
+        floor = bisect.bisect(keys, start) - 1
+        ceiling = bisect.bisect(keys, start)
+        if floor >= 0:
+            s, e = keys[floor], self.treemap[keys[floor]]
+            if e > start and s < end: return False
+        
+        if ceiling < len(self.treemap):
+            s, e = keys[ceiling], self.treemap[keys[ceiling]]
+            if e > start and s < end: return False
+        
+        self.treemap[start] = end
+        return True
+
+
+"""981. Time Based Key-Value Store
+Design a time-based key-value data structure that can store multiple values for the 
+same key at different time stamps and retrieve the key's value at a certain timestamp.
+
+Implement the TimeMap class:
+
+TimeMap() Initializes the object of the data structure.
+void set(String key, String value, int timestamp) Stores the key "key" with the value "value"
+ at the given time timestamp.
+String get(String key, int timestamp) Returns a value such that set was called previously,
+ with timestamp_prev <= timestamp. If there are multiple such values, 
+ it returns the value associated with the largest timestamp_prev. 
+ If there are no values, it returns "".
+
+Example 1:
+Input
+["TimeMap", "set", "get", "get", "set", "get", "get"]
+[[], ["foo", "bar", 1], ["foo", 1], ["foo", 3], ["foo", "bar2", 4], ["foo", 4], ["foo", 5]]
+Output
+[null, null, "bar", "bar", null, "bar2", "bar2"]
+"""
+from collections import defaultdict
+class TimeMap:
+    def __init__(self):
+        self.dic = defaultdict(list)
+
+    def set(self, key: str, value: str, timestamp: int) -> None:
+        self.dic[key].append([timestamp, value])
+
+    def get(self, key: str, timestamp: int) -> str:
+        arr = self.dic[key]
+        n = len(arr)
+        l, r = 0, n
+        # find first after timestamp, then l-1
+        while l < r:
+            mid = l + (r-l) // 2
+            if arr[mid][0] <= timestamp:
+                l = mid + 1
+            else:
+                r = mid
+        
+        return "" if l == 0 else arr[l-1][1]
+
+
+# Your TimeMap object will be instantiated and called as such:
+# obj = TimeMap()
+# obj.set(key,value,timestamp)
+# param_2 = obj.get(key,timestamp)
+
+
+"""846. Hand of Straights
+Alice has some number of cards and she wants to rearrange the cards into 
+groups so that each group is of size groupSize, and consists of groupSize consecutive cards.
+
+Given an integer array hand where hand[i] is the value written on the ith 
+card and an integer groupSize, return true if she can rearrange the cards, or false otherwise.
+
+Example 1:
+Input: hand = [1,2,3,6,2,3,4,7,8], groupSize = 3
+Output: true
+Explanation: Alice's hand can be rearranged as [1,2,3],[2,3,4],[6,7,8]
+
+Example 2:
+Input: hand = [1,2,3,4,5], groupSize = 4
+Output: false
+Explanation: Alice's hand can not be rearranged into groups of 4.
+"""
+# O(MlogM + MW) where M is the num of unique card, W is groupSize
+from collections import Counter
+class Solution:
+    def isNStraightHand(self, hand, groupSize: int) -> bool:
+        n = len(hand)
+        if n % groupSize != 0:
+            return False
+        m = Counter(hand)
+        for i in sorted(m):
+            if m[i] > 0:
+                cur = m[i]  # need to copy first! 
+                for j in range(groupSize):
+                    m[i+j] = m[i+j] - cur
+                    if m[i+j] < 0:
+                        return False
+        return True
+
+# Follow Up: We just got lucky AC solution. Because groupSize <= 10000.
+# What if groupSize is huge, should we cut off card on by one?
+"""
+def isNStraightHand(self, hand, W):
+    c = collections.Counter(hand)
+    start = collections.deque()
+    last_checked, opened = -1, 0
+    for i in sorted(c):
+        if opened > c[i] or opened > 0 and i > last_checked + 1: return False
+        start.append(c[i] - opened)
+        last_checked, opened = i, c[i]
+        if len(start) == W: opened -= start.popleft()
+    return opened == 0
+"""
+
+
+""" 480. Sliding Window Median
+The median is the middle value in an ordered integer list. If the size of the list is even, 
+there is no middle value. So the median is the mean of the two middle values.
+
+For examples, if arr = [2,3,4], the median is 3.
+For examples, if arr = [1,2,3,4], the median is (2 + 3) / 2 = 2.5.
+You are given an integer array nums and an integer k. There is a sliding window of size k 
+which is moving from the very left of the array to the very right. You can only see 
+the k numbers in the window. Each time the sliding window moves right by one position.
+
+Return the median array for each window in the original array. Answers within 10-5 of 
+the actual value will be accepted.
+
+Example 1:
+Input: nums = [1,3,-1,-3,5,3,6,7], k = 3
+Output: [1.00000,-1.00000,-1.00000,3.00000,5.00000,6.00000]
+Explanation: 
+Window position                Median
+---------------                -----
+[1  3  -1] -3  5  3  6  7        1
+ 1 [3  -1  -3] 5  3  6  7       -1
+ 1  3 [-1  -3  5] 3  6  7       -1
+ 1  3  -1 [-3  5  3] 6  7        3
+ 1  3  -1  -3 [5  3  6] 7        5
+ 1  3  -1  -3  5 [3  6  7]       6
+
+Example 2:
+Input: nums = [1,2,3,4,2,3,1,4,2], k = 3
+Output: [2.00000,3.00000,3.00000,3.00000,2.00000,3.00000,2.00000]
+"""
+# https://zxi.mytechroad.com/blog/difficulty/hard/leetcode-480-sliding-window-median/
+# brutal force: O(n*klogk), need to sort window every time
+# insertion sort :  O(k*logk+n*k), keep a sorted window, takes O(k) to insert and maintain
+# BST, multiset, two heap:  O(k*logk + nlogk)
+import bisect 
+class Solution:
+    def medianSlidingWindow(self, nums, k: int):
+        res = []
+        n = len(nums)
+        window = sorted(nums[:k])
+        median = (window[(k-1)//2] + window[k//2]) / 2.0
+        res.append(median)
+        for i in range(k, n):
+            old_position = bisect.bisect_left(window, nums[i-k]) # left <= x < right
+            window.pop(old_position)
+            bisect.insort_left(window, nums[i])
+            median = (window[(k-1)//2] + window[k//2]) / 2.0
+            res.append(median)
+        return res
+
+nums = [1,2,3,4,2,3,1,4,2]; k = 3
+sol=Solution()
+sol.medianSlidingWindow(nums, k)
+sol.medianSlidingWindow([1,3,-1,-3,5,3,6,7], 3)
+
+# write the binary insertion yourself
+class Solution:
+    def medianSlidingWindow(self, nums, k: int):
+        res = []
+        n = len(nums)
+        window = sorted(nums[:k])
+        median = (window[(k-1)//2] + window[k//2]) / 2.0
+        res.append(median)
+        for i in range(k, n):
+            old_position = self.binary_search(window, nums[i-k]) # find where old x is
+            window.pop(old_position)
+            window = self.binary_insert(window, nums[i]) #  left <= x < right
+            median = (window[(k-1)//2] + window[k//2]) / 2.0 
+            res.append(median)
+        return res
+    
+    def binary_search(self, window, x):
+        # find location in nums such that left<=x<right (loc+1 is the first < x)
+        l, r = 0, len(window)
+        while l < r:
+            mid = l + (r-l) // 2
+            if window[mid] == x:
+                return mid
+            elif window[mid] < x:
+                l = mid+1
+            else:
+                r = mid
+        return None
+    
+    def binary_insert(self, window, x):
+        l, r = 0, len(window)
+        find = False
+        while l < r:
+            mid = l + (r-l) // 2
+            if window[mid] == x:
+                find=True
+                break
+            elif window[mid] < x:
+                l = mid+1
+            else:
+                r = mid
+        mid = mid if find else l  # insert x at mid
+        window.append(0)
+        j = len(window) - 1
+        while j > mid:
+            window[j] = window[j-1]
+            j -= 1
+        window[j] = x
+        return window
+            
+
+"""315. Count of Smaller Numbers After Self  ???
+You are given an integer array nums and you have to return a new counts array. 
+The counts array has the property where counts[i] is the number of smaller elements to the right of nums[i].
+
+Example 1:
+Input: nums = [5,2,6,1]
+Output: [2,1,1,0]
+Explanation:
+To the right of 5 there are 2 smaller elements (2 and 1).
+To the right of 2 there is only 1 smaller element (1).
+To the right of 6 there is 1 smaller element (1).
+To the right of 1 there is 0 smaller element.
+
+Idea: 用二分法插入到一个新的数组，这样新数组就是有序的，那么此时该数字在新数组中的坐标就是原数组中其右边所有较小数字的个数
+"""
+# Solution 1: insertion sort (O(n^2))
+class Solution:
+    def countSmaller(self, nums):
+        sorted_values, out = [], []
+        for x in nums[::-1]:
+            idx = bisect.bisect_left(sorted_values, x)
+            sorted_values.insert(idx, x)
+            out.append(idx)
+        return out[::-1]
+        
+
+# Solution 2: merge sort O(nlogn)
+# https://leetcode.com/problems/count-of-smaller-numbers-after-self/discuss/76607/C%2B%2B-O(nlogn)-Time-O(n)-Space-MergeSort-Solution-with-Detail-Explanation
+# sort (index, value) pairs. The value is used for the sorting and the index is used for tracking the jumps.
+def countSmaller(self, nums):
+    def sort(enum):
+        half = len(enum) // 2
+        if half:
+            left, right = sort(enum[:half]), sort(enum[half:])  # count smaller element for left and right
+            for i in range(len(enum))[::-1]:
+                if len(right) == 0 or (len(left) > 0 and left[-1][1] > right[-1][1]):
+                    # left last element > right
+                    smaller[left[-1][0]] += len(right) # all smaller in right should be counted
+                    enum[i] = left.pop()  # last element
+                else:
+                    enum[i] = right.pop()  # last element
+        return enum
+    smaller = [0] * len(nums)
+    sort(list(enumerate(nums)))
+    return smaller
+
+
+
+
+"""
+############################################################################
+动态规划（Dynamic Programming）
+############################################################################
+常见的题目包括找最大最小，找可行性，找总方案数等
+"""
+
+"""674. Longest Continuous Increasing Subsequence
+Given an unsorted array of integers nums, return the length of the 
+longest continuous increasing subsequence (i.e. subarray). The subsequence must be strictly increasing.
+
+A continuous increasing subsequence is defined by two indices l and r (l < r) such that it is 
+[nums[l], nums[l + 1], ..., nums[r - 1], nums[r]] and for each l <= i < r, nums[i] < nums[i + 1].
+
+Example 1:
+Input: nums = [1,3,5,4,7]
+Output: 3
+Explanation: The longest continuous increasing subsequence is [1,3,5] with length 3.
+Even though [1,3,5,7] is an increasing subsequence, it is not continuous as elements 5 and 7 are separated by element
+4.
+
+Example 2:
+
+Input: nums = [2,2,2,2,2]
+Output: 1
+Explanation: The longest continuous increasing subsequence is [2] with length 1. Note that it must be strictly
+increasing.
+"""
+
+# Idea: 使用一个计数器，如果遇到大的数字，计数器自增1；如果是一个小的数字，则计数器重置为1。
+# 用一个变量 cur 来表示前一个数字，初始化为整型最大值，当前遍历到的数字 num 就和 cur 比较就行了，
+# 每次用 cnt 来更新结果 res
+"""
+class Solution {
+public:
+    int findLengthOfLCIS(vector<int>& nums) {
+        int res = 0, cnt = 0, cur = INT_MAX;
+        for (int num : nums) {
+            if (num > cur) ++cnt;
+            else cnt = 1;
+            res = max(res, cnt);
+            cur = num;
+        }
+        return res;
+    }
+};
+"""
+class Solution(object):
+    def findLengthOfLCIS(self, nums):
+        if not nums:
+            return 0
+        dp = [1] * len(nums)
+        for i in range(1, len(nums)):
+            if nums[i] > nums[i-1]:
+                dp[i] = dp[i - 1] + 1
+        return max(dp)
+
+
+"""300 Longest Increasing Subsequence (接龙型dp)
+Given an integer array nums, return the length of the longest strictly increasing subsequence.
+
+A subsequence is a sequence that can be derived from an array by deleting some or no elements 
+without changing the order of the remaining elements. For example, [3,6,2,7] is a subsequence 
+of the array [0,3,1,6,2,2,7].
+
+Example 1:
+Input: nums = [10,9,2,5,3,7,101,18]
+Output: 4
+Explanation: The longest increasing subsequence is [2,3,7,101], therefore the length is 4.
+
+Example 2:
+Input: nums = [0,1,0,3,2,3]
+Output: 4
+
+Example 3:
+Input: nums = [7,7,7,7,7,7,7]
+Output: 1
+"""
+# Solution 1: n^2
+# dp[i]: length of LIS ends with nums[i]
+# dp[i] = max(dp[i], dp[j] + 1) for 0<=j<i and nums[j] < nums[i]
+# if we need to print the LIS, then dp[i] needs to save the seq instead of a number
+"""
+class Solution {
+public:
+    int lengthOfLIS(vector<int>& nums) {
+        if (nums.empty()) return 0;
+        int n = nums.size();
+        auto f = vector<int>(n, 1);
+        for (int i = 1; i < n; ++i)
+            for (int j = 0; j < i; ++j)
+                if (nums[i] > nums[j])
+                    f[i] = max(f[i], f[j] + 1);
+        return *max_element(f.begin(), f.end());
+    }
+};
+"""
+
+# Solution 2: patience sort: nlogn. 
+# if need to return the LIS, then a single dp array is not enough
+# https://www.youtube.com/watch?v=l2rCz7skAlk
+
+# dp[i]: the smallest ending number of a subseq that has length i+1
+# dp is increasing , use binary search
+# nums = [3,4,1,2,8,5,6]
+# num: 3,     4,  1,      2,     8,      5,       6,
+# dp: [3], [3,4], [1, 4],[1,2], [1,2,8],[1,2,5], [1,2,5,6]
+# res = len(dp)
+# https://www.youtube.com/watch?v=l2rCz7skAlk
+class Solution:
+  def lengthOfLIS(self, nums: List[int]) -> int:
+    d = []
+    for x in nums:
+      i = bisect_left(d, x)
+      if i == len(d): 
+        d.append(x)
+      else:
+        d[i] = x
+    return len(d)
+
+
+"""673. Number of Longest Increasing Subsequence
+Given an integer array nums, return the number of longest increasing subsequences.
+Notice that the sequence has to be strictly increasing.
+
+Example 1:
+Input: nums = [1,3,5,4,7]
+Output: 2
+Explanation: The two longest increasing subsequences are [1, 3, 4, 7] and [1, 3, 5, 7].
+
+Example 2:
+Input: nums = [2,2,2,2,2]
+Output: 5
+Explanation: The length of longest continuous increasing subsequence is 1, 
+and there are 5 subsequences' length is 1, so output 5.
+
+Follow up: what if you need to print all the LIS? 
+
+Idea 1: n^2
+将 dp[i] 定义为以 nums[i] 为结尾的递推序列的个数
+用 len[i] 表示以 nums[i] 为结尾的递推序列的长度
+
+In the Longest Increasing Subsequence problem, the DP array simply had to store the longest length. 
+In this variant, each element in the DP array needs to store two things: 
+(1) Length of longest subsequence ending at this index and 
+(2) Number of longest subsequences that end at this index. 
+I use a two element list for this purpose.
+In each loop as we build up the DP array, find the longest length for this index and then 
+sum up the numbers at these indices that contribute to this longest length.
+https://leetcode.com/problems/number-of-longest-increasing-subsequence/discuss/107320/Python-DP-with-explanation-(Beats-88)
+
+"""
+class Solution_DP:
+    def findNumberOfLIS(self, nums) -> int:
+        n = len(nums)
+        if n == 0:
+            return 0
+        dp = [1]*n  # cnt
+        lens = [1]*n
+        for i in range(1, n):
+            for j in range(i):
+                if nums[j] < nums[i]:
+                    if lens[i] == lens[j] + 1:
+                        dp[i] += dp[j]
+                    if lens[i] < lens[j] + 1:
+                        lens[i] = lens[j] + 1
+                        dp[i] = dp[j]
+
+        max_lens = max(lens)
+        max_idx = [i for i,l in enumerate(lens) if l==max_lens]
+        return sum(dp[i] for i in max_idx)
+
+# follow up
+def PrintLIS(nums):
+    n = len(nums)
+    if n == 0:
+        return 0
+    dp = [1]*n  # cnt
+    lens = [1]*n
+    lis_list = [[[num]] for num in nums]  # all LIS ends with num[i]
+    for i in range(1, n):
+        for j in range(i):
+            if nums[j] < nums[i]:
+                if lens[i] == lens[j] + 1:
+                    dp[i] += dp[j]
+                    lis_list[i] += [lis+[nums[i]] for lis in lis_list[j]]
+                if lens[i] < lens[j] + 1:
+                    lens[i] = lens[j] + 1
+                    dp[i] = dp[j]
+                    lis_list[i] = [lis+[nums[i]] for lis in lis_list[j]]
+
+    max_lens = max(lens)
+    max_idx = [i for i,l in enumerate(lens) if l==max_lens]
+    res = []
+    nested_res = [lis_list[i] for i in max_idx]
+    for list_list in nested_res:
+        for curr_lis in list_list:
+            res.append(curr_lis)
+    return res
+
+
+nums = [1,3,5,4,7, 3, 10]
+PrintLIS(nums)
+
+"""Idea 2: Patience sort nlogn
+https://leetcode.com/problems/number-of-longest-increasing-subsequence/discuss/916196/Python-Short-O(n-log-n)-solution-beats-100-explained
+
+The idea is to keep several decks, where numbers in each deck are decreasing. 
+Also when we see new card, we need to put it to the end of the leftest possible deck. 
+Also we have paths: corresponing number of LIS, ending with given num. 
+That is in paths[0] we keep number of LIS with length 1, in paths[k] we keep number 
+of LIS with length k+1. (we keep cumulative sums) Also we keep ends_decks list to 
+have quick access to end of our decks.
+"""
+# skip 
+
+
+
+"""63. Unique Paths II
+A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+The robot can only move either down or right at any point in time. The robot is trying to 
+reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+
+Now consider if some obstacles are added to the grids. How many unique paths would there be?
+An obstacle and space is marked as 1 and 0 respectively in the grid.
+
+Input: obstacleGrid = [[0,0,0],[0,1,0],[0,0,0]]
+Output: 2
+Explanation: There is one obstacle in the middle of the 3x3 grid above.
+There are two ways to reach the bottom-right corner:
+1. Right -> Right -> Down -> Down
+2. Down -> Down -> Right -> Right
+
+Input: obstacleGrid = [[0,1],[0,0]]
+Output: 1
+"""
+# DP 
+# dp[i][j]: num of unique paths to (i,j)
+class Solution:
+    def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
+        dp = [[0 for _ in range(len(obstacleGrid[0])+1)] for _ in range(len(obstacleGrid)+1)]
+        m, n = len(dp), len(dp[0])
+        dp[0][1] = 1  # initialize to make sure dp[1][1] = 1!
+        for i in range(1, m):
+            for j in range(1, n):
+                if obstacleGrid[i-1][j-1] == 1:
+                    dp[i][j] = 0
+                else:
+                    dp[i][j] = dp[i-1][j] + dp[i][j-1]
+        
+        return dp[m-1][n-1]
+
+# you may also use BFS+dp[][], but slower than dp
+# DFS + memo also works 
+
+
+"""368. Largest Divisible Subset
+Given a set of distinct positive integers nums, return the largest 
+subset answer such that every pair (answer[i], answer[j]) of elements in this subset satisfies:
+
+answer[i] % answer[j] == 0, or
+answer[j] % answer[i] == 0
+If there are multiple solutions, return any of them.
+
+Example 1:
+Input: nums = [1,2,3]
+Output: [1,2]
+Explanation: [1,3] is also accepted.
+
+Example 2:
+Input: nums = [1,2,4,8]
+Output: [1,2,4,8]
+"""
+class Solution:
+    def largestDivisibleSubset(self, nums):
+        nums = sorted(nums)
+        n = len(nums)
+        lds = [[num] for num in nums] # lds ends with nums[i]
+        lens = [1] * n  # lens ens with nums[i]
+        for i in range(1, n):
+            for j in range(i):
+                if nums[i] % nums[j] == 0:
+                    # nums[i]>nums[j] so nums[j]%nums[i]=0
+                    # if lens[i] == lens[j] + 1:
+                    #     continue
+                    if lens[i] < lens[j] + 1:
+                        lens[i] = lens[j] + 1
+                        lds[i] = lds[j] + [nums[i]]
+        
+        return max(lds, key=len)
+
+# print all the 
+class Solution:
+    def largestDivisibleSubset(self, nums: List[int]) -> List[int]:
+        nums = sorted(nums)
+        n = len(nums)
+        lds = [[[num]] for num in nums] # lds ends with nums[i]
+        lens = [1] * n  # lens ens with nums[i]
+        for i in range(1, n):
+            for j in range(i):
+                if nums[i] % nums[j] == 0:
+                    # nums[i]>nums[j] so nums[j]%nums[i]=0
+                    if lens[i] == lens[j] + 1:
+                        lds[i] += [lds_j + [nums[i]] for lds_j in lds[j]]
+                    if lens[i] < lens[j] + 1:
+                        lens[i] = lens[j] + 1
+                        lds[i] = [lds_j + [nums[i]] for lds_j in lds[j]]
+        
+        max_lens = max(lens)
+        max_idx = [i for i,l in enumerate(lens) if l==max_lens]
+        res = []
+        nested_res = [lds[i] for i in max_idx]
+        for list_list in nested_res:
+            for curr_lis in list_list:
+                res.append(curr_lis)
+        return res
+
+
+"""354. Russian Doll Envelopes
+You are given a 2D array of integers envelopes where envelopes[i] = [wi, hi] represents the 
+width and the height of an envelope.
+
+One envelope can fit into another if and only if both the width and height of one envelope 
+are greater than the other envelope's width and height.
+
+Return the maximum number of envelopes you can Russian doll (i.e., put one inside the other).
+
+Note: You cannot rotate an envelope.
+
+Example 1:
+Input: envelopes = [[5,4],[6,4],[6,7],[2,3]]
+Output: 3
+Explanation: The maximum number of envelopes you can Russian doll is 3 ([2,3] => [5,4] => [6,7]).
+
+Example 2:
+Input: envelopes = [[1,1],[1,1],[1,1]]
+Output: 1
+"""
+# Solution 1: n^2
+# sort decreasing, and dp[i]: max number if env[i] is the smallest envelop
+# dp = [1]^n
+# dp[i] = dp[j] + 1 if envelops[i] can fit into env[j], for 0<=j<i
+# return max(dp)
+# skip
+
+# Solution 2: nlogn, similar to length of LIS
+# 信封的宽度还是从小到大排，但是宽度相等时，我们让高度大的在前面 (w,h)
+# In this way, if envs[i+1][height] > envs[i][height] then envs[i+1][width] must bigger
+# use dp[i] to save the last ("largest") envelop of length i
+# keep dp[i] be as small as possible 
+envelopes = [[5,4],[5,5],[6,7],[2,3]]
+class Solution:
+    def maxEnvelopes(self, envelopes) -> int:
+        dp = []
+        # only possible for early fit into latter
+        envelopes = sorted(envelopes, key=lambda x: (x[0], -1*x[1])) 
+        for env in envelopes:
+            self.insert_env(dp, env) # smallest env can hold curr
+        return len(dp)
+
+    def insert_env(self, dp, env):
+        n = len(dp)
+        # smallest env has a larger or equal h
+        # if equal h, then w must be smaller due to sort
+        l, r = 0, n
+        while l < r:
+            mid = l + (r-l) // 2
+            if dp[mid][1] < env[1]:
+                l = mid + 1
+            else:
+                r = mid
+        if r == n:
+            dp.append(env)
+        else:
+            dp[l] = env
+        return None
+
+
+"""[LeetCode] 256. Paint House 粉刷房子
+There are a row of n houses, each house can be painted with one of the three colors: red, blue or green. 
+The cost of painting each house with a certain color is different. You have to paint all the houses such 
+that no two adjacent houses have the same color.
+
+The cost of painting each house with a certain color is represented by a n x 3 cost matrix. 
+For example, costs[0][0] is the cost of painting house 0 with color red; costs[1][2] is the cost 
+of painting house 1 with color green, and so on... Find the minimum cost to paint all houses.
+
+Note:
+All costs are positive integers.
+
+Example:
+Input: costs = [[17,2,17],[16,16,5],[14,3,19]]
+Output: 10
+Explanation: Paint house 0 into blue, paint house 1 into green, paint house 2 into blue. 
+             Minimum cost: 2 + 5 + 3 = 10.
+"""
+# dp_red[i]: min cost of painint first i, using red for ith
+# dp_blue[i]
+# dp_green[i]
+# may use dp[i][j] as a general (j is color idx)
+
+# initial: dp[0][j] = costs[0][j]
+# iteration formular: 
+# dp[i+1] = min(dp[j] + costs[i+1][j]), for j in list(range(num_colr))-[j])
+
+
+"""45 Jump Game II
+Given an array of non-negative integers nums, you are initially positioned at the first index of the array.
+Each element in the array represents your maximum jump length at that position.
+Your goal is to reach the last index in the minimum number of jumps.
+You can assume that you can always reach the last index.
+
+Example 1:
+Input: nums = [2,3,1,1,4]
+Output: 2
+Explanation: The minimum number of jumps to reach the last index is 2. Jump 1 step from index 0 to 1, then 3 steps to the last index.
+
+Example 2:
+Input: nums = [2,3,0,1,4]
+Output: 2
+"""
+
+# solution 1: dp[i]: denotes minimum jumps required from current index to reach till the end.
+# initial: dp = [inf]*n, dp[n-1]=0
+# iteration: dp[i] = min(dp[j] + 1) if nums[i] >= i-j for j in range(i,n)
+# O(n^2)
+
+# solution 2: Gready: O(n)
+# We can iterate over all indices maintaining the furthest reachable position from current index - maxReachable 
+#  and currently furthest reached position - lastJumpedPos. 
+# Everytime we will try to update lastJumpedPos to furthest possible reachable index - maxReachable.
+
+class Solution:
+    def jump(self, nums) -> int:
+        if len(nums) == 1:
+            # can del this by initialize res, lastJumpedPos, maxReachable with 0
+            return 0
+        lastJumpedPos = nums[0]
+        maxReachable = nums[0]
+        res = 1
+        i = 0
+        while i < len(nums):
+            if i > lastJumpedPos:
+                # if i goes beyond current longest step, res+1
+                res += 1
+                lastJumpedPos = maxReachable
+            maxReachable = max(maxReachable, i+nums[i])
+            # if i>maxReachable:
+            #     return -1  # if not reachable
+            i += 1
+        
+        return res
+
+
+"""132. Palindrome Partitioning II
+Given a string s, partition s such that every substring of the partition is a palindrome.
+Return the minimum cuts needed for a palindrome partitioning of s.
+
+Example 1:
+Input: s = "aab"
+Output: 1
+Explanation: The palindrome partitioning ["aa","b"] could be produced using 1 cut.
+
+Example 2:
+Input: s = "a"
+Output: 0
+
+Example 3:
+Input: s = "ab"
+Output: 1
+"""
+
+# This can be solved by two points:
+# cut[j]: minimum cuts needed for a palindrome partitioning of s[:j+1]
+# cut[j] is the minimum of cut[i - 1] + 1 (i <= j), if [i, j] is palindrome.
+# If [j, i] is palindrome, [j + 1, i - 1] is palindrome, and c[j] == c[i].
+
+class Solution:
+    def minCut(self, s: str) -> int:
+        n = len(s)
+        dp = list(range(n))
+        pal = [[True for _ in range(n)] for _ in range(n)]  # pal[i][j] whether s[i:j+1] is pal
+        
+        # first calculate pal matrix
+        for j in range(n):
+            for i in range(j+1):
+                # i = 0,...,j-1
+                pal[i][j] = pal[i+1][j-1] and (s[i]==s[j]) if i<j else True
+        
+        for j in range(n):
+            dp[j] = j  # len 1 needs 0 cut
+            for i in range(j+1):
+                # i = 0, ..., j
+                if pal[i][j]:
+                    # if s[i:j+1] is palindrome
+                    # 1) i==0: s[:j+1] is palindrome, min cut is 0 
+                    # 2) i!=0, then min of cut for s[:i+1] + 1, because s[i:j+1] is palindrome
+                    dp[j] = 0 if i==0 else min(dp[j], dp[i-1] + 1) 
+        
+        return dp[n-1]
+
+sol=Solution()
+sol.minCut(s)
+
+# may not need such pal table
+"""
+Use two variables in two loops to represent a palindrome:
+The external loop variable 'i' represents the center of the palindrome. 
+The internal loop variable 'j' represents the 'radius' of the palindrome. Apparently, j <= i is a must.
+This palindrome can then be represented as s[i-j, i+j]. If this string is indeed a palindrome, 
+then one possible value of cut[i+j] is cut[i-j] + 1, where cut[i-j] corresponds to s[0, i-j-1] and 
+1 correspond to the palindrome s[i-j, i+j];
+class Solution {
+public:
+    int minCut(string s) {
+        int n = s.size();
+        vector<int> cut(n+1, 0);  // number of cuts for the first k characters
+        for (int i = 0; i <= n; i++) cut[i] = i-1;
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; i-j >= 0 && i+j < n && s[i-j]==s[i+j] ; j++) // odd length palindrome
+                cut[i+j+1] = min(cut[i+j+1],1+cut[i-j]);
+
+            for (int j = 1; i-j+1 >= 0 && i+j < n && s[i-j+1] == s[i+j]; j++) // even length palindrome
+                cut[i+j+1] = min(cut[i+j+1],1+cut[i-j+1]);
+        }
+        return cut[n];
+    }
+};
+"""
+
+"""1278. Palindrome Partitioning III
+You are given a string s containing lowercase letters and an integer k. You need to :
+
+First, change some characters of s to other lowercase English letters.
+Then divide s into k non-empty disjoint substrings such that each substring is a palindrome.
+Return the minimal number of characters that you need to change to divide the string.
+
+Example 1
+Input: s = "abc", k = 2
+Output: 1
+Explanation: You can split the string into "ab" and "c", and change 1 character in "ab" to make it palindrome.
+
+Example 2:
+Input: s = "aabbc", k = 3
+Output: 0
+Explanation: You can split the string into "aa", "bb" and "c", all of them are palindrome.
+
+Example 3:
+Input: s = "leetcode", k = 8
+Output: 0
+"""
+# dp[i][k] : minimal number of char to change to divide s[:i+1] into k+1 strings
+# dp[i][0] = cost(s[:i+1]) # cost of change s[:i+1] into palindrome
+# dp[i][k] = min(dp[j][k-1] + cost(s[j+1:i+1])) for j=0,...i-1
+# to save time, create costs[i][j]: cost of changing s[i:j+1] into palindrome
+# n^2 * k
+
+class Solution:
+    def palindromePartition(self, s: str, k: int) -> int:
+        n = len(s)
+        dp = [[float('Inf') for _ in range(k)] for _ in range(n)]
+        costs = [[0 for _ in range(n)] for _ in range(n)]
+
+        for j in range(n):
+            for i in range(j)[::-1]:
+                # cost=0 when i=j
+                # s[i:j+1]
+                costs[i][j] = costs[i+1][j-1] if s[i]==s[j] else costs[i+1][j-1]+1
+
+        for i in range(n):
+            dp[i][0] = costs[0][i]  # divide into 1 string
+            for ki in range(1, k):
+                for j in range(i):
+                    # dp[j][k-1] + cost(s[j+1:i])
+                    dp[i][ki] = min(dp[i][ki], dp[j][ki-1] + costs[j+1][i])
+        
+        return dp[n-1][k-1]
+
+
+"""813. Largest Sum of Averages
+You are given an integer array nums and an integer k. You can partition the array into at most k non-empty adjacent subarrays. 
+The score of a partition is the sum of the averages of each subarray.
+Note that the partition must use every integer in nums, and that the score is not necessarily an integer.
+
+Return the maximum score you can achieve of all the possible partitions. Answers within 10-6 of the actual answer will be accepted.
+
+Example 1:
+Input: nums = [9,1,2,3,9], k = 3
+Output: 20.00000
+Explanation: 
+The best choice is to partition nums into [9], [1, 2, 3], [9]. The answer is 9 + (1 + 2 + 3) / 3 + 9 = 20.
+We could have also partitioned nums into [9, 1], [2], [3, 9], for example.
+That partition would lead to a score of 5 + 2 + 6 = 13, which is worse.
+"""
+# dp[i][k] : LSA of nums[:i+1] for k subarrays
+# dp[i][0] = 0
+# dp[i][k] = max(dp[j][k-1] + avg(nums[j+1:i+1]))
+# nums[j+1:i+1] = cumsums[i] - cumsums[j]
+# can also use DFS+memo
+
+
+"""312. Burst Balloons
+You are given n balloons, indexed from 0 to n - 1. Each balloon is painted with a number on 
+it represented by an array nums. You are asked to burst all the balloons.
+
+If you burst the ith balloon, you will get nums[i - 1] * nums[i] * nums[i + 1] coins. 
+If i - 1 or i + 1 goes out of bounds of the array, then treat it as if there is a balloon with a 1 painted on it.
+
+Return the maximum coins you can collect by bursting the balloons wisely.
+
+Example 1:
+Input: nums = [3,1,5,8]
+Output: 167
+Explanation:
+nums = [3,1,5,8] --> [3,5,8] --> [3,8] --> [8] --> []
+coins =  3*1*5    +   3*5*8   +  1*3*8  + 1*8*1 = 167
+"""
+# DFS+memo: TLE time ? 
+from collections import defaultdict
+class Solution:
+    def maxCoins(self, nums) -> int:
+        memo = defaultdict(list)
+        adj_nums = [1] + nums + [1]
+        return self.dfs(tuple(adj_nums), memo)
+
+    def dfs(self, nums, memo):
+        if len(nums) < 3:
+            # head and tail are fake numes
+            return 0
+        if nums in memo:
+            return memo[nums]
+        res = 0
+        for i in range(1, len(nums)-1):
+            # cannot burst head and tail
+            res = max(res, self.dfs(nums[:i] + nums[i+1:], memo) + nums[i]*nums[i-1]*nums[i+1])
+        memo[nums] = res
+        return res
+
+
+sol=Solution()
+sol.maxCoins(nums=[3,1,5,8])
+
+
+# DP: dp[i][j] 表示打爆区间 [i,j] 中的所有气球能得到的最多金币
+# if k is the last balloon in nums[i:j+1] to burst, then
+# dp[i][j] = max(dp[i][j], nums[i - 1] * nums[k] * nums[j + 1] + dp[i][k - 1] + dp[k + 1][j]),  i ≤ k ≤ j 
+# 遍历顺序: [3] -> [1] -> [5] -> [8] -> [3, 1] -> [1, 5] -> [5, 8] -> [3, 1, 5] -> [1, 5, 8] -> [3, 1, 5, 8]
+# 所以两个loop是: len, i (len=j-i+1)
+"""
+class Solution {
+public:
+    int maxCoins(vector<int>& nums) {
+        int n = nums.size();
+        nums.insert(nums.begin(), 1);
+        nums.push_back(1);
+        vector<vector<int>> dp(n + 2, vector<int>(n + 2, 0));
+        for (int len = 1; len <= n; ++len) {
+            for (int i = 1; i <= n - len + 1; ++i) {
+                int j = i + len - 1;
+                for (int k = i; k <= j; ++k) {
+                    dp[i][j] = max(dp[i][j], nums[i - 1] * nums[k] * nums[j + 1] + dp[i][k - 1] + dp[k + 1][j]);
+                }
+            }
+        }
+        return dp[1][n];
+    }
+};
+"""
+
+
+"""1143. Longest Common Subsequence
+Given two strings text1 and text2, return the length of their longest common subsequence. 
+If there is no common subsequence, return 0.
+
+A subsequence of a string is a new string generated from the original string with some characters 
+(can be none) deleted without changing the relative order of the remaining characters.
+
+For example, "ace" is a subsequence of "abcde".
+A common subsequence of two strings is a subsequence that is common to both strings.
+
+Example 1:
+Input: text1 = "abcde", text2 = "ace" 
+Output: 3  
+Explanation: The longest common subsequence is "ace" and its length is 3.
+
+Example 2:
+Input: text1 = "abc", text2 = "abc"
+Output: 3
+Explanation: The longest common subsequence is "abc" and its length is 3.
+"""
+# similar to  Delete Operation for Two Strings
+# dp[i][j] 表示 text1 的前i个字符和 text2 的前j个字符的最长相同的子序列的字符个数
+# 
+class Solution:
+    def longestCommonSubsequence(self, text1: str, text2: str) -> int:
+        m, n = len(text1)+1, len(text2)+1
+        dp = [[0 for _ in range(n)] for _ in range(m)]
+        # dp[i][j]: text1[:i] and text2[:j]
+        for i in range(1,m):
+            for j in range(1,n):
+                if text1[i-1] == text2[j-1]: 
+                    dp[i][j] = dp[i-1][j-1] + 1
+                else:
+                    dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+        
+        return dp[m-1][n-1]
+
+sol=Solution()
+sol.longestCommonSubsequence(text1 = "abcde", text2 = "ace")
+
+
+"""Maximum Length of Repeated Subarray
+Given two integer arrays nums1 and nums2, return the maximum length of a subarray that appears in both arrays.
+
+Example 1:
+Input: nums1 = [1,2,3,2,1], nums2 = [3,2,1,4,7]
+Output: 3
+Explanation: The repeated subarray with maximum length is [3,2,1].
+
+Example 2:
+Input: nums1 = [0,0,0,0,0], nums2 = [0,0,0,0,0]
+Output: 5
+
+# Use dynamic programming. dp[i][j] will be the answer for inputs A[i:], B[j:].
+其中 dp[i][j] 表示数组A的前i个数字和数组B的前j个数字在尾部匹配的最长子数组的长度
+如果 dp[i][j] 不为0，则A中第i个数组和B中第j个数字必须相等，且 dp[i][j] 的值就是往前推分别相等的个数
+每次算出一个 dp 值，都要用来更新结果 res
+  3 1 2
+1 0 1 0
+2 0 0 2
+2 0 0 1
+"""
+class Solution:
+    def findLength(self, nums1: List[int], nums2: List[int]) -> int:
+        m, n = len(nums1)+1, len(nums2)+1
+        dp = [[0 for _ in range(n)] for _ in range(m)]  
+        res = 0
+        for i in range(1, m):
+            for j in range(1, n):
+                # nums1[:i], nums2[:j]
+                if nums1[i-1] == nums2[j-1]:
+                    dp[i][j] = dp[i-1][j-1] + 1
+                    res = max(res, dp[i][j])
+                else:
+                    dp[i][j] = 0
+        
+        return res
+
+
+"""1044. Longest Duplicate Substring
+Given a string s, consider all duplicated substrings: (contiguous) substrings of s that occur 2 or more times. The occurrences may overlap.
+Return any duplicated substring that has the longest possible length. If s does not have a duplicated substring, the answer is "".
+
+Example 1:
+Input: s = "banana"
+Output: "ana"
+
+Example 2:
+Input: s = "abcd"
+Output: ""
+
+s consists of lowercase English letters.
+"""
+# Solution 1: dp[i][j]: longest length of overlap for strings endwith with s[i] and s[j]
+# dp[i][j] = 0 if s[i]!=s[j] else 1+dp[i-1][j-1]. for 0<=i<j<=n-1
+# res = max(dp)
+# TLE
+
+
+# Solution 2: nlogn: 
+# for a sliding window with a fixed length K, it takes O(n) to find whether duplicate (hash set)
+# we use binary search to find such max K
+# Pay attention that it is non trivial to push a very long string into hash!
+# need to use  Rabin-Karp algorithm to convert string into an integer
+# 编码的方法是用 26 进制，因为限制了都是小写字母，为了防止整型溢出，需要对一个超大的质数取余
+# abce -> (1*26^1 + 2*26^2 + 3*26^3 + 5*26^4) % m, m=1e7+7
+# May use double hash to further decrease the chance
+s="ttwphlndxvcruhoaapgcfovcqopxbyzcidwhbwmpbdaiyanfhotksdvamvtpzvvugyr"
+# https://www.youtube.com/watch?v=N7EE0VamNqc
+# https://leetcode.com/problems/longest-duplicate-substring/discuss/290871/Python-Binary-Search
+# TLE
+class Solution:
+    def longestDupSubstring(self, s: str) -> str:
+        n = len(s)
+        l, r = 0, n
+        while l < r:
+            mid = l + (r-l) // 2
+            dup_str = find_duplicate(s, mid, n)
+            if len(dup_str) != 0:
+                l = mid + 1
+            else:
+                r = mid
+        return find_duplicate(s, l-1, n)
+
+def find_duplicate(s, window_size, n):
+    # return "" if no duplicate at window_size
+    if window_size<=0:
+        return ""
+    m = 2**63 - 1
+    set0 = set()
+    curr_s = s[:window_size]
+    set0.add(s2i(curr_s, m, window_size))
+    for i in range(window_size, n):
+        curr_s = curr_s[1:] + s[i]
+        value = s2i(curr_s, m, window_size)
+        if value in set0:
+            return curr_s
+            # print(curr_s)
+        else:
+            set0.add(value)
+    return ""
+
+def s2i(s, m, n):
+    res = 0
+    for i in range(n):
+        res = (res * 26 + (ord(s[i]) - ord('a'))) % m
+    return res % m
+
+
+
+"""174. Dungeon Game
+The demons had captured the princess and imprisoned her in the bottom-right corner of a dungeon. 
+The dungeon consists of m x n rooms laid out in a 2D grid. Our valiant knight was initially positioned 
+in the top-left room and must fight his way through dungeon to rescue the princess.
+
+The knight has an initial health point represented by a positive integer. If at any point his health 
+point drops to 0 or below, he dies immediately.
+
+Some of the rooms are guarded by demons (represented by negative integers), so the knight loses health 
+upon entering these rooms; other rooms are either empty (represented as 0) or contain magic orbs that 
+increase the knight's health (represented by positive integers).
+
+To reach the princess as quickly as possible, the knight decides to move only rightward or downward in each step.
+
+Return the knight's minimum initial health so that he can rescue the princess.
+
+Note that any room can contain threats or power-ups, even the first room the knight enters and the bottom-right 
+room where the princess is imprisoned.
+
+Input: dungeon = [[-2,-3,3],[-5,-10,1],[10,30,-5]]
+Output: 7
+Explanation: The initial health of the knight must be at least 7 if he follows the optimal path: RIGHT-> RIGHT -> DOWN -> DOWN.
+
+Greedy does not work - can find counter example [[1,-3,3],[0,-2,0],[-3,-3,-3]]
+
+逆着往回推，骑士逆向进入房间后 PK 后所剩的血量就是骑士正向进入房间时 pk 前的起始血量。
+所以用当前房间的右边和下边房间中骑士的较小血量减去当前房间的数字
+dp[i][j]: min health needed when entering room[i][j]
+dp[i][j] = min(dp[i+1][j], dp[i][j+1]) - dungeon[i][j], go backward
+create additional fake row and col to handle edge case (i=m-1 or j=n-1)
+Pay attention that dp can never be lower than 1: for some room having positive num
+"""
+class Solution:
+    def calculateMinimumHP(self, dungeon: List[List[int]]) -> int:
+        m, n = len(dungeon), len(dungeon[0])
+        dp = [[float('Inf') for _ in range(n+1)] for _ in range(m+1)]
+        dp[m-1][n] = dp[m][n-1] = 1 # at least 1 health when leaving dp[m-1][n-1]
+        for i in range(m)[::-1]:
+            for j in range(n)[::-1]:
+                # do not include the last row and column (fake)
+                dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1]) - dungeon[i][j])
+        
+        return dp[0][0]
+        
+
+"""115. Distinct Subsequences
+Given two strings s and t, return the number of distinct subsequences of s which equals t.
+
+A string's subsequence is a new string formed from the original string by deleting some 
+(can be none) of the characters without disturbing the remaining characters' relative positions. 
+(i.e., "ACE" is a subsequence of "ABCDE" while "AEC" is not).
+
+The test cases are generated so that the answer fits on a 32-bit signed integer.
+
+Example 1:
+Input: s = "rabbbit", t = "rabbit"
+Output: 3
+Explanation:
+As shown below, there are 3 ways you can generate "rabbit" from S.
+rabbbit
+rabbbit
+rabbbit
+
+Solution: DP
+dp[i][j] 表示s中范围是 s[:i] 的子串中能组成t中范围是t[:j] 的子串的子序列的个数
+
+transpose matrix: 
+  Ø r a b b b i t (S)
+Ø 1 1 1 1 1 1 1 1
+r 0 1 1 1 1 1 1 1
+a 0 0 1 1 1 1 1 1
+b 0 0 0 1 2 3 3 3
+b 0 0 0 0 1 3 3 3
+i 0 0 0 0 0 0 3 3
+t 0 0 0 0 0 0 0 3 
+(t)
+
+dp[i][j] = dp[i-1][j] + dp[i - 1][j - 1] if s[i-1] == t[j-1] else dp[i-1][j]
+initialize with 0 if s is empty (t not empty), 1 else
+"""
+s = "rabbbit"; t = "rabbit"
+class Solution:
+    def numDistinct(self, s: str, t: str) -> int:
+        if len(s) == 0:
+            return 1 if len(t) == 0 else 0
+        if len(t) == 0:
+            return 1
+        m, n = len(s), len(t)
+        dp = [[0 for _ in range(n+1)] for _ in range(m+1)]
+        dp[0][0] = 1
+        for j in range(1, n+1):
+            dp[0][j] = 0
+        for i in range(1, m+1):
+            # len.t > len.s
+            dp[i][0] = 1
+        
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                # note the matrix above (in comment) should be transposed
+                dp[i][j] = dp[i-1][j] + dp[i - 1][j - 1] if s[i-1] == t[j-1] else dp[i-1][j]
+        
+        return dp[m][n]
+
+
+"""91. Decode Ways
+A message containing letters from A-Z can be encoded into numbers using the following mapping:
+
+'A' -> "1"
+'B' -> "2"
+...
+'Z' -> "26"
+To decode an encoded message, all the digits must be grouped then mapped back into letters 
+using the reverse of the mapping above (there may be multiple ways). For example, "11106" can be mapped into:
+
+"AAJF" with the grouping (1 1 10 6)
+"KJF" with the grouping (11 10 6)
+Note that the grouping (1 11 06) is invalid because "06" cannot be mapped into 'F' since "6" is different from "06".
+
+Given a string s containing only digits, return the number of ways to decode it.
+
+The test cases are generated so that the answer fits in a 32-bit integer.
+
+Example 2:
+Input: s = "226"
+Output: 3
+Explanation: "226" could be decoded as "BZ" (2 26), "VF" (22 6), or "BBF" (2 2 6).
+
+Example 3:
+Input: s = "06"
+Output: 0
+Explanation: "06" cannot be mapped to "F" because of the leading zero ("6" is different from "06").
+"""
+# dp[i]: s[:i+1]
+# may simplify by add a fake start idx with dp[0]=1
+s="1023412342" # 6
+s="301"
+class Solution:
+    def numDecodings(self, s: str) -> int:
+        if len(s) == 0:
+            return 1
+        if s[0] == '0':
+            return 0
+        n = len(s)
+        if n == 1:
+            return 1
+        
+        # initialize, 0 and 1
+        dp = [0] * n
+        dp[0] = 1
+        if s[1] == '0':
+            dp[1] = 1 if int(s[:2]) <= 26 else 0 # "30"
+        else:
+            dp[1] = 2 if int(s[:2]) <= 26 else 1 # "XXXX20"
+        
+        for i in range(2, n):
+            if s[i] == '0':
+                if int(s[i-1:i+1]) > 26 or s[i-1] == '0':
+                    # "XXXX30" or "XXXX00"
+                    dp[i] = 0
+                else:
+                    # "XXXX20"
+                    dp[i] = dp[i-2]
+            else:
+                if int(s[i-1:i+1]) > 26 or s[i-1] == '0':
+                    # "XXXX03" or "XXXX33"
+                    dp[i] = dp[i-1]
+                else:
+                    dp[i] = dp[i-1] + dp[i-2]
+        
+        return dp[-1]
+
+
+"""639. Decode Ways II
+A message containing letters from A-Z can be encoded into numbers using the following mapping:
+
+'A' -> "1"
+'B' -> "2"
+...
+'Z' -> "26"
+
+To decode an encoded message, all the digits must be grouped then mapped back into letters 
+using the reverse of the mapping above (there may be multiple ways). For example, "11106" can be mapped into:
+"AAJF" with the grouping (1 1 10 6)
+"KJF" with the grouping (11 10 6)
+Note that the grouping (1 11 06) is invalid because "06" cannot be mapped into 'F' since "6" is different from "06".
+
+In addition to the mapping above, an encoded message may contain the '*' character, 
+which can represent any digit from '1' to '9' ('0' is excluded). 
+For example, the encoded message "1*" may represent any of the encoded messages 
+"11", "12", "13", "14", "15", "16", "17", "18", or "19". Decoding "1*" is equivalent to decoding 
+any of the encoded messages it can represent.
+
+Given a string s consisting of digits and '*' characters, return the number of ways to decode it.
+
+Since the answer may be very large, return it modulo 10**9 + 7.
+
+Example 1:
+Input: s = "*"
+Output: 9
+
+Example 2:
+Input: s = "1*"
+Output: 18
+Explanation: The encoded message can represent any of the encoded messages "11", "12", "13", "14", "15", "16", "17", "18", or "19".
+Each of these encoded messages have 2 ways to be decoded (e.g. "11" can be decoded to "AA" or "K").
+Hence, there are a total of 9 * 2 = 18 ways to decode "1*".
+
+Example 3:
+Input: s = "2*"
+Output: 15
+Explanation: The encoded message can represent any of the encoded messages "21", "22", "23", "24", "25", "26", "27", "28", or "29".
+"21", "22", "23", "24", "25", and "26" have 2 ways of being decoded, but "27", "28", and "29" only have 1 way.
+Hence, there are a total of (6 * 2) + (3 * 1) = 12 + 3 = 15 ways to decode "2*".
+"""
+# hint: cannot list all possible due to large answeer. 
+# dp[i]: num of ways for s[:i]  # leave dp[0] as a fake
+# dp[0] = 0 if s[0]==0, =1 if s[0] is digit, =9 if s[0]=='*'
+# dp[i+1] = dp[i] * c(s[i]) + dp[i-1] * c(s[i-1]+s[i])
+# need to discuss c() based on different inputs:
+# c(A) = 1 if 1<=A<=26, =0 else  ---  no metter one or two digits
+# c('*') = 9; c('**') = 15; c('A*')=9 if A==1, =6 if A==2 else 0
+# c('*A')=2 if 0<=A<=6 else 1
+s = "1**8638"
+s="*********"
+class Solution:
+    def numDecodings(self, s: str) -> int:
+        if len(s) == 0:
+            return 1
+        if s[0] == '0':
+            return 0
+        n = len(s)
+        dp = [0 for _ in range(n+1)]
+        dp[0] = 1
+        dp[1] = 9 if s[0]=='*' else (1 if int(s[0])>0 else 0)
+        for i in range(2, n+1):
+            dp[i] = dp[i-1] * helper(s[i-1]) + dp[i-2] * helper(s[i-2:i])
+            dp[i] = dp[i] % (10**9 + 7)
+        return dp[n]
+
+def helper(s):
+    if s[0] == '0':
+        return 0
+    if len(s) == 1:
+        return 9 if s=='*' else 1
+    if len(s) == 2:
+        if s[0] == '*': # "*A" or "**"
+            return 15 if s[1]=='*' else (2 if int(s[1]) <= 6 else 1)
+        else: # "A*" or "AB"
+            if s[1] == '*': 
+                return 9 if s[0] == '1' else (6 if s[0] == '2' else 0)
+            else:
+                return 0 if int(s)>26 else 1
+
+
+"""House Robber II 打家劫舍之二
+Note: This is an extension of House Robber.
+
+After robbing those houses on that street, the thief has found himself a new place for his thievery so that he will not 
+get too much attention. This time, all houses at this place are arranged in a circle. That means the first house is the 
+neighbor of the last one. Meanwhile, the security system for these houses remain the same as for those in the previous street.
+
+Given a list of non-negative integers representing the amount of money of each house, determine the maximum amount of 
+money you can rob tonight without alerting the police.
+
+Example 1:
+Input: nums = [2,3,2]
+Output: 3
+Explanation: You cannot rob house 1 (money = 2) and then rob house 3 (money = 2), because they are adjacent houses.
+"""
+
+# hint: 这道题是之前那道House Robber 打家劫舍的拓展，现在房子排成了一个圆圈，则如果抢了第一家，就不能抢最后一家，因为首尾相连了，
+# 所以第一家和最后一家只能抢其中的一家，或者都不抢，那我们这里变通一下，如果我们把第一家和最后一家分别去掉，各算一遍能抢的最大值，
+# 然后比较两个值取其中较大的一个即为所求。
+
+class Solution:
+    def rob(self, nums) -> int:
+        n = len(nums)
+        if n == 1:
+            return nums[0]
+        gain1 = self.helper(nums[:n-1])
+        gain2 = self.helper(nums[1:])
+        return max(gain1, gain2)
+    
+    def helper(self, A):
+        if len(A) == 1: 
+            return A[0]
+        dp = [0] * len(A)
+        # dp[i] will denote maximum loot that we can get by considering till ith index
+        dp[0] = A[0]
+        dp[1] = max(A[0], A[1])
+        for i in range(2, len(A)):
+            dp[i] = max(dp[i-1], A[i] + dp[i-2])
+        return dp[-1]
+
+
+sol=Solution()
+sol.rob(nums)
+sol.helper(nums[1:])
+sol.helper(nums[:3])
+
+
+""" 712. Minimum ASCII Delete Sum for Two Strings
+Given two strings s1 and s2, return the lowest ASCII sum of deleted characters to make two strings equal.
+
+Example 1:
+Input: s1 = "sea", s2 = "eat"
+Output: 231
+Explanation: Deleting "s" from "sea" adds the ASCII value of "s" (115) to the sum.
+Deleting "t" from "eat" adds 116 to the sum.
+At the end, both strings are equal, and 115 + 116 = 231 is the minimum sum possible to achieve this.
+
+Example 2:
+Input: s1 = "delete", s2 = "leet"
+Output: 403
+Explanation: Deleting "dee" from "delete" to turn the string into "let",
+adds 100[d] + 101[e] + 101[e] to the sum.
+Deleting "e" from "leet" adds 101[e] to the sum.
+At the end, both strings are equal to "let", and the answer is 100+101+101+101 = 403.
+If instead we turned both strings into "lee" or "eet", we would get answers of 433 or 417, which are higher.
+"""
+# similar to Delete Operation for Two Strings
+# dp[i][j]: min delete for s1[:i+1] and s2[:j+1]
+
+# dp[0][0] = 0
+# dp[i][0] = dp[i-1][0] + ord(s1[i])
+# dp[0][j] = dp[0][j-1] + ord(s2[j])
+
+s1 = "delete"; s2 = "leet"
+class Solution:
+    def minimumDeleteSum(self, s1: str, s2: str) -> int:
+        dp = [[0 for _ in range(len(s2)+1)] for _ in range(len(s1)+1)]
+        m, n = len(dp), len(dp[0])
+        dp[0][0] = 0
+        for i in range(1, m):
+            dp[i][0] = dp[i-1][0] + ord(s1[i-1])
+
+        for j in range(1, n):
+            dp[0][j] = dp[0][j-1] + ord(s2[j-1])
+        
+        for i in range(1, m):
+            for j in range(1, n):
+                if s1[i-1] == s2[j-1]:
+                    dp[i][j] = dp[i-1][j-1]
+                else:
+                    v1 = dp[i][j-1] + ord(s2[j-1])
+                    v2 = dp[i-1][j] + ord(s1[i-1])
+                    dp[i][j] = min(v1, v2)
+        
+        return dp[m-1][n-1]
+        
+
+"""[LeetCode] Maximal Square 最大正方形
+Given a 2D binary matrix filled with 0's and 1's, find the largest square containing all 1's and return its area.
+For example, given the following matrix:
+
+1 0 1 0 0
+1 0 1 1 1
+1 1 1 1 1
+1 0 0 1 0
+
+Input: matrix = [["1","0","1","0","0"],["1","0","1","1","1"],["1","1","1","1","1"],["1","0","0","1","0"]]
+Output: 4
+"""
+# Solution 1: cumsum + DP, O(m*n*min(m,n)) -> O(m * n * log(min(m,n))) if using binary search
+# use dp save cumsum of all elements in window of matrix[0][0]:matrix[i][j]
+# loop through m*n as matrix[i][j] left top element, 
+# for matrix[i][j], check the largest size such that: (can use binary seach to speed up)
+# dp[i+size][j+size] - dp[i+size][j] - dp[i][j+size] + dp[i][j] == size*size
+# note: dp size m+1 * n+1 where matrix is at size m*n, first row and col are set to be zero
+# dp[i][j] is matrix ends with matrix[i-1][j-1]
+
+
+
+# Solution 2: O(m*n)
+# define dp[i][j] as max side size can achieve at (i,j) as bottom right
+# dp[i][j] = 0 if matrix[i][j]==0
+# dp[i][j] = min(dp[i-1][j-1], dp[i-1][j], dp[i][j-1]) + 1 if matrix[i][j]==1
+
+class Solution:
+    def maximalSquare(self, matrix) -> int:
+        m, n = len(matrix), len(matrix[0])
+        dp = [[0 for _ in range(n)] for _ in range(m)]
+        # dp[i][j] -> ends with matrix[i][j]
+        res = 0
+        for i in range(m):
+            for j in range(n):
+                curr_num = 1 if matrix[i][j] == '1' else 0
+                if curr_num == 1:
+                    if i==0 or j==0: # first row or col
+                        dp[i][j] = curr_num
+                    else:
+                        dp[i][j] = min(min(dp[i-1][j-1], dp[i-1][j]), dp[i][j-1]) + 1
+                    res = max(res, dp[i][j])
+        return res*res   # area=size*size
+
+
+"""1277. Count Square Submatrices with All Ones
+Given a m * n matrix of ones and zeros, return how many square submatrices have all ones.
+Example 1:
+Input: matrix = [
+  [0,1,1,1],
+  [1,1,1,1],
+  [0,1,1,1]
+]
+Output: 15
+Explanation: 
+There are 10 squares of side 1.
+There are 4 squares of side 2.
+There is  1 square of side 3.
+Total number of squares = 10 + 4 + 1 = 15.
+"""
+# the same as above, the size can also represent the number of sqs
+# that ends with matrix[i-1][j-1]
+class Solution:
+    def countSquares(self, matrix: List[List[int]]) -> int:
+        m, n = len(matrix), len(matrix[0])
+        dp = [[0 for _ in range(n)] for _ in range(m)]
+        # dp[i][j] -> ends with matrix[i][j]
+        res = 0
+        for i in range(m):
+            for j in range(n):
+                curr_num = matrix[i][j]
+                if curr_num == 1:
+                    if i==0 or j==0: # first row or col
+                        dp[i][j] = curr_num
+                    else:
+                        dp[i][j] = min(min(dp[i-1][j-1], dp[i-1][j]), dp[i][j-1]) + 1
+                    res = res + dp[i][j]
+        return res
+
+
+"""740. Delete and Earn
+You are given an integer array nums. You want to maximize the number of points you get by 
+performing the following operation any number of times:
+
+Pick any nums[i] and delete it to earn nums[i] points. Afterwards, you must delete every 
+element equal to nums[i] - 1 and every element equal to nums[i] + 1.
+Return the maximum number of points you can earn by applying the above operation some number of times.
+
+Example 1:
+Input: nums = [3,4,2]
+Output: 6
+Explanation: You can perform the following operations:
+- Delete 4 to earn 4 points. Consequently, 3 is also deleted. nums = [2].
+- Delete 2 to earn 2 points. nums = [].
+You earn a total of 6 points.
+
+Example 2:
+Input: nums = [2,2,3,3,3,4]
+Output: 9
+Explanation: You can perform the following operations:
+- Delete a 3 to earn 3 points. All 2's and 4's are also deleted. nums = [3,3].
+- Delete a 3 again to earn 3 points. nums = [3].
+- Delete a 3 once more to earn 3 points. nums = [].
+You earn a total of 9 points.
+"""
+nums = [1,3]
+from collections import Counter
+class Solution:
+    def deleteAndEarn(self, nums) -> int:
+        m = Counter(nums)
+        dp = [0]*(len(m)+1)
+        sorted_keys = sorted(m.keys())
+        dp[1] = sorted_keys[0] * m[sorted_keys[0]]  # max of up to first
+        for i in range(1, len(sorted_keys)):
+            if sorted_keys[i] -sorted_keys[i-1] == 1:
+                # need to delete when next key is neighboring
+                # max of taking and not taking nums[idx+2]
+                dp[i+1] = max(dp[i-1]+sorted_keys[i]*m[sorted_keys[i]], dp[i])
+            else:
+                dp[i+1] = dp[i] + sorted_keys[i]*m[sorted_keys[i]]
+        return dp[-1]
+
+# another solution that do not need discuss sorted_keys[i] -sorted_keys[i-1] == 1
+# need to record min and max of m, then the loop is:
+"""
+dp = [0] * (maximum+1)
+for i in range(minimum, maximum+1):
+    dp[i+1] = max(dp[i-1]+i*m[i], dp[i])
+"""
+
+"""87. Scramble String
+We can scramble a string s to get a string t using the following algorithm:
+
+If the length of the string is 1, stop.
+If the length of the string is > 1, do the following:
+Split the string into two non-empty substrings at a random index, i.e., if the string is s, divide it to x and y where s = x + y.
+Randomly decide to swap the two substrings or to keep them in the same order. i.e., after this step, s may become s = x + y or s = y + x.
+Apply step 1 recursively on each of the two substrings x and y.
+Given two strings s1 and s2 of the same length, return true if s2 is a scrambled string of s1, otherwise, return false.
+
+Example 1:
+Input: s1 = "great", s2 = "rgeat"
+Output: true
+Explanation: One possible scenario applied on s1 is:
+"great" --> "gr/eat" // divide at random index.
+"gr/eat" --> "gr/eat" // random decision is not to swap the two substrings and keep them in order.
+"gr/eat" --> "g/r / e/at" // apply the same algorithm recursively on both substrings. divide at ranom index each of them.
+continue but keep all the orders after that
+
+Example 2:
+Input: s1 = "abcde", s2 = "caebd"
+Output: false
+"""
+# recursion with memo
+# first five mins in: 
+# https://www.youtube.com/watch?v=sETxfdHwxc0
+from functools import lru_cache
+class Solution:
+    @lru_cache(maxsize=None)
+    def isScramble(self, s1: str, s2: str) -> bool:
+        if s1 == s2:
+            return True
+        if len(s1) != len(s2):
+            return False
+        if sorted(s1) != sorted(s2):
+            return False
+        n = len(s1)
+        for i in range(1, n):
+            if self.isScramble(s1[:i], s2[:i]) and self.isScramble(s1[i:], s2[i:]):
+                return True
+            if self.isScramble(s1[:i], s2[n-i:]) and self.isScramble(s1[i:], s2[:n-i]):
+                return True
+        return False
+
+s1 = "abcde"; s2 = "caebd"
+s1 = "great"; s2 = "rgeat"
+sol=Solution()
+sol.isScramble(s1, s2)
+
+# A formal way of recursive + memo
+class Solution:
+    def __init__(self):
+        self.dic = {}
+        
+    def isScramble(self, s1, s2):
+        if (s1, s2) in self.dic:
+            return self.dic[(s1, s2)]
+        if len(s1) != len(s2) or sorted(s1) != sorted(s2): # prunning
+            self.dic[(s1, s2)] = False
+            return False
+        if s1 == s2:
+            self.dic[(s1, s2)] = True
+            return True
+        for i in xrange(1, len(s1)):
+            if (self.isScramble(s1[:i], s2[:i]) and self.isScramble(s1[i:], s2[i:])) or \
+            (self.isScramble(s1[:i], s2[-i:]) and self.isScramble(s1[i:], s2[:-i])):
+                self.dic[(s1, s2)] = True
+                return True
+        self.dic[(s1, s2)] = False
+        return False
+
+
+""" 1140. Stone Game II
+Alice and Bob continue their games with piles of stones.  There are a number of piles 
+arranged in a row, and each pile has a positive integer number of stones piles[i].  
+The objective of the game is to end with the most stones. 
+
+Alice and Bob take turns, with Alice starting first.  Initially, M = 1.
+
+On each player's turn, that player can take all the stones in the first X remaining piles, 
+where 1 <= X <= 2M.  Then, we set M = max(M, X).
+
+The game continues until all the stones have been taken.
+
+Assuming Alice and Bob play optimally, return the maximum number of stones Alice can get.
+
+Example 1:
+Input: piles = [2,7,9,4,4]
+Output: 10
+Explanation:  If Alice takes one pile at the beginning, Bob takes two piles, 
+then Alice takes 2 piles again. Alice can get 2 + 4 + 4 = 10 piles in total. 
+If Alice takes two piles at the beginning, then Bob can take all three piles left. 
+In this case, Alice get 2 + 7 = 9 piles in total. So we return 10 since it's larger. 
+
+Example 2:
+Input: piles = [1,2,3,4,5,100]
+Output: 104
+
+hint: Use dynamic programming: the states are (i, m) for the answer of piles[i:] and that given m.
+Or use DFS+memo, the same idea
+
+dfs(piles[i:], m) = max(sum(piles[i:i+x]) + sum(piles[i+x:]) - dfs(piles[i+x:], max(m, x))) for 1<=x<=2m and x+i<=n-1
+"""
+class Solution:
+    def stoneGameII(self, piles) -> int:
+        n = len(piles)
+        cumsums = [0] * n  # save sum(piles[i:]) !!
+        cumsums[n-1] = piles[n-1]
+        for i in range(n-1)[::-1]:
+            cumsums[i] = cumsums[i+1] + piles[i]
+        
+        memo = dict()
+        return self.dfs(1, 0, memo, cumsums)
+    
+    def dfs(self, m, i, memo, cumsums):
+        n = len(cumsums)
+        if n - i <= 2 * m:
+            # can take all piles[i:]
+            return cumsums[i]
+        if (m, i) in memo:
+            return memo[(m, i)]
+        res = 0
+        for x in range(1, min(2*m+1, n-i)):
+            cur_sum = cumsums[i] - cumsums[i+x] # sum(piles[i:x+i])
+            res = max(res, cur_sum + cumsums[i+x] - self.dfs(max(m, x), i+x, memo, cumsums))
+        memo[(m, i)] = res
+        # print(memo)
+        return res
+
+sol=Solution()
+sol.stoneGameII([2,7,9,4,4])
+sol.stoneGameII([1,2,3,4,5,100])
+
+
+"""322. Coin Change
+You are given an integer array coins representing coins of different denominations 
+and an integer amount representing a total amount of money.
+
+Return the fewest number of coins that you need to make up that amount. If that amount of 
+money cannot be made up by any combination of the coins, return -1.
+
+You may assume that you have an infinite number of each kind of coin.
+
+Example 1:
+Input: coins = [1,2,5], amount = 11
+Output: 3
+Explanation: 11 = 5 + 5 + 1
+
+Example 2:
+Input: coins = [2], amount = 3
+Output: -1
+
+Example 3:
+Input: coins = [1], amount = 0
+Output: 0
+
+# dp[i] 表示钱数为i时的最小硬币数的找零，
+# can also use dfs+memo, key is i, value is 钱数为i时的最小硬币数的找零
+"""
+class Solution(object):
+    def coinChange(self, coins, amount):
+        """
+        :type coins: List[int]
+        :type amount: int
+        :rtype: int
+        """
+        if amount == 0:
+            return 0
+        n = amount
+        dp = [float('Inf')] * (n+1)
+        dp[0] = 0
+        for i in range(1, n+1):
+            for coin in coins:
+                if i-coin >= 0:
+                    dp[i] = min(dp[i], dp[i-coin]+1)
+        
+        return dp[-1] if dp[-1] < float('Inf') else -1
+
+
+""" [LeetCode] 518. Coin Change 2 硬币找零之二
+You are given an integer array coins representing coins of different denominations and 
+an integer amount representing a total amount of money.
+Return the number of combinations that make up that amount. If that amount of money cannot 
+be made up by any combination of the coins, return 0.
+You may assume that you have an infinite number of each kind of coin.
+The answer is guaranteed to fit into a signed 32-bit integer.
+
+Example 1:
+Input: amount = 5, coins = [1,2,5]
+Output: 4
+Explanation: there are four ways to make up the amount:
+5=5
+5=2+2+1
+5=2+1+1+1
+5=1+1+1+1+1
+
+Example 2:
+Input: amount = 3, coins = [2]
+Output: 0
+Explanation: the amount of 3 cannot be made up just with coins of 2.
+
+Example 3:
+Input: amount = 10, coins = [10]
+Output: 1
+
+Solution: 
+makeChange(11) = makeChange(11 using 0-5) + makeChange(11 using 1-5) + makeChange(11 using 2-5) + ...
+
+Each child will continue using 
+makeChange(11 using 1-5) = makeChange(6 using 0-2) + makeChange(6 using 1-2) + ... 
+
+Continue will be
+makeChange(6 using 0-2) = makeChange(6-0 using 1's) = 1 (because 6%1==0)
+makeChange(6 using 1-2) = makeChange(6-2 using 1's) = 1
+"""
+# 用到最后一个硬币时，判断当前还剩的钱数是否能整除这个硬币，不能的话就返回0，否则返回1
+# memo: key is (remain_amount, curr_coin_idx)
+class Solution:
+    def change(self, amount: int, coins) -> int:
+        memo = dict()
+        sorted_coins = sorted(coins, reverse=True)
+        return self.dfs(sorted_coins, amount, memo, 0)
+
+    def dfs(self, coins, rem_amount, memo, coin_idx):
+        if coin_idx == len(coins) - 1:
+            # last coin
+            # rem=0 will also return 1
+            return 1 if rem_amount % coins[coin_idx] == 0 else 0
+        if (rem_amount, coin_idx) in memo:
+            return memo[(rem_amount, coin_idx)]
+        res = 0
+        for num_curr_coin in range(1+rem_amount//coins[coin_idx]):
+            next_rem_amount = rem_amount - num_curr_coin*coins[coin_idx]
+            res += self.dfs(coins, next_rem_amount, memo, coin_idx+1)
+        memo[(rem_amount, coin_idx)] = res
+        # print(memo)
+        return res
+
+sol=Solution()
+sol.change(5, [1, 2, 5])
+
+"""[LeetCode] 1048. Longest String Chain 
+Given a list of words, each word consists of English lowercase letters.
+
+Let's say word1 is a predecessor of word2 if and only if we can add exactly one letter anywhere in word1 to make it equal to word2.  
+For example, "abc" is a predecessor of "abac".
+
+A *word chain *is a sequence of words [word_1, word_2, ..., word_k] with k >= 1, 
+where word_1 is a predecessor of word_2, word_2 is a predecessor of word_3, and so on.
+
+Return the longest possible length of a word chain with words chosen from the given list of words.
+You do not need to keep the order
+
+Example 1:
+Input: words = ["a","b","ba","bca","bda","bdca"]
+Output: 4
+Explanation: One of the longest word chain is "a","ba","bda","bdca".
+
+Example 2:
+Input: words = ["xbc","pcxbcf","xb","cxbc","pcxbc"]
+Output: 5
+Explanation: All the words can be put in a word chain ["xb", "xbc", "cxbc", "pcxbc", "pcxbcf"].
+
+Idea: 
+m = dict() # save the length of LSC ended with key word
+sort words by len, start with the shortest, check whether curr_word minus a char is in the m, 
+if yes, then m[curr_word] = max(m[curr_word], m[shorter_word]+1)
+"""
+from collections import defaultdict
+class Solution:
+    def longestStrChain(self, words) -> int:
+        words = sorted(words, key=lambda x:len(x))
+        m = defaultdict(list)
+        for word in words:
+            m[word] = 1
+            for i in range(len(word)):
+                word_rm_1_char = word[:i] + word[i+1:]
+                if word_rm_1_char in m:
+                    m[word] = max(m[word_rm_1_char]+1, m[word])
+        return max([v for k,v in m.items()])
+
+sol=Solution()
+sol.longestStrChain(["xbc","pcxbcf","xb","cxbc","pcxbc"])
+
+
+"""[LeetCode] 44. Wildcard Matching 外卡匹配
+Given an input string (s) and a pattern (p), implement wildcard pattern matching with support for '?' and '*'.
+'?' Matches any single character.
+'*' Matches any sequence of characters (including the empty sequence).
+The matching should cover the entire input string (not partial).
+Note:
+s could be empty and contains only lowercase letters a-z.
+p could be empty and contains only lowercase letters a-z, and characters like ? or *.
+
+Example 1:
+Input:
+s = "aa"
+p = "a"
+Output: false
+Explanation: "a" does not match the entire string "aa".
+
+Example 2:
+Input:
+s = "aa"
+p = "*"
+Output: true
+Explanation: '*' matches any sequence.
+
+Example 3:
+Input:
+s = "cb"
+p = "?a"
+Output: false
+Explanation: '?' matches 'c', but the second letter is 'a', which does not match 'b'.
+
+Example 4:
+Input:
+s = "adceb"
+p = "*a*b"
+Output: true
+Explanation: The first '*' matches the empty sequence, while the second '*' matches the substring "dce".
+
+Example 5:
+Input:
+s = "acdcb"
+p = "a*c?b"
+Output: false
+"""
+# Solution 1 DP
+# dp[i][j] 表示 s[:i] and p[:j] 匹配
+# https://leetcode.com/problems/wildcard-matching/discuss/256025/Python-DP-with-illustration
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        m, n = len(s), len(p)
+        dp = [[False for _ in range(n+1)] for _ in range(m+1)]
+        dp[0][0] = True  # "" match ""
+        for i in range(1, m+1):
+            dp[i][0] = False
+        
+        for j in range(1, n+1):
+            # only when all *
+            if dp[0][j-1]:
+                dp[0][j] = True if p[j-1]=='*' else False
+            else:
+                dp[0][j] = False
+
+        for i in range(1, m+1):
+            for j in range(1, n+1):
+                if p[j-1] == "*":
+                    # s: XXX,  p: XXX*
+                    dp[i][j] = dp[i-1][j-1] or dp[i][j-1] or dp[i-1][j]  # do not need i-1, j-1
+                elif p[j-1] == "?":
+                    dp[i][j] = dp[i-1][j-1]
+                else:
+                    dp[i][j] = dp[i-1][j-1] and (s[i-1] == p[j-1])
+        
+        return dp[m][n]
+
+# DFS + memo
+# need to trim to pass 
+# https://leetcode.com/problems/wildcard-matching/discuss/17839/C%2B%2B-recursive-solution-16-ms
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        memo = dict()
+        return self.dfs(s, p, 0, 0, memo)
+
+    def dfs(self, s, p, i, j, memo):
+        # s[i:] vs p[j:]
+        if (i,j) in memo:
+            return memo[(i, j)]
+        if i == len(s) or j == len(p):
+            if i == len(s) and j == len(p):
+                return True
+            elif j == len(p):
+                return False
+            else:
+                # i == len(s)
+                # whether p[j:] only has *
+                memo[(i,j)] = (len([p_rem for p_rem in p[j:] if p_rem!='*']) == 0)
+                return memo[(i,j)]
+        res = False
+        if p[j] == '*':
+            for idx in range(i, len(s)+1):
+                res = res or self.dfs(s, p, idx, j+1, memo)
+                if res:
+                    break
+        elif p[j] == '?':
+            res = self.dfs(s, p, i+1, j+1, memo)
+        else:
+            return (s[i] == p[j]) and self.dfs(s, p, i+1, j+1, memo)
+        memo[(i,j)] = res
+        # print(memo)
+        return res
+
+
+sol=Solution()
+sol.isMatch(s, p)
+sol.isMatch("aa", "*")
+sol.isMatch("adceb", "*a*b")
+sol.isMatch(s="cdcb", p="*c")
+sol.isMatch(s="cdcb", p="c")
+
+
+"""[LeetCode] 10. Regular Expression Matching 正则表达式匹配
+Given an input string (s) and a pattern (p), implement regular expression matching with support for '.' and '*'.
+'.' Matches any single character.
+'*' Matches zero or more of the preceding element.
+The matching should cover the entire input string (not partial).
+Note:
+s could be empty and contains only lowercase letters a-z.
+p could be empty and contains only lowercase letters a-z, and characters like . or *.
+
+Example 1:
+Input:
+s = "aa"
+p = "a"
+Output: false
+Explanation: "a" does not match the entire string "aa".
+
+Example 2:
+Input:
+s = "aa"
+p = "a*"
+Output: true
+Explanation: '*' means zero or more of the precedeng element, 'a'. Therefore, by repeating 'a' once, it becomes "aa".
+
+Example 3:
+Input:
+s = "ab"
+p = ".*"
+Output: true
+Explanation: ".*" means "zero or more (*) of any character (.)".
+
+Example 4:
+Input:
+s = "aab"
+p = "c*a*b"
+Output: true
+Explanation: c can be repeated 0 times, a can be repeated 1 time. Therefore it matches "aab".
+
+Example 5:
+Input:
+s = "mississippi"
+p = "mis*is*p*."
+Output: false
+"""
+# solution 1: DFS with memo
+class Solution:
+    def isMatch(self, s: str, p: str) -> bool:
+        # assume no consecutive *'s, otherwise use a loop to remove it
+        # new_p = p[0]
+        # for i in range(1, len(p)):
+        #     if p[i-1] != '*' or p[i] != '*':
+        #         new_p += p[i]
+        # p = new_p
+        memo = dict()
+        return self.dfs(s, p, 0, 0, memo)
+        
+    def dfs(self, s, p, i, j, memo):
+        # never let p[j]='*'!
+        if (i,j) in memo:
+            return memo[(i, j)]
+        if i==len(s) and j==len(p):
+            return True
+        if i<len(s) and j==len(p):
+            return False
+        if len(p[j:]) == 1:
+            # if p[j:] longer than 1, include afterwards
+            # again, p[j:] will never starts with *
+            return True if len(s[i:]) == 1 and (p[j]=='.' or s[i]==p[j]) else False
+        if p[j+1] != "*":
+            if i < len(s) and (p[j] == '.' or s[i] == p[j]):
+                res = self.dfs(s, p, i+1, j+1, memo)
+                memo[(i, j)] = res
+                return res
+            else:
+                memo[(i,j)] = False
+                return False
+        else:
+            if i < len(s) and s[i] != p[j] and p[j] != '.':
+                # i cannot exceed !
+                res = self.dfs(s, p, i, j+2, memo)
+                memo[(i, j)] = res
+                return res
+            else:
+                idx = i
+                while idx < len(s) and (s[idx] == p[j] or p[j] == '.'):
+                    res = self.dfs(s, p, idx, j+2, memo)
+                    if res:
+                        memo[(i, j)] = res
+                        return res
+                    idx += 1
+                res = self.dfs(s, p, idx, j+2, memo)
+                memo[(i, j)] = res
+                # print(memo)
+                return res
+
+s="a"; p="ab*"
+s ="a"; p = ".*..a*"
+sol= Solution()
+sol.isMatch(s, p)
+sol.isMatch(s="aab", p="c*a*b")
+sol.isMatch("a", "..a*")
+sol.isMatch("", ".a*")
+
+
+# Solution 2: DP
+# https://leetcode.com/problems/regular-expression-matching/discuss/5684/c-on-space-dp
+# 其中 dp[i][j] 表示 s[0,i) 和 p[0,j) 是否 match
+# 1.  P[i][j] = P[i - 1][j - 1], if p[j - 1] != '*' && (s[i - 1] == p[j - 1] || p[j - 1] == '.');
+# 2.  P[i][j] = P[i][j - 2], if p[j - 1] == '*' and the pattern repeats for 0 times;
+# 3.  P[i][j] = P[i - 1][j] && (s[i - 1] == p[j - 2] || p[j - 2] == '.'), if p[j - 1] == '*' and the pattern repeats for at least 1 times.
+
+
+"""32. Longest Valid Parentheses
+Given a string containing just the characters '(' and ')', find the length of the longest valid (well-formed) parentheses substring.
+
+Example 1:
+Input: s = "(()"
+Output: 2
+Explanation: The longest valid parentheses substring is "()".
+
+Example 2:
+Input: s = ")()())"
+Output: 4
+Explanation: The longest valid parentheses substring is "()()".
+
+Example 3:
+Input: s = ""
+Output: 0
+"""
+# Solution 1: Use a stack to track the index of all unmatched open parentheses.
+# First, we iterate through the string, keeping track of the indices of open parentheses in a stack. 
+# Every time we hit a close parenthesis, we know that the last open and the current close are both valid, 
+# so we mark both of these as being valid by overwriting them in the original string with 1.
+# 
+# Once we have all of the valid individual parentheses marked, we iterate through the string 
+# once more and identify the longest sequence of 1, which is our answer.
+# Lets take a example , s = ")(()())))", so array will be like this 011111100
+
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        stack = []
+        s_list = list(s)
+        for i in range(len(s_list)):
+            if s_list[i] == '(':
+                stack.append(i)
+            else:
+                if len(stack) == 0:
+                    continue
+                else:
+                    # find a pair
+                    s_list[i] = '1'
+                    s_list[stack.pop()] = '1'
+        res = 0
+        curr_len = 0
+        for i in range(len(s_list)):
+            if s_list[i] != '1':
+                res = max(curr_len, res)
+                curr_len = 0
+            else:
+                curr_len += 1
+        
+        res = max(curr_len, res) # if last element is )
+        return res
+
+
+s = "()(()"
+s="(()"
+# can only iterate for once 
+class Solution:
+    def longestValidParentheses(self, s: str) -> int:
+        res = 0
+        stack = [-1]  # can still calculate len when all '(' are poped
+        for i in range(len(s)):
+            if s[i] == '(':
+                stack.append(i)
+            else:
+                stack.pop()
+                if len(stack) > 0:
+                    res = max(res, i-stack[-1])
+                else:
+                    # when stack is empty, means not valid so do not update res
+                    # current ) will be the new start
+                    stack.append(i)
+        return res
+
+# solution2: DP
+"""
+My solution uses DP. The main idea is as follows: I construct a array longest[], for any longest[i], 
+it stores the longest length of valid parentheses which is end at i.
+And the DP idea is :
+
+If s[i] is '(', set longest[i] to 0,because any string end with '(' cannot be a valid one.
+Else if s[i] is ')'
+     If s[i-1] is '(', longest[i] = longest[i-2] + 2
+     Else if s[i-1] is ')' and s[i-longest[i-1]-1] == '(', longest[i] = longest[i-1] + 2 + longest[i-longest[i-1]-2]
+
+For example, input "()(())", at i = 5, longest array is [0,2,0,0,2,0], longest[5] = longest[4] + 2 + longest[1] = 6.
+"""
+
+
+
+
+
+"""1043. Partition Array for Maximum Sum
+Given an integer array arr, partition the array into (contiguous) subarrays of length at most k. 
+After partitioning, each subarray has their values changed to become the maximum value of that subarray.
+
+Return the largest sum of the given array after partitioning. Test cases are generated so that the answer fits in a 32-bit integer.
+
+Example 1:
+Input: arr = [1,15,7,9,2,5,10], k = 3
+Output: 84
+Explanation: arr becomes [15,15,15,9,10,10,10]
+
+Example 2:
+Input: arr = [1,4,1,5,7,3,6,1,9,9,3], k = 4
+Output: 83
+
+Example 3:
+Input: arr = [1], k = 1
+Output: 1
+
+hint: think dynamic programming: dp[i] will be the answer for array A[0], ..., A[i-1].
+For j = 1 .. k that keeps everything in bounds, dp[i] is the maximum of dp[i-j] + max(A[i-1], ..., A[i-j]) * j .
+"""
+class Solution:
+    def maxSumAfterPartitioning(self, arr, k: int) -> int:
+        n = len(arr)
+        if n == 0:
+            return 0
+        dp = [0] * (n+1)
+        dp[0] = 0
+        for i in range(1, n+1):
+            curr_max = 0
+            for j in range(1, k+1):
+                # j=1,...,k
+                if i - j >= 0:
+                    curr_max = max(curr_max, arr[i-j])
+                    dp[i] = max(dp[i], dp[i-j] + curr_max * j)
+                    # dp[i] = max(dp[i], dp[i-j] + max(arr[i-j:i]) * j)
+
+        return dp[n]
+
+sol=Solution()
+sol.maxSumAfterPartitioning([1,4,1,5,7,3,6,1,9,9,3], 4)
 
 
