@@ -274,6 +274,11 @@ def networkDelayTime(times, N, k):
     else:
         return max(dists)
 
+# https://leetcode.com/problems/network-delay-time/discuss/187713/Python-concise-queue-and-heap-solutions
+class Solution:
+    def networkDelayTime(self, times, N, k):
+        return 
+
 # Dijkstra: every time heappop the min dist node (mnode), and check whether 
 # (start, mnode) + (mnode, node i) is less than (start, node i) for all the i
 # remained in the heap
@@ -796,6 +801,21 @@ def rightSideView(root):
     
     return output
 
+# DFS
+class Solution:
+    def rightSideView(self, root):
+        res = []
+        self.dfs(root, 0, res)
+        return res
+
+    def dfs(self, node, depth, res):
+        if node:
+            if depth == len(res):
+                res.append(node.val)
+            self.dfs(node.right, depth+1, res)
+            self.dfs(node.left, depth+1, res)
+        return None
+        
 """ Clone Graph
 Clone an undirected graph. Each node in the graph contains a label and a list of 
 its neighbors.
@@ -1949,6 +1969,7 @@ Note: Do not use the eval built-in library function.
 """
 # use stack to save numbers in +/- operations
 s = " -1 + 2 - 13+5 / 2 " #-10
+s = "14-3/2"
 def calculate(s):
     Stack = []
     n = len(s)
@@ -1961,6 +1982,7 @@ def calculate(s):
             # if operator, need previous operator
             if op == '-':
                 if temp != '':
+                    # 4*-1, 4+-1 - invalid according to qn
                     Stack.append(int(temp) * -1)
             elif op == '+':
                 if temp != '':
@@ -1970,7 +1992,7 @@ def calculate(s):
                 Stack.append(top_num*int(temp))
             elif op == '/':
                 top_num = Stack.pop()
-                Stack.append(top_num // int(temp))
+                Stack.append(int(top_num / int(temp)))
             op = s[i]
             temp = ''
     res = 0
@@ -1978,8 +2000,71 @@ def calculate(s):
         res  = res + Stack.pop()
     return res
 
-calculate(s)
+calculate("4*-1+5")
+calculate("4+-1+3")
 calculate(" -1 + 2*2 - 13+5 / 2 /2 + 1")
+
+# O(1)
+def calculate2(s):
+    prev_num = 0
+    res = 0
+    n = len(s)
+    temp = ''
+    op = '+' # previous operator
+    for i in range(n):
+        if s[i].isdigit():
+            temp = temp + s[i]
+        if s[i] in ['+', '-', '*', '/'] or i == n-1:
+            # if operator, need previous operator
+            if op == '-':
+                if temp != '':
+                    res += prev_num
+                    prev_num = int(temp) * -1
+            elif op == '+':
+                if temp != '':
+                    res += prev_num
+                    prev_num = int(temp)
+            elif op == '*':
+                prev_num = prev_num * int(temp)
+            elif op == '/':
+                prev_num = prev_num // int(temp)
+            op = s[i]
+            temp = ''
+
+    return res + prev_num
+
+s = " -1 + 2 - 13+5 / 2 " #-10
+s = "14-3/2"
+s = "4*-1"
+calculate2( " -1 + 2 - 13+5 / 2 ")
+calculate2( s)
+
+
+def calculate(s):
+    if not s:
+        return "0"
+    stack, num, sign = [], 0, "+"
+    for i in range(len(s)):
+        if s[i].isdigit():
+            num = num*10+ord(s[i])-ord("0")
+        if (not s[i].isdigit() and not s[i].isspace()) or i == len(s)-1:
+            if sign == "-":
+                stack.append(-num)
+            elif sign == "+":
+                stack.append(num)
+            elif sign == "*":
+                stack.append(stack.pop()*num)
+            else:
+                tmp = stack.pop()
+                if tmp//num < 0 and tmp%num != 0:
+                    stack.append(tmp//num+1)
+                else:
+                    stack.append(tmp//num)
+            sign = s[i]
+            num = 0
+    return sum(stack)
+
+calculate(s)
 
 """Check if a given array can represent Preorder Traversal of Binary Search Tree
 Given an array of numbers, return true if given array can represent preorder 
@@ -2718,16 +2803,19 @@ to the LCA definition.
 
 Follow up 1644. (not guarantee p and q exist)
 """
-def lowestCommonAncestor(root, p, q):
-    if root == None or p == root or q == root:
-        return root
-    left = lowestCommonAncestor(root.left, p, q)
-    right = lowestCommonAncestor(root.right, p, q)
-    if left is not None:
-        return left
-    if right is not None:
-        return right
-    return None
+class Solution:
+    def lowestCommonAncestor(self, root, p, q):
+        if root == None or p == root or q == root:
+            return root
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+        if left and right:
+            return root
+        if left is not None:
+            return left
+        if right is not None:
+            return right
+        return None
 
 """Longest Palindromic Subsequence 最长回文子序列 
 Given a string s, find the longest palindromic subsequence's length in s. 
@@ -3156,23 +3244,25 @@ Idea 2
 import numpy as np
 m = np.array(range(16)).reshape(4,4)
 m = np.array(range(1,10)).reshape(3,3)
-def rotate(m):
-    n = len(m)
-    for ir in range(n):
-        for ic in range(ir, n):
-            if ir != ic:
-                temp = m[ir][ic]
-                m[ir][ic] = m[ic][ir]
-                m[ic][ir] = temp
-    
-    for ir in range(n):
-        for ic in range(n//2):
-            temp = m[ir][ic]
-            m[ir][ic] = m[ir][n-ic-1]
-            m[ir][n-ic-1] = temp
-    return m
+class Solution:
+    def rotate(self, matrix) -> None:
+        """
+        first transpose, then left/right flip
+        """
+        n = len(matrix)
+        for i in range(n):
+            for j in range(i):
+                temp = matrix[i][j]
+                matrix[i][j] = matrix[j][i]
+                matrix[j][i] = temp
+        
+        for i in range(n):
+            for j in range(n//2):
+                temp = matrix[i][j]
+                matrix[i][j] = matrix[i][n-j-1]
+                matrix[i][n-j-1] = temp
 
-rotate(m)
+        return None
 
 
 """Jump Game 跳跃游戏
@@ -3517,8 +3607,7 @@ def maxSubArray(nums):
 maxSubArray(nums)
 
 """Valid Palindrome
-Question
-Given a string, determine if it is a palindrome, considering only alphanumeric 
+Question: Given a string, determine if it is a palindrome, considering only alphanumeric 
 characters and ignoring cases.
 
 Notice
