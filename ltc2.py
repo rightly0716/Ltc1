@@ -1612,7 +1612,6 @@ def wordBreak(s, dict1):
     # res[i] indicates whether s[:i] can be seged
     res[0] = True
     for i in range(1, n+1):
-       str1 = s[:i]
        for j in range(i)[::-1]:
            if res[j] == True and s[j:i] in hs:
                res[i] = True
@@ -1621,23 +1620,6 @@ def wordBreak(s, dict1):
 
 wordBreak(s, dict1)
 
-"""
-Word Break II 拆分词句之二 
-
-Given a string s and a dictionary of words dict, add spaces in s to construct 
-a sentence where each word is a valid dictionary word.
-
-Return all such possible sentences.
-
-For example, given
-s = "catsanddog",
-dict = ["cat", "cats", "and", "sand", "dog"]. 
-
-A solution is ["cats and dog", "cat sand dog"]. 
-"""
-
-def wordBreak():
-    return
 
 """Construct Binary Tree from String  
 You need to construct a binary tree from a string consisting of parenthesis and integers.
@@ -1656,14 +1638,56 @@ Output: return the tree root node representing the following tree:
    / \   / 
   3   1 5 
 """
-s = "4(2(3)(1))(6(5))"
-s = "6(5)"
 class TreeNode(object):
     def __init__(self, x):
         self.val = x
         self.left = None
         self.right = None
 
+class Solution:
+    def str2tree(self, s):
+        self.m = self.match_pair_idx(s)
+        root = self.str2treehelper(s, 0, len(s)-1)
+        return root
+    
+    def str2treehelper(self, s, start, end):
+        if start > end:
+            return None
+        root = TreeNode(int(s[start]))
+        if start == end:
+            return root
+        left = self.str2treehelper(s, start+2, self.m[start+1]-1)
+        root.left = left
+        if end > self.m[start+1]:
+            right = self.str2treehelper(s, self.m[start+1]+2, end-1)
+            root.right = right
+        return root
+
+    def match_pair_idx(self, s):
+        d = dict()
+        stack = []
+        for i in range(len(s)):
+            if s[i] == '(':
+                stack.append(i)
+            elif s[i] == ')':
+                d[stack.pop()] = i
+            else:
+                continue
+        return d
+
+# test
+sol=Solution()
+root = sol.str2tree("4(2(3)(1))(6(5))")
+root = sol.str2tree("6(5)")
+def inorder(root):
+    if root is None:
+        return
+    inorder(root.left)
+    print(root.val)
+    inorder(root.right)
+    return 
+inorder(root)
+# Solution2:
 def str2tree(s):
     if s == "":
         return TreeNode(None)
@@ -2005,33 +2029,34 @@ calculate("4+-1+3")
 calculate(" -1 + 2*2 - 13+5 / 2 /2 + 1")
 
 # O(1)
-def calculate2(s):
-    prev_num = 0
-    res = 0
-    n = len(s)
-    temp = ''
-    op = '+' # previous operator
-    for i in range(n):
-        if s[i].isdigit():
-            temp = temp + s[i]
-        if s[i] in ['+', '-', '*', '/'] or i == n-1:
-            # if operator, need previous operator
-            if op == '-':
-                if temp != '':
+class Solution:
+    def calculate2(self, s):
+        prev_num = 0
+        res = 0
+        n = len(s)
+        temp = ''  # curr number
+        op = '+' # previous operator
+        for i in range(n):
+            if s[i].isdigit():
+                temp = temp + s[i]
+            if s[i] in ['+', '-', '*', '/'] or i == n-1:
+                # if operator, need previous operator
+                if op == '-':
+                    # if temp != '':
                     res += prev_num
                     prev_num = int(temp) * -1
-            elif op == '+':
-                if temp != '':
-                    res += prev_num
-                    prev_num = int(temp)
-            elif op == '*':
-                prev_num = prev_num * int(temp)
-            elif op == '/':
-                prev_num = prev_num // int(temp)
-            op = s[i]
-            temp = ''
+                elif op == '+':
+                    if temp != '':
+                        res += prev_num
+                        prev_num = int(temp)
+                elif op == '*':
+                    prev_num = prev_num * int(temp)
+                elif op == '/':
+                    prev_num = int(prev_num / int(temp))
+                op = s[i]
+                temp = ''
 
-    return res + prev_num
+        return res + prev_num
 
 s = " -1 + 2 - 13+5 / 2 " #-10
 s = "14-3/2"
@@ -3095,6 +3120,33 @@ def spiral(mat):
             break
     return res
 
+# a similar but more clear version
+class Solution:
+    def spiralOrder(self, matrix: List[List[int]]) -> List[int]:
+        res = []
+        if len(matrix) == 0:
+            return res
+        row_begin = 0
+        col_begin = 0
+        row_end = len(matrix)-1 
+        col_end = len(matrix[0])-1
+        while (row_begin <= row_end and col_begin <= col_end):
+            for i in range(col_begin,col_end+1):
+                res.append(matrix[row_begin][i])
+            row_begin += 1
+            for i in range(row_begin,row_end+1):
+                res.append(matrix[i][col_end])
+            col_end -= 1
+            if (row_begin <= row_end):
+                for i in range(col_end,col_begin-1,-1):
+                    res.append(matrix[row_end][i])
+                row_end -= 1
+            if (col_begin <= col_end):
+                for i in range(row_end,row_begin-1,-1):
+                    res.append(matrix[i][col_begin])
+                col_begin += 1
+        return res
+
 spiral(mat)
 spiral([  [ 1, 2, 3, 31], [ 4, 5, 6, 61], [ 7, 8, 9, 91] ])
 
@@ -3138,22 +3190,24 @@ Your algorithm should run in O(n) complexity.
 # use a hashset to store, go thourhg each element to find its  longest conse seq
 s = [100, 4, 200, 1, 3, 2]
 s = [100, 4, 200, 1, 3, 2,0]
-def longestConsecutive(s):
-    hs = set(s)
-    max_length = 0
-    for i in set(s):
-        if i in hs:
-            begin, end = i,i
-            hs.remove(i)
-            while (begin - 1) in hs:
-                hs.remove(begin - 1)
-                begin = begin - 1
-            while (end + 1) in hs:
-                hs.remove(end + 1)
-                end = end + 1
-            max_length = max(max_length, end - begin + 1)
-        
-    return max_length
+class Solution:
+    def longestConsecutive(self, nums: List[int]) -> int:
+        s = nums
+        hs = set(s)
+        max_length = 0
+        for i in set(s):
+            if i in hs:
+                begin, end = i,i
+                hs.remove(i)
+                while (begin - 1) in hs:
+                    hs.remove(begin - 1)
+                    begin = begin - 1
+                while (end + 1) in hs:
+                    hs.remove(end + 1)
+                    end = end + 1
+                max_length = max(max_length, end - begin + 1)
+            
+        return max_length
 
 longestConsecutive(s)
 LCS(s)
@@ -3405,7 +3459,6 @@ permute([1,2,3,3])
 
 """Flatten Binary Tree to Linked List 453
 Given a binary tree, flatten it to a linked list in-place.
-
 For example,
 Given
          1
@@ -3427,23 +3480,25 @@ The flattened tree should look like:
              6
 """
 # idea: recursively do left and right, and then combine 
-# when combine, 
-def flatten(root):
-    if root == None:
-        return None
-    if root.left != None:
-        flatten(root.left)
-    if root.right != None:
-        flatten(root.right)
-    head = root
-    tmp = root.right
-    root.right = root.left
-    root.left = None
-    while root.right is not None:
-        root = root.right
-    root.right = tmp
-    return head
-    
+class Solution:
+    def flatten(self, root) -> None:
+        """
+        Do not return anything, modify root in-place instead.
+        """
+        if root is None:
+            return None
+        self.flatten(root.left)
+        self.flatten(root.right)
+        old_right = root.right
+        root.right = root.left
+        root.left = None
+        node = root
+        while node.right:
+            node = node.right
+        node.right = old_right
+        return 
+
+
 """Populating Next Right Pointers in Each Node 每个节点的右向指针
 Given a binary tree
     struct TreeLinkNode {
@@ -3473,40 +3528,42 @@ After calling your function, the tree should look like:
     4->5->6->7 -> NULL
 """
 # idea, left is easy, for right, see whether its father.next is None 
-def connect(root):
-    if root is None:
-        return None
-    head = root
-    if root.left is not None:
-        root.left.next = root.right
-        if root.next is None:
-            root.right.next = None
-        else:
-            root.right.next = root.next.left
-    connect(root.left)
-    connect(root.right)
-    return head
+class Solution:
+    def connect(self, root):
+        if root is None:
+            return None
+        if root.left is not None:
+            root.left.next = root.right
+            if root.next is None:
+                root.right.next = None
+            else:
+                root.right.next = root.next.left
+        connect(root.left)
+        connect(root.right)
+        return root
 
 from collections import deque
-def connect_nonrec(root):
-    if root is None:
-        return None
-    q = deque()
-    q.append(root)
-    while len(q) != 0:
-        for i in range(len(q)):
-            curr = q.popleft()
-            if i == len(q):
-                curr.next = None
-            else:
-                curr.next = q[0]
-            if curr.left is not None:
-                q.append(curr.left)
-            if curr.right is not None:
-                q.append(curr.right)
-    return root
+class Solution:
+    def connect(self, root):
+        if root is None:
+            return None
+        q = deque()
+        q.append(root)
+        while len(q) != 0:
+            curr_len = len(q)
+            for i in range(curr_len):
+                curr = q.popleft()
+                if i == curr_len-1:
+                    curr.next = None
+                else:
+                    curr.next = q[0]
+                if curr.left is not None:
+                    q.append(curr.left)
+                if curr.right is not None:
+                    q.append(curr.right)
+        return root
     
-"""Populating next right pointers in each node
+"""117. Populating Next Right Pointers in Each Node II
 Write a function to connect all the adjacent nodes at the same level in a binary 
 tree. Structure of the given Binary Tree node is like following.
 struct node{
@@ -3531,32 +3588,50 @@ Output Tree
     / \   \
    D-->E-->F-->NULL
 """
-# for each level, find the nexRight of the right kid at next level.
-def connect2(root):
-    if root is None:
-        return root
-    p = root.nextRight
-    while p is not None:
-        if p.left is not None:
-            p = p.left
-            break
-        if node.right is not None:
-            p = p.right
-            break
-        p = p.nextRight
-    # p is the nextRight of the right kid if exists
-    if root.right is not None:
-        root.right.nextRight = p
-    if root.left is not None:
-        if root.right is not None:
-            root.left.nextRight = root.right
-        else:
-            root.left.nextRight = p
-    connect(root.left)
-    connect(root.right)
-    return root
+# BFS, constant space: assume all nextRight starts with None, o.w. initialize using O(n)
+class Solution:
+    def connect(self, root):
+        node = root
+        while node:
+            dummy = curr = Node()  # level below node
+            while node:
+                if node.left:
+                    curr.next = node.left
+                    curr = curr.next
+                if node.right:
+                    curr.next = node.right
+                    curr = curr.next
+                node = node.next
+            # dummy is the start curr, with next point to the first available node at next level
+            node = dummy.next  
+        return root    
 
-# non recurrsive can refer to the previous solution
+# DFS: for each level, find the nexRight of the right kid at next level
+class Solution:
+    def connect(self, root):
+        if root is None:
+            return None
+        if root.left:
+            if root.right:
+                root.left.next = root.right
+            else:
+                root.left.next = self.findNext(root.next)
+        if root.right:
+            root.right.next = self.findNext(root.next)
+        self.connect(root.right)
+        self.connect(root.left)
+        return root
+    
+    def findNext(self.node):
+        # find the leftmost available child of node or its nexts
+        if node is None:
+            return None
+        if node.left:
+            return node.left
+        if node.right:
+            return node.right
+        return self.findNext(node.next)
+
 
 """Find the maximum path sum between two leaves of a binary tree
 Given a binary tree in which each node element contains a number. 
@@ -3750,7 +3825,7 @@ money you can rob tonight without alerting the police.
 # 所以第一家和最后一家只能抢其中的一家，或者都不抢，那我们这里变通一下，如果我们把第一家和最后一家分别去掉，各算一遍能抢的最大值，
 # 然后比较两个值取其中较大的一个即为所求。
 
-"""Integer to English Words 整数转为英文单词
+"""273. Integer to English Words 整数转为英文单词
 Convert a non-negative integer to its english words representation. Given input is guaranteed to be less than 231 - 1.
 
 For example,
@@ -3807,6 +3882,30 @@ def helper(i_str, unit):
 
 numberToWords(12343)
 numberToWords(1000001)
+
+# Solution 2: recursion
+class Solution:
+    def numberToWords(self, num: int) -> str:
+        to19 = 'One Two Three Four Five Six Seven Eight Nine Ten Eleven Twelve ' \
+           'Thirteen Fourteen Fifteen Sixteen Seventeen Eighteen Nineteen'.split()
+        tens = 'Twenty Thirty Forty Fifty Sixty Seventy Eighty Ninety'.split()
+        thousand = 'Thousand Million Billion'.split()
+        
+        def word(num, idx=0):
+            if num == 0:
+                return []
+            if num < 20:
+                return [to19[num-1]]
+            if num < 100:
+                return [tens[num//10-2]] + word(num%10)
+            if num < 1000:
+                return [to19[num//100-1]] + ['Hundred'] + word(num%100)
+
+            p, r = num//1000, num%1000
+            space = [thousand[idx]] if p % 1000 !=0 else []
+            return  word(p, idx+1) + space + word(r)
+        return ' '.join(word(num, 0)) or 'Zero'
+
 
 """[LeetCode] Largest BST Subtree 最大的二分搜索子树
 Given a binary tree, find the largest subtree which is a Binary Search Tree (BST), where largest means subtree with 

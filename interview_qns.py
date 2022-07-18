@@ -13,6 +13,781 @@ https://www.1point3acres.com/bbs/interview/facebook-software-engineer-693957.htm
 https://imgbb.com/6JbqSmF
 """
 
+# need to review
+# binary segment tree, binary index tree (307)
+
+# 
+# 426 Convert BST to linked list O(1) solution
+# 65 valid number
+# 636 Exclusive Time of Functions
+# 173. Binary Search Tree Iterator
+# 708. Insert into a Cyclic Sorted List
+# 282. expression add ope
+# 616 add bold tag (idea)
+# 398 reservior sampling
+# 1216 valid palindrom iii
+# 825 Friends of appropriate age
+# 1944
+# 2076
+# 43
+# 10
+# 333
+# 489. Robot Room Cleaner
+# 463  Island Perimeter
+# 117. Populating Next Right Pointers in Each Node II
+# 416. Partition Equal Subset Sum
+
+"""[LeetCode] 408. Valid Word Abbreviation
+Given a non-empty string s and an abbreviation abbr, return whether the string matches with the given abbreviation.
+
+A string such as "word" contains only the following valid abbreviations:
+["word", "1ord", "w1rd", "wo1d", "wor1", "2rd", "w2d", "wo2", "1o1d", "1or1", "w1r1", "1o2", "2r1", "3d", "w3", "4"]
+
+Given s = "internationalization", abbr = "i12iz4n":
+Return true
+
+class Solution {
+public:
+    bool validWordAbbreviation(string word, string abbr) {
+        int i = 0, j = 0, m = word.size(), n = abbr.size();
+        while (i < m && j < n) {
+            if (abbr[j] >= '0' && abbr[j] <= '9') {
+                if (abbr[j] == '0') return false;
+                int val = 0;
+                while (j < n && abbr[j] >= '0' && abbr[j] <= '9') {
+                    val = val * 10 + abbr[j++] - '0';
+                }
+                i += val;
+            } else {
+                if (word[i++] != abbr[j++]) return false;
+            }
+        }
+        return i == m && j == n;
+    }
+};
+"""
+
+
+"""173. Binary Search Tree Iterator
+Implement the BSTIterator class that represents an iterator over the in-order traversal of a binary search tree (BST):
+
+BSTIterator(TreeNode root) Initializes an object of the BSTIterator class. 
+The root of the BST is given as part of the constructor. The pointer should be initialized to a 
+non-existent number smaller than any element in the BST.
+
+boolean hasNext() Returns true if there exists a number in the traversal to the right of the pointer, otherwise returns false.
+int next() Moves the pointer to the right, then returns the number at the pointer.
+    9
+   / \
+  3  20
+    /  \
+   15   27
+
+Follow up: 
+Could you implement next() and hasNext() to run in average O(1) time and use O(h) memory, where h is the height of the tree?
+
+Hints: 
+For O(n) solution, we just need to in order traverse the tree and save value into a stack/array
+
+下面的做法的空间复杂度是O(h)，做法是每次保存要遍历的节点的所有左孩子。这样，每次最多也就是H个节点被保存，
+当遍历了这个节点之后，需要把该节点的右孩子的所有左孩子放到栈里，这就是个中序遍历的过程。
+"""
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class BSTIterator:
+    def __init__(self, root):
+        self.stack = []
+        self.push_left(root) # recursively push left child
+
+    def push_left(self, node):
+        while node:
+            self.stack.append(node)
+            node = node.left
+        return 
+
+    def next(self) -> int:
+        next_node = self.stack.pop()
+        self.push_left(next_node.right)
+        return next_node.val
+        
+    def hasNext(self) -> bool:
+        return len(self.stack) > 0
+
+
+# iterative: just for practice
+class BSTIterator:
+    def __init__(self, root):
+        self.stack = []
+        self.in_order(root) # recursively push left child
+
+    def in_order(self, node):
+        temp_stack = []
+        curr = node
+        while True:
+            if curr:
+                temp_stack.append(curr)
+                curr = curr.right
+            elif len(temp_stack) > 0:
+                curr = temp_stack.pop()
+                self.stack.append(curr)
+                curr = curr.left
+            else:
+                break
+        return 
+
+    def next(self) -> int:
+        next_node = self.stack.pop()
+        return next_node.val
+        
+    def hasNext(self) -> bool:
+        return len(self.stack) > 0
+
+
+""" 498. Diagonal Traverse
+Given an m x n matrix mat, return an array of all the elements of the array in a diagonal order.
+
+Input: mat = [[1,2,3],[4,5,6],[7,8,9]]
+Output: [1,2,4,7,5,3,6,8,9]
+
+# https://www.cnblogs.com/grandyang/p/6414461.html
+"""
+class Solution:
+    def findDiagonalOrder(self, mat):
+        r, c = 0, 0
+        res = []
+        upright = True
+        while True:
+            res.append(mat[r][c])
+            if r == len(mat) - 1 and c == len(mat[0]) - 1:
+                break
+            if upright:
+                c += 1
+                r -= 1
+            else:
+                c -= 1
+                r += 1
+            # four cases of go beyond
+            if r == len(mat):
+                r -= 1
+                c += 2
+                upright = not upright
+            if c == len(mat[0]):
+                c -= 1
+                r += 2
+                upright = not upright
+            if r == -1:
+                r = 0
+                upright = not upright
+            if c == -1:
+                c = 0
+                upright = not upright
+        return res
+
+# Output: [1,2,4,7,5,3,6,8,9]
+sol=Solution()
+sol.findDiagonalOrder([[1,2,3],[4,5,6],[7,8,9]])
+
+"""1424. Diagonal Traverse II
+Given a 2D integer array nums, return all elements of nums in diagonal order as shown in the below images.
+
+Input: nums = [[1,2,3],[4,5,6],[7,8,9]]
+Output: [1,4,2,7,5,3,8,6,9]
+
+Input: nums = [[1,2,3,4,5],[6,7],[8],[9,10,11],[12,13,14,15,16]]
+Output: [1,6,2,8,7,3,9,4,12,10,5,13,11,14,15,16]
+"""
+# Solution1: use a hashmap: r+c -> val, merge vals after sort by keys
+# BFS: 
+# The top-left number, nums[0][0], is the root node. nums[1][0] is its left child and nums[0][1] is 
+# its right child. Same analogy applies to all nodes nums[i][j].
+
+# Can further improve memory usage by not using visited
+# Note that nums[i][j] is both the left child of nums[i-1][j] and the right child of nums[i][j-1]. 
+# To avoid double counting, we only consider a number's left child when we are at the left-most column (j == 0).
+# https://leetcode.com/problems/diagonal-traverse-ii/discuss/597690/Python-Simple-BFS-solution-with-detailed-explanation
+from collections import deque
+class Solution:
+    def findDiagonalOrder(self, nums):
+        q = deque()
+        q.append((0, 0))
+        visited = set((0,0))
+        res = []
+        while q:
+            r, c = q.popleft()
+            res.append(nums[r][c])
+            if r + 1 < len(nums) and c < len(nums[r+1]) and (r+1, c) not in visited:
+                visited.add((r+1, c))
+                q.append((r+1, c))
+            if c + 1 < len(nums[r]) and (r, c+1) not in visited:
+                visited.add((r, c+1))
+                q.append((r, c+1))
+        
+        return res
+
+sol=Solution()
+sol.findDiagonalOrder([[1,2,3,4,5],[6,7],[8],[9,10,11],[12,13,14,15,16]])
+
+
+""" 636 Exclusive Time of Functions
+Given the running logs of n functions that are executed in a nonpreemptive single 
+threaded CPU, find the exclusive time of these functions.
+
+Each function has a unique id, start from 0 to n-1. A function may be called 
+recursively or by another function.
+
+A log is a string has this format : function_id:start_or_end:timestamp. For 
+example, "0:start:0" means function 0 starts from the very beginning of time 0. 
+"0:end:0" means function 0 ends to the very end of time 0.
+
+Exclusive time of a function is defined as the time spent within this function, 
+the time spent by calling other functions should not be considered as this function's 
+exclusive time. You should return the exclusive time of each function sorted by their function id.
+
+Input: n = 2, logs = ["0:start:0","1:start:2","1:end:5","0:end:6"]
+Output: [3,4]
+
+Input: n = 1, logs = ["0:start:0","0:start:2","0:end:5","0:start:6","0:end:6","0:end:7"]
+Output: [8]
+"""
+logs = ["0:start:0",  "1:start:2",  "1:end:5",  "0:end:6"]
+n = 2
+class Solution:
+    def exclusiveTime(self, n, logs):
+        res = [0] * n
+        stack = []
+        for log in logs:
+            jid, status, t = log.split(':')
+            jid, t = int(jid), int(t)
+            if status == 'start':
+                if len(stack) == 0:
+                    stack.append([jid, t])
+                else:
+                    prev_jid, prev_t = stack[-1]
+                    res[prev_jid] += t - prev_t
+                    stack.append([jid, t])
+            else:
+                prev_jid, prev_t = stack.pop()
+                res[prev_jid] += t - prev_t + 1
+                if len(stack) > 0:
+                    stack[-1][1] = t + 1 # end defined at end of time
+        return res
+
+exclusiveTime(n, logs)
+
+"""Group Shifted Strings 群组偏移字符串 
+Given a string, we can "shift" each of its letter to its successive letter, 
+for example: "abc" -> "bcd". We can keep "shifting" which forms the sequence:
+"abc" -> "bcd" -> ... -> "xyz"
+
+Given a list of strings which contains only lowercase alphabets, group all 
+strings that belong to the same shifting sequence.
+
+For example, given: ["abc", "bcd", "acef", "xyz", "az", "ba", "a", "z"], 
+Return:
+[
+  ["abc","bcd","xyz"],
+  ["az","ba"],
+  ["acef"],
+  ["a","z"]
+]
+Note: For the return value, each inner list's elements must follow the lexicographic order.
+"""
+from collections import defaultdict
+class Solution:
+    def groupStrings(self, strings):
+        d = defaultdict(list)
+        for s in strings:
+            d[self.hashcode(s)].append(s)
+        res = []
+        for k in d:
+            res.append(sorted(d[k]))
+        return res
+
+    def hashcode(self, s):
+        out = [0] * len(s)
+        for i in range(len(s)):
+            out[i] = ord(s[i]) - ord(s[0]) if ord(s[i]) - ord(s[0]) >= 0 else ord(s[i]) - ord(s[0]) + 26
+        return tuple(out)
+
+sol=Solution()
+sol.groupStrings(["abc", "bcd", "acef", "xyz", "az", "ba", "a", "z"])
+
+
+"""1091. Shortest Path in Binary Matrix
+Given an n x n binary matrix grid, return the length of the shortest clear path in the matrix. 
+If there is no clear path, return -1.
+
+A clear path in a binary matrix is a path from the top-left cell (i.e., (0, 0)) to the bottom-right cell (i.e., (n - 1, n - 1)) such that:
+
+All the visited cells of the path are 0.
+All the adjacent cells of the path are 8-directionally connected (i.e., they are different and they share an edge or a corner).
+
+Input: grid = [[0,0,0],[1,1,0],[1,1,0]]
+Output: 4
+
+Input: grid = [[1,0,0],[1,1,0],[1,1,0]]
+Output: -1
+"""
+# BFS
+from collections import deque
+class Solution:
+    def shortestPathBinaryMatrix(self, grid) -> int:
+        if grid[0][0] == 1 or grid[-1][-1] == 1:
+            return -1
+        visited = set()
+        q = deque()
+        q.append((0, 0, 1))
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr_i, curr_j, curr_dist = q.popleft()
+                if (curr_i, curr_j) == (len(grid)-1, len(grid[0])-1):
+                    return curr_dist
+                for next_i, next_j in self.get_nb(curr_i, curr_j, grid):
+                    if grid[next_i][next_j] == 0 and (next_i, next_j) not in visited:
+                        visited.add((next_i, next_j))
+                        q.append((next_i, next_j, curr_dist+1))
+        return -1
+    
+    def get_nb(self, i, j, grid):
+        dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        res = []
+        for di, dj in dirs:
+            if 0 <= i + di < len(grid) and 0 <= j + dj < len(grid[0]):
+                res.append((i+di, j+dj))
+        return res
+
+
+sol = Solution()
+sol.shortestPathBinaryMatrix([[0,1],[1,0]])
+sol.shortestPathBinaryMatrix([[0,0,0],[1,1,0],[1,1,0]])
+sol.shortestPathBinaryMatrix([[1,0,0],[1,1,0],[1,1,0]])
+sol.shortestPathBinaryMatrix([[0,1,0,0,0,0],[0,1,0,1,1,0],[0,1,1,0,1,0],[0,0,0,0,1,0],[1,1,1,1,1,0],[1,1,1,1,1,0]])
+sol.shortestPathBinaryMatrix([[0,0,1,1,0,0],[0,0,0,0,1,1],[1,0,1,1,0,0],[0,0,1,1,0,0],[0,0,0,0,0,0],[0,0,1,0,0,0]])
+
+# DFS: must use a dp to record otherwise TLE!!!
+# Still TLE
+class Solution:
+    def shortestPathBinaryMatrix(self, grid) -> int:
+        if grid[0][0] == 1 or grid[-1][-1] == 1:
+            return -1
+        dist = [[float('Inf') for _ in range(len(grid[0]))] for _ in range(len(grid))]
+        dist[0][0] = 1  # path length to -1, -1 is 1
+        self.traversal(0, 0, grid, dist)
+        print(dist)
+        return dist[-1][-1] if dist[-1][-1] < float('Inf') else -1
+    
+    def traversal(self, i, j, grid, dist):
+        # print(self.get_nb(start, grid))
+        for next_i, next_j in self.get_nb((i, j), grid):
+            if grid[next_i][next_j] == 0: # and abs(dist[next_i][next_j] - dist[i][j]) > 1:
+                if dist[next_i][next_j] > dist[i][j] + 1:
+                    dist[next_i][next_j] = dist[i][j] + 1
+                # else: # dist[i][j] > dist[next_i][next_j] + 1:
+                #     dist[i][j] = dist[next_i][next_j] + 1
+                    self.traversal(next_i, next_j, grid, dist)
+        return None
+    
+    def get_nb(self, curr_point, grid):
+        i, j = curr_point
+        dirs = [(-1, -1), (-1, 0), (-1, 1), (0, -1), (0, 1), (1, -1), (1, 0), (1, 1)]
+        res = []
+        for di, dj in dirs:
+            if 0 <= i + di < len(grid) and 0 <= j + dj < len(grid[0]):
+                res.append((i+di, j+dj))
+        return res
+
+
+"""189. Rotate Array
+Given an array, rotate the array to the right by k steps, where k is non-negative.
+
+Input: nums = [1,2,3,4,5,6,7], k = 3
+Output: [5,6,7,1,2,3,4]
+Explanation:
+rotate 1 steps to the right: [7,1,2,3,4,5,6]
+rotate 2 steps to the right: [6,7,1,2,3,4,5]
+rotate 3 steps to the right: [5,6,7,1,2,3,4]
+
+# hint on optimal
+We can simulate the rotation with three reverses.
+reverse the whole array O(n) [7,6,5,4,3,2,1]
+reverse the left part 0 ~ k – 1 O(k) [5,6,7,4,3,2,1]
+reverse the right part k ~ n – 1 O(n-k) [5,6,7,1,2,3,4]
+"""
+class Solution:
+    def rotate(self, nums, k: int) -> None:
+        n = len(nums)
+        k = k % n
+        self.inverse(nums, 0, n-1)
+        self.inverse(nums, 0, k-1)
+        self.inverse(nums, k, n-1)
+        return None
+
+    def inverse(self, nums, i, j):
+        while i < j:
+            nums[i], nums[j] = nums[j], nums[i]
+            i, j = i + 1, j - 1
+        return None
+
+sol=Solution
+nums = [-1, -100, 3, 99, 2]; k = 2
+
+
+"""65. Valid Number
+Validate if a given string can be interpreted as a decimal number.
+
+Some examples:
+"0" => true
+" 0.1 " => true
+"abc" => false
+"1 a" => false
+"2e10" => true
+" -90e3   " => true
+" 1e" => false
+"e3" => false
+" 6e-1" => true
+" 99e2.5 " => false
+"53.5e93" => true
+" --6 " => false
+"-+3" => false
+"95a54e53" => false
+
+Note: It is intended for the problem statement to be ambiguous. You should gather all requirements up front before implementing one. 
+However, here is a list of characters that can be in a valid decimal number:
+
+Numbers 0-9
+Exponent - "e"
+Positive/negative sign - "+"/"-"
+Decimal point - "."
+Of course, the context of these characters also matters in the input.
+
+## Hint
+We use three flags: met_dot, met_e, met_digit, mark if we have met ., e or any digit so far. 
+First we strip the string, then go through each char and make sure:
+
+If char == + or char == -, then prev char (if there is) must be e
+. cannot appear twice or after e
+e cannot appear twice, and there must be at least one digit before and after e
+All other non-digit char is invalid
+https://leetcode.com/problems/valid-number/discuss/173977/Python-with-simple-explanation
+"""
+import re
+class Solution:
+    def isNumber(self, s):
+        s = s.strip()
+        s_split_by_e = re.split('e|E', s)
+        if len(s_split_by_e) > 2:
+            return False
+        if len(s_split_by_e) == 1:
+            return self.is_decimal(s_split_by_e[0])
+        else:
+            decimal, integer = s_split_by_e
+            if len(decimal) == 0 or len(integer) == 0:
+                return False
+            return self.is_decimal(decimal) and self.is_decimal(integer, True)
+
+    def is_decimal(self, s, is_integer=False):
+        met_dot = False
+        met_digit = False
+        for i, char in enumerate(s):
+            if char in ['-', '+']:
+                if i != 0 or i == len(s)-1:
+                    return False
+            elif char == '.':
+                if is_integer:
+                    return False
+                if met_dot:
+                    return False
+                met_dot = True
+            elif char.isdigit():
+                met_digit = True
+            else:
+                return False
+        return met_digit
+
+
+sol=Solution()
+sol.isNumber("4.e+19")
+sol.isNumber("4e+")
+sol.isNumber("e")
+sol.isNumber(".")
+
+class Solution:
+    def isNumber(self, s):
+        s = s.strip()
+        met_dot = met_e = met_digit = False
+        for i, char in enumerate(s):
+            if char in ['+', '-']:
+                if i > 0 and s[i-1] not in ['e', 'E']:
+                    return False
+            elif char == '.':
+                if met_dot or met_e: return False
+                met_dot = True
+            elif char in ['e', 'E'] :
+                if met_e or not met_digit:
+                    return False
+                met_e, met_digit = True, False
+            elif char.isdigit():
+                met_digit = True
+            else:
+                return False
+        return met_digit
+
+
+""" LeetCode 426. Convert Binary Search Tree to Sorted Doubly Linked List
+Convert a Binary Search Tree to a sorted Circular Doubly-Linked List in place.
+
+We want to transform this BST into a circular doubly linked list. Each node in a doubly linked 
+list has a predecessor and successor. For a circular doubly linked list, the predecessor of 
+the first element is the last element, and the successor of the last element is the first element. 
+
+Specifically, we want to do the transformation in place. After the transformation, 
+the left pointer of the tree node should point to its predecessor, and the right pointer 
+should point to its successor. We should return the pointer to the first element of the linked list
+"""
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, val, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+"""
+# O(n) memory
+class Solution:
+    def treeToDoublyList(self, root):
+        if root is None:
+            return root
+        self.stack = []
+        self.inorder(root)
+        for i in range(1, len(self.stack)):
+            self.stack[i].right = self.stack[i+1]
+            self.stack[i].left = self.stack[i-1]
+        self.stack[0].left = self.stack[-1]
+        self.stack[-1].right = self.stack[0]
+        return self.stack[0]
+    
+    def inorder(self, node):
+        if not node:
+            return
+        self.inorder(node.left)
+        self.stack.append(node)
+        self.inorder(node.right)
+        return 
+
+# O(1) memory: use self.prev node
+class Solution:
+    def treeToDoublyList(self, root):
+        if root is None:
+            return root
+        self.prev = dummy = Node(-1)
+        self.inorder(root)
+        self.prev.right = dummy.right
+        dummy.right.left = self.prev
+        return dummy.right
+    
+    def inorder(self, node):
+        if not node:
+            return
+        self.inorder(node.left)
+        self.prev.right = node
+        node.left = self.prev
+        self.prev = self.prev.right
+        self.inorder(node.right)
+        return 
+
+
+"""[LeetCode] 31. Next Permutation 下一个排列
+Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+
+If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).
+
+The replacement must be in-place and use only constant extra memory.
+
+Here are some examples. Inputs are in the left-hand column and its corresponding outputs are in the right-hand column.
+1,2,3 → 1,3,2
+3,2,1 → 1,2,3
+1,1,5 → 1,5,1
+
+hint
+一个数组
+1　　2　　7　　4　　3　　1
+
+下一个排列为：
+1　　3　　1　　2　　4　　7
+
+那么是如何得到的呢，我们通过观察原数组可以发现，如果从末尾往前看，数字逐渐变大，到了2时才减小的，
+然后再从后往前找第一个比2大的数字，是3，那么我们交换2和3，再把此时3后面的所有数字转置一下即可，步骤如下：
+1　　2　　7　　4　　3　　1
+1　　2　　7　　4　　3　　1
+1　　3　　7　　4　　2　　1
+1　　3　　1　　2　　4　　7
+"""
+class Solution:
+    def nextPermutation(self, nums) -> None:
+        """
+        Do not return anything, modify nums in-place instead.
+        """
+        for i in range(1, len(nums))[::-1]:
+            if nums[i] > nums[i-1]:
+                # nums[i:] is decreasing order
+                idx = self.find_last_larger_num(nums, i, nums[i-1])
+                nums[i-1], nums[idx] = nums[idx], nums[i-1]
+                nums[i:] = nums[i:][::-1]
+                return None
+        # means nums are sorted descreaing
+        nums.reverse()  # nums = nums[::-1] does not update nums!!
+        return None
+    
+    def find_last_larger_num(self, arr, left, x):
+        low, high = left, len(arr)
+        while low < high:
+            mid = low + (high - low) // 2
+            if arr[mid] > x:
+                low = mid + 1
+            else:
+                high = mid
+        return low - 1
+
+
+sol = Solution()
+nums = [1,2,3]
+nums = [3, 2, 1]
+sol.nextPermutation(nums)
+nums
+
+
+"""556. Next Greater Element III
+Given a positive integer n, find the smallest integer which has exactly the same digits existing in the 
+integer n and is greater in value than n. If no such positive integer exists, return -1.
+
+Input: n = 12443322
+Output: 13222344
+
+Idea is similar to previous
+"""
+class Solution:
+    def nextGreaterElement(self, n: int) -> int:
+        # find first non-increasing element from right hand side
+        str_n = [int(i) for i in str(n)]
+        for i in range(1, len(str_n))[::-1]:
+            if str_n[i-1] < str_n[i]:
+                # find last element > str_n[i]
+                idx = self.find_larger_element(str_n, str_n[i-1], i)
+                str_n[i-1], str_n[idx] = str_n[idx], str_n[i-1]
+                res_list = str_n[:i] + str_n[i:][::-1]
+                res = int(''.join([str(i) for i in res_list]))
+                return res if res < 2 ** 31 else -1
+                
+        return -1
+
+    def find_larger_element(self, s, target, start_left):
+        left, right = start_left, len(s)
+        while left < right:
+            mid = left + (right - left) // 2
+            if s[mid] > target:
+                left = mid + 1
+            else:
+                right = mid
+        return left - 1
+
+
+sol=Solution()
+sol.nextGreaterElement(12443322)
+        
+"""827. Making A Large Island
+You are given an n x n binary matrix grid. You are allowed to change at most one 0 to be 1.
+Return the size of the largest island in grid after applying this operation.
+An island is a 4-directionally connected group of 1s.
+
+Input: grid = [[1,0],[0,1]]
+Output: 3
+Explanation: Change one 0 to 1 and connect two 1s, then we get an island with area = 3.
+
+遇到1就遍历当前的island，然后存入一个dict with key as island_id and value as size, 同时把岛上的grid[i][j]
+全变成island_id，
+"""
+
+class Solution:
+    def largestIsland(self, grid) -> int:
+        cur_id = 2
+        id2size = dict()
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 1:
+                    id2size[cur_id] = self.getCurrIslandSize(grid, i, j, cur_id)
+                    cur_id += 1
+        res = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 0:
+                    curr_max = self.get_max_size(grid, i, j, id2size)
+                    res = max(res, curr_max)
+        
+        return res if res > 0 else len(grid) * len(grid[0])
+    
+    def get_max_size(self, grid, i, j, id2size):
+        res = 1
+        id_set = set()
+        for n_i, n_j in self.get_nb(grid, i, j):
+            if grid[n_i][n_j] != 0 and grid[n_i][n_j] not in id_set:
+                res += id2size[grid[n_i][n_j]]
+                id_set.add(grid[n_i][n_j])
+        return res
+
+    def getCurrIslandSize(self, grid, i, j, cur_id):
+        res = 1
+        grid[i][j] = cur_id
+        for n_i, n_j in self.get_nb(grid, i, j):
+            if grid[n_i][n_j] == 1:
+                res += self.getCurrIslandSize(grid, n_i, n_j, cur_id)
+        return res
+
+    def get_nb(self, grid, i, j):
+        res = []
+        for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            next_i, next_j = i+di, j+dj
+            if 0 <= next_i < len(grid) and 0<= next_j < len(grid[0]):
+                res.append((next_i, next_j))
+        return res
+
+
+sol=Solution()
+sol.largestIsland([[1,0],[0,1]])
+sol.largestIsland([[1,1],[1,0]])
+sol.largestIsland([[0,0],[0,0]])
+
+"""791. Custom Sort String
+You are given two strings order and s. All the words of order are unique and were sorted 
+in some custom order previously.
+Permute the characters of s so that they match the order that order was sorted. More 
+specifically, if a character x occurs before a character y in order, then x should occur 
+before y in the permuted string.
+
+Return any permutation of s that satisfies this property.
+
+Input: order = "cba", s = "abcd"
+Output: "cbad"
+
+Input: order = "cbafg", s = "abcd"
+Output: "cbad"
+"""
+class Solution:
+    def customSortString(self, S: str, T: str) -> str:        
+        counter =collections.Counter(T)
+        res = ""
+        for i in S:
+            if i in counter:
+                res += i*counter[i]
+                counter.pop(i)
+        for k,v in counter.items():
+            res += k*v
+        return res
+
+
 """438. Find All Anagrams in a String
 Given two strings s and p, return an array of all the start indices of p's anagrams in s. You may return the answer in any order.
 An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase, typically using all the original letters exactly once.
@@ -224,53 +999,30 @@ Therefore, sum = 495 + 491 + 40 = 1026.
 #         self.right = right
 class Solution:
     def sumNumbers(self, root) -> int:
-        res_list = self.dfs(root)
-        res = 0
-        for i in res_list:
-            curr_res = int(i) if i != "" else 0
-            res += curr_res
-        return res
-        
-    def dfs(self, node):
-        if node is None:
-            return [""]
-        res = []
-        if node.left is None and node.right is None:
-            return [str(node.val)]
-        if node.left:
-            left_res = self.dfs(node.left)
-            for i in left_res:
-                res.append(str(node.val) + i)
-        if node.right:
-            right_res = self.dfs(node.right)
-            for i in right_res:
-                res.append(str(node.val) + i)
-        return res
-
-class Solution:
-    def sumNumbers(self, root) -> int:
+        if root is None:
+            return 0
         self.res = 0
         self.dfs(root, 0)
         return self.res
         
     def dfs(self, node, curr_val):
         # add curr_val into self.res if leaf
-        if node is None:
-            return 0
         if node.left is None and node.right is None:
-            self.res += curr_val + node.val
-            return None
+            self.res += curr_val * 10 + node.val
+            return 
         if node.left:
-            self.dfs(node.left, (curr_val + node.val) * 10)
+            self.dfs(node.left, curr_val * 10 + node.val)
         if node.right:
-            self.dfs(node.right, (curr_val + node.val) * 10)
+            self.dfs(node.right, curr_val * 10  + node.val)
         
         return None
 
 
 """787. Cheapest Flights Within K Stops
-There are n cities connected by some number of flights. You are given an array flights where flights[i] = [fromi, toi, pricei] indicates that there is a flight from city fromi to city toi with cost pricei.
-You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
+There are n cities connected by some number of flights. You are given an array flights where 
+flights[i] = [fromi, toi, pricei] indicates that there is a flight from city fromi to city toi with cost pricei.
+You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. 
+If there is no such route, return -1.
 
 Input: n = 3, flights = [[0,1,100],[1,2,100],[0,2,500]], src = 0, dst = 2, k = 1
 Output: 200
@@ -419,32 +1171,32 @@ Input: num = "123", target = 15
 Output: ["12+3"]
 """
 num = "105"; target=5
-# Runtime Error
+# TLE
 from functools import lru_cache
 class Solution:
     def addOperators(self, num: str, target: int):
-        all_comb = dfs(num)
+        all_comb = self.get_all_combination(num)
         res = []
         for comb in all_comb:
             eval_output = eval(comb)
             if eval_output== target:
                 res.append(comb)
         return res
-    
-@lru_cache(None)
-def dfs(num_str):
-    # return all combinations in a list
-    res = [] if num_str[0] == '0' and len(num_str) > 1 else [num_str]
-    for i in range(1, len(num_str)):
-        post_num = num_str[i:] # do not split any more
-        if post_num[0] == '0' and len(post_num) > 1:
-            continue
-        pre_num_list = dfs(num_str[:i])
-        for pre_num in pre_num_list:
-            res.append(pre_num + '+' + post_num)
-            res.append(pre_num + '-' + post_num)
-            res.append(pre_num + '*' + post_num)
-    return res
+
+    @lru_cache(None)
+    def get_all_combination(self, num_str):
+        # return all combinations in a list
+        res = [] if num_str[0] == '0' and len(num_str) > 1 else [num_str]
+        for i in range(1, len(num_str)):
+            post_num = num_str[i:] # do not split any more
+            if post_num[0] == '0' and len(post_num) > 1:
+                continue
+            pre_num_list = self.get_all_combination(num_str[:i])
+            for pre_num in pre_num_list:
+                res.append(pre_num + '+' + post_num)
+                res.append(pre_num + '-' + post_num)
+                res.append(pre_num + '*' + post_num)
+        return res
 
 
 # Imagine you are currently evaluating the expression 5 + 2 * 3, the dfs method has last = 2, cur= 7,
@@ -457,37 +1209,38 @@ class Solution:
         dfs(num, "", 0, 0, target, res)
         return res
 
-def dfs(rem_num, output, curr, last, target, res):
-    """
-    rem_num: remaining num string
-    output: temporally string with operators added
-    cur: current result of "temp" string
-    last: last multiply-level number in "temp". if next operator is "multiply", "cur" and "last" will be updated
-    """
-    if curr == target and len(rem_num) == 0:
-        res.append(output)
-        return None
-    for i in range(1, len(rem_num)+1):
-        pre_num = rem_num[:i] # no split anymore
-        if pre_num[0] == '0' and len(pre_num) > 1:
-            # illegal 
+    # add cache trick is even slower
+    def dfs(self, rem_num, output, curr, last, target, res):
+        """
+        rem_num: remaining num string
+        output: temporally string with operators added
+        cur: current result of "temp" string
+        last: last multiply-level number in "temp". if next operator is "multiply", "cur" and "last" will be updated
+        """
+        if curr == target and len(rem_num) == 0:
+            res.append(output)
             return None
-        val = int(pre_num)
-        if len(output) > 0:
-            # Case 1: 2 + 3*4   *    5
-            # last: 3*4  -> 3*4*5 (last * val)
-            # curr: 2+3*4  -> 2 + 3*4*5  (curr-last) + last * val
-            # val: 5
-            # Case 2: 2 + 3*4   +    5
-            # last: 3*4  -> 5 (val)
-            # curr: 2+3*4  -> 2 + 3*4 + 5 (curr+val)
-            dfs(rem_num[i:], output + "+" + pre_num, curr+val, val, target, res)
-            dfs(rem_num[i:], output + "-" + pre_num, curr-val, -1*val, target, res)
-            dfs(rem_num[i:], output + "*" + pre_num, (curr-last) + last * val, last * val, target, res)
-        else:
-            # at the first step, when output = ""
-            dfs(rem_num[i:], pre_num, curr+val, val, target, res)
-    return None
+        for i in range(1, len(rem_num)+1):
+            pre_num = rem_num[:i] # no split anymore
+            if pre_num[0] == '0' and len(pre_num) > 1:
+                # illegal 
+                return None
+            val = int(pre_num)
+            if len(output) > 0:
+                # Case 1: 2 + 3*4   *    5
+                # last: 3*4  -> 3*4*5 (last * val)
+                # curr: 2+3*4  -> 2 + 3*4*5  (curr-last) + last * val
+                # val: 5
+                # Case 2: 2 + 3*4   +    5
+                # last: 3*4  -> 5 (val)
+                # curr: 2+3*4  -> 2 + 3*4 + 5 (curr+val)
+                self.dfs(rem_num[i:], output + "+" + pre_num, curr+val, val, target, res)
+                self.dfs(rem_num[i:], output + "-" + pre_num, curr-val, -1*val, target, res)
+                self.dfs(rem_num[i:], output + "*" + pre_num, (curr-last) + last * val, last * val, target, res)
+            else:
+                # at the first step, when output = ""
+                self.dfs(rem_num[i:], pre_num, curr+val, val, target, res)
+        return None
 
 sol=Solution()
 sol.addOperators("123", 6)
@@ -645,7 +1398,7 @@ class Solution:
                 break
         num_str[i], num_str[j] = num_str[j], num_str[i]
         return int(''.join(num_str))
-        
+
 # N
 """
 只关注两个需要交换的位置即可，即高位上的小数字和低位上的大数字，分别用 pos1 和 pos2 指向其位置，均初始化为 -1，然后用一个指针 mx 指向低位最大数字的位置，
@@ -670,6 +1423,674 @@ public:
     }
 };
 """
+
+"""[LeetCode] 708. Insert into a Cyclic Sorted List 在循环有序的链表中插入结点
+Given a node from a Circular Linked List which is sorted in ascending order, write a function to 
+insert a value insertVal into the list such that it remains a sorted circular list. 
+The given node can be a reference to any single node in the list, and may not be necessarily 
+the smallest value in the circular list.
+
+If there are multiple suitable places for insertion, you may choose any place to insert the new value. 
+After the insertion, the circular list should remain sorted.
+3 -> 4 -> 1 -> 3 (head again)
+3 -> 4 -> 1 -> 2 -> 3 (head again)
+Input: head = [3,4,1], insertVal = 2
+Output: [3,4,1,2]
+"""
+class Solution:
+    def insert(self, head, insertVal):
+        if head is None:
+            head = Node(insertVal)
+            head.next = head  # point to itself
+            return head
+        pre = head; curr = head.next
+        # 
+        while curr != head: # loop the linkedList for once
+            if pre.val <= insertVal <= curr.val:
+                # pre.next = val, val.next = curr
+                break
+            if pre.val > curr.val and (pre.val <= insertVal or curr >= insertVal):
+                # means pre is largest and curr is smallest
+                # 3 -> 4(pre) -> 1(curr) -> 3(back), and insertVal = 6 or 0
+                # pre.next = val, val.next = curr
+                break
+            pre = curr
+            curr = curr.next
+            # if 4 -> 4 -> 4 (back), then insertval can be anywhere
+        pre.next = Node(insertVal)
+        pre.next.next = curr
+        return head
+
+
+"""766. Toeplitz Matrix
+Given an m x n matrix, return true if the matrix is Toeplitz. Otherwise, return false.
+
+A matrix is Toeplitz if every diagonal from top-left to bottom-right has the same elements.
+
+Input: matrix = [[1,2,3,4],[5,1,2,3],[9,5,1,2]]
+Output: true
+Explanation:
+In the above grid, the diagonals are:
+"[9]", "[5, 5]", "[1, 1, 1]", "[2, 2, 2]", "[3, 3]", "[4]".
+In each diagonal all elements are the same, so the answer is True.
+
+Follow up:
+What if the matrix is stored on disk, and the memory is limited such that you can only load at most one 
+row of the matrix into the memory at once?
+What if the matrix is so large that you can only load up a partial row into the memory at once?
+"""
+class Solution:
+    def isToeplitzMatrix(self, matrix):
+        for i in range(len(matrix) - 1):
+            for j in range(len(matrix[0]) - 1):
+                if matrix[i][j] != matrix[i + 1][j + 1]:
+                    return False
+        return True
+
+# follow up: we just need to save prev and curr rows, compare prev[:-1] == curr[:-1]
+class Solution(object):
+    def isToeplitzMatrix(self, matrix):
+        if not matrix:
+            return False
+        n_rows, n_cols = len(matrix), len(matrix[0])
+        prev = matrix[0][:-1]  # need previous row up to last element
+        for i in range(1, n_rows):
+            if prev != matrix[i][1:]:
+                return False
+            prev = matrix[i][:-1]
+        return True
+
+"""986. Interval List Intersections
+You are given two lists of closed intervals, firstList and secondList, 
+where firstList[i] = [starti, endi] and secondList[j] = [startj, endj]. 
+Each list of intervals is pairwise disjoint and in sorted order
+
+Return the intersection of these two interval lists.
+
+Input: firstList = [[0,2],[5,10],[13,23],[24,25]], secondList = [[1,5],[8,12],[15,24],[25,26]]
+Output: [[1,2],[5,5],[8,10],[15,23],[24,24],[25,25]]
+"""
+class Solution:
+    def intervalIntersection(self, A, B):
+        i = 0; j = 0
+        result = []
+        while i < len(A) and j < len(B):
+            a_start, a_end = A[i]
+            b_start, b_end = B[j]
+            if a_start <= b_end and b_start <= a_end:                       # Criss-cross lock
+                result.append([max(a_start, b_start), min(a_end, b_end)])   # Squeezing
+            if a_end < b_end:         # Exhausted this range in A
+                i += 1               # Point to next range in A
+            elif a_end > b_end:                      # Exhausted this range in B
+                j += 1               # Point to next range in B
+            else: # else both move next, can be merged into any of previous condition
+                i += 1
+                j += 1
+        return result
+
+
+"""1011. Capacity To Ship Packages Within D Days
+A conveyor belt has packages that must be shipped from one port to another within days days.
+
+The ith package on the conveyor belt has a weight of weights[i]. Each day, we load the ship 
+with packages on the conveyor belt (in the order given by weights). 
+We may not load more weight than the maximum weight capacity of the ship.
+
+Return the least weight capacity of the ship that will result in all the packages on the 
+conveyor belt being shipped within days days. Note that the cargo must be shipped in the order given
+
+Input: weights = [1,2,3,4,5,6,7,8,9,10], days = 5
+Output: 15
+Explanation: A ship capacity of 15 is the minimum to ship all the packages in 5 days like this:
+1st day: 1, 2, 3, 4, 5
+2nd day: 6, 7
+3rd day: 8
+4th day: 9
+5th day: 10
+"""
+# binary search: nlogn
+class Solution:
+    def shipWithinDays(self, weights, days):
+        low, high = max(weights), sum(weights)
+        while low < high:
+            # guess the capacity of ship
+            mid = (low+high)//2
+            num_days = self.get_days(weights, mid)
+            # we need too many ships, so we need to increase capacity to reduce num of ships needed
+            if num_days > days:
+                low = mid+1
+            # we are able to ship with good num of ships, but we still need to find the optimal max capacity
+            else:
+                high = mid
+        return low
+    
+    def get_days(self, weights, ship_size):
+        cur_cap = 0 # loaded capacity of current ship
+        num_days = 1 # number of days needed
+        #----simulating loading the weight to ship one by one----#
+        for w in weights:
+            cur_cap += w
+            if cur_cap > ship_size: # current ship meets its capacity
+                cur_cap = w
+                num_days += 1
+        #---------------simulation ends--------------------------#
+        return num_days
+
+
+"""1868 - Product of Two Run-Length Encoded Arrays
+encode = [[num1, repeat1], [num2, repeat2], ...]
+Input: encoded1 = [[1,3],[2,3]], encoded2 = [[6,3],[3,3]]
+Output: [[6,6]]
+
+Explanation: encoded1 expands to [1,1,1,2,2,2] and encoded2 expands to [6,6,6,3,3,3].
+
+Input: encoded1 = [[1,3],[2,1],[3,2]], encoded2 = [[2,3],[3,3]]
+Output: [[2,3],[6,1],[9,2]]
+"""
+class Solution:
+    def findRLEArray(self, encoded1, encoded2):
+        res = [] 
+        prevProduct = -1
+        prevCount = 0
+        i, j = 0, 0
+        while i < len(encoded1) and j < len(encoded2):
+            val1 = encoded1[i][0]
+            val2 = encoded2[j][0]
+            freq = min(encoded1[i][1], encoded2[j][1])
+            # new result
+            curProduct = val1 * val2
+            if curProduct == prevProduct:
+                prevCount += freq
+            else:
+                if prevCount > 0:
+                    res.append([prevProduct, prevCount])
+                prevProduct = curProduct
+                prevCount = freq
+            # update 
+            encoded1[i][1] -= freq
+            encoded2[j][1] -= freq
+            if encoded1[i][1] == 0:
+                i += 1
+            if encoded2[j][1] == 0:
+                j += 1
+        
+        res.append([prevProduct, prevCount])
+        return res
+
+sol=Solution()
+sol.findRLEArray([[1,3],[2,3]], [[6,3],[3,3]])           
+sol.findRLEArray([[1,3],[2,1],[3,2]], [[2,3],[3,3]])           
+
+
+"""138. Copy List with Random Pointer
+Construct a deep copy of the list. The deep copy should consist of exactly n brand new nodes, 
+where each new node has its value set to the value of its corresponding original node. 
+Both the next and random pointer of the new nodes should point to new nodes in the copied 
+list such that the pointers in the original list and copied list represent the same list state. 
+None of the pointers in the new list should point to nodes in the original list.
+
+Return the head of the copied linked list
+
+Input: head = [[7,null],[13,0],[11,4],[10,2],[1,0]]
+Output: [[7,null],[13,0],[11,4],[10,2],[1,0]]
+"""
+"""
+# Definition for a Node.
+class Node:
+    def __init__(self, x: int, next: 'Node' = None, random: 'Node' = None):
+        self.val = int(x)
+        self.next = next
+        self.random = random
+"""
+class Solution:
+    def copyRandomList(self, head):
+        m = dict()
+        new_head = self.copyhelper(head, m)
+        return new_head
+    
+    def copyhelper(self, node, m):
+        if node is None:
+            return None
+        if node in m:
+            return m[node]
+        m[node] = Node(x=node.val)
+        m[node].next = self.copyhelper(node.next, m)
+        m[node].random = self.copyhelper(node.random, m)
+        return m[node]
+
+# solution 2: no extra space
+class Solution:
+    def copyRandomList1(self, head):
+        if not head:
+            return 
+        # copy nodes
+        cur = head
+        while cur:
+            nxt = cur.next
+            cur.next = Node(cur.val)
+            cur.next.next = nxt
+            cur = nxt
+        # copy random pointers
+        cur = head
+        while cur:
+            if cur.random:
+                cur.next.random = cur.random.next
+            cur = cur.next.next
+        # separate two parts
+        new_head = cur = head.next
+        while cur.next:
+            head.next = cur.next
+            head = head.next
+            cur.next = head.next
+            cur = cur.next
+        head.next = None
+        return new_head
+
+
+"""LeetCode 616 - Add Bold Tag in String
+
+Given a string s and a list of strings dict, you need to add a closed pair of bold tag <b> and </b> to 
+wrap the substrings in s that exist in dict. If two such substrings overlap, you need to wrap them together 
+by only one pair of closed bold tag. Also, if two substrings wrapped by bold tags are consecutive, 
+you need to combine them.
+
+Input:  s = "abcxyz123", dict = ["abc","123"]
+Output: "<b>abc</b>xyz<b>123</b>"
+
+Input: s = "aaabbcc", dict = ["aaa","aab","bc"]
+Output: "<b>aaabbc</b>c"
+
+hint: 使用一个数组bold，标记所有需要加粗的位置为true，初始化所有为false。我们首先要判断每个单词word是否是S的子串，
+判断的方法就是逐个字符比较，遍历字符串S，找到和word首字符相等的位置，并且比较随后和word等长的子串，如果完全相同，
+则将子串所有的位置在bold上比较为true。等我们知道了所有需要加粗的位置后，我们就可以来生成结果res了，
+我们遍历bold数组，如果当前位置是true的话，表示需要加粗
+"""
+# O(nd) 
+"""
+class Solution {
+public:
+    string boldWords(vector<string>& words, string S) {
+        int n = S.size();
+        string res = "";
+        vector<bool> bold(n, false);      
+        for (string word : words) {
+            int len = word.size();
+            for (int i = 0; i <= n - len; ++i) {
+                if (S[i] == word[0] && S.substr(i, len) == word) {
+                    for (int j = i; j < i + len; ++j) bold[j] = true;
+                }
+            }
+        }
+        for (int i = 0; i < n; ++i) {
+            if (bold[i]) {
+                if (i == 0 || !bold[i - 1]) res += "<b>";
+                res.push_back(S[i]);
+                if (i == n - 1 || !bold[i + 1]) res += "</b>";
+            } else {
+                res.push_back(S[i]);
+            }
+        }
+        return res;
+    }
+};
+"""
+
+"""398. Random Pick Index
+Given an integer array nums with possible duplicates, randomly output the index of a given target number. 
+You can assume that the given target number must exist in the array.
+
+Implement the Solution class:
+
+Solution(int[] nums) Initializes the object with the array nums.
+int pick(int target) Picks a random index i from nums where nums[i] == target. If there are multiple 
+valid i's, then each index should have an equal probability of returning.
+
+Input
+["Solution", "pick", "pick", "pick"]
+[[[1, 2, 3, 3, 3]], [3], [1], [3]]
+Output
+[null, 4, 0, 2]
+
+The array size can be very large. Solution that uses too much extra space will not pass the judge.
+
+Hint
+这道题指明了我们不能用太多的空间，那么省空间的随机方法只有水塘抽样Reservoir Sampling了，
+LeetCode之前有过两道需要用这种方法的题目Shuffle an Array和Linked List Random Node。那么如果了解了水塘抽样，
+这道题就不算一道难题了，我们定义两个变量，计数器cnt和返回结果res，我们遍历整个数组，如果数组的值不等于target，
+直接跳过；如果等于target，计数器加1，然后我们在[0,cnt)范围内随机生成一个数字，如果这个数字是0，我们将res赋值为i即可
+"""
+import random
+class Solution:
+    def __init__(self, nums):
+        self.nums = nums
+
+    def pick(self, target: int) -> int:
+        cnt = 0
+        res = -1
+        for i, num in enumerate(self.nums):
+            if num != target:
+                continue
+            else:
+                rand = random.uniform(0, 1)
+                if rand <= 1/(cnt+1):
+                    res = i
+                cnt += 1
+        return res
+
+"""778. Swim in Rising Water
+You are given an n x n integer matrix grid where each value grid[i][j] represents the elevation at that point (i, j).
+
+The rain starts to fall. At time t, the depth of the water everywhere is t. You can swim from a square to another 4-directionally 
+adjacent square if and only if the elevation of both squares individually are at most t. You can swim infinite distances in zero 
+time. Of course, you must stay within the boundaries of the grid during your swim.
+
+Return the least time until you can reach the bottom right square (n - 1, n - 1) if you start at the top left square (0, 0).
+"""
+# solution 1: BFS + binary search (n^2*log(max-min))
+# https://leetcode.com/problems/swim-in-rising-water/discuss/113765/PythonC%2B%2B-Binary-Search
+
+# solution 2: use heap (n^2 * logn)
+# https://leetcode.com/problems/swim-in-rising-water/discuss/1284843/Python-2-solutions%3A-Union-FindHeap-explained
+
+
+"""1382. Balance a Binary Search Tree
+Given the root of a binary search tree, return a balanced binary search tree with the same node values. 
+If there is more than one answer, return any of them.
+
+A binary search tree is balanced if the depth of the two subtrees of every node never differs by more than 1.
+
+Input: root = [1,null,2,null,3,null,4,null,null]
+Output: [2,1,3,null,null,null,4]
+Explanation: This is not the only correct answer, [3,1,4,null,2] is also correct.
+"""
+# similar to 108, first in-order traverse the tree and save the value in a array, then 
+# create balanced BST using the array. 
+class Solution:
+    def balanceBST(self, root: TreeNode) -> TreeNode:
+        nodes = []
+        def in_order_traverse(root):
+            if root is None:return
+            in_order_traverse(root.left)
+            nodes.append(root)
+            in_order_traverse(root.right)
+        
+        def build_balanced_tree(left, right):
+            if left>right:return None
+            mid = (left+right)//2
+            root = nodes[mid]
+            root.left = build_balanced_tree(left, mid-1)
+            root.right = build_balanced_tree(mid+1, right)
+            return root
+        in_order_traverse(root)
+        return build_balanced_tree(0, len(nodes)-1)  
+
+
+"""1344. Angle Between Hands of a Clock
+Given two numbers, hour and minutes, return the smaller angle (in degrees) formed between the hour and the minute hand.
+
+Input: hour = 12, minutes = 30
+Output: 165
+"""
+class Solution:
+    def angleClock(self, hour: int, minutes: int):
+        min_loc = 6 * minutes
+        hour_loc = (30 * hour + 0.5 * minutes) % 360
+        diff = abs(hour_loc - min_loc)
+        return diff if diff <= 180 else 360 - diff
+
+"""489. Robot Room Cleaner
+Given a robot cleaner in a room modeled as a grid. Each cell in the grid can be empty or blocked.
+The robot cleaner with 4 given APIs can move forward, turn left or turn right. Each turn it made is 90 degrees.
+When it tries to move into a blocked cell, its bumper sensor detects the obstacle and it stays on the current cell.
+
+Design an algorithm to clean the entire room using only the 4 given APIs shown below.
+hint: can only use DFS considering robot 's path is continuous, need to record curr direction (cur)
+https://grandyang.com/leetcode/489/
+
+class Solution {
+public:
+    vector<vector<int>> dirs{{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+    void cleanRoom(Robot& robot) {
+        unordered_set<string> visited;
+        helper(robot, 0, 0, 0, visited);
+    }
+    void helper(Robot& robot, int x, int y, int dir, unordered_set<string>& visited) {
+        robot.clean();
+        visited.insert(to_string(x) + "-" + to_string(y));
+        for (int i = 0; i < 4; ++i) {
+            int cur = (i + dir) % 4, newX = x + dirs[cur][0], newY = y + dirs[cur][1];
+            if (!visited.count(to_string(newX) + "-" + to_string(newY)) && robot.move()) {
+                helper(robot, newX, newY, cur, visited);
+                robot.turnRight();
+                robot.turnRight();
+                robot.move();
+                robot.turnLeft();
+                robot.turnLeft();
+            }
+            robot.turnRight();
+        }
+    }
+};
+"""
+
+"""463. Island Perimeter
+You are given row x col grid representing a map where grid[i][j] = 1 represents land and grid[i][j] = 0 represents water.
+
+Grid cells are connected horizontally/vertically (not diagonally). The grid is completely surrounded by water, and there is exactly one island (i.e., one or more connected land cells).
+
+The island doesn't have "lakes", meaning the water inside isn't connected to the water around the island. One cell is a square with side length 1. The grid is rectangular, width and height don't exceed 100. Determine the perimeter of the island.
+
+Input: grid = [[0,1,0,0],[1,1,1,0],[0,1,0,0],[1,1,0,0]]
+Output: 16
+Explanation: The perimeter is the 16 yellow stripes in the image above.
+"""
+class Solution:
+    def islandPerimeter(self, grid: List[List[int]]) -> int:
+        res = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 1:
+                    curr_new_sides = 4
+                    if i > 0 and grid[i-1][j] == 1:
+                        curr_new_sides -= 1
+                    if j > 0 and grid[i][j-1] == 1:
+                        curr_new_sides -= 1
+                    if i < len(grid)-1 and grid[i+1][j] == 1:
+                        curr_new_sides -= 1
+                    if j < len(grid[0])-1 and grid[i][j+1] == 1:
+                        curr_new_sides -= 1
+                    res += curr_new_sides
+        return res
+
+
+"""234. Palindrome Linked List
+Given the head of a singly linked list, return true if it is a palindrome.
+
+Input: head = [1,2,2,1]
+Output: true
+
+Input: head = [1,2]
+Output: false
+
+Follow up: Could you do it in O(n) time and O(1) space?
+
+我们可以在找到中点后，将后半段的链表翻转一下，这样我们就可以按照回文的顺序比较了
+"""
+# Definition for singly-linked list.
+# class ListNode:
+#     def __init__(self, val=0, next=None):
+#         self.val = val
+#         self.next = next
+class Solution:
+    def isPalindrome(self, head) -> bool:
+        # pre = ListNode(next=head)
+        slow = fast = head
+        while fast and fast.next:
+            fast = fast.next.next
+            # last = slow
+            slow = slow.next
+        
+        # reverse slow.next and then compare
+        node1 = head
+        node2 = self.reverse_linkedlist(slow)
+        
+        while node2:
+            if node1.val != node2.val:
+                return False
+            node1 = node1.next
+            node2 = node2.next
+        return True
+
+    def reverse_linkedlist(self, node):
+        prev = None
+        curr = node
+        while curr:
+            tmp = curr
+            curr = curr.next
+            tmp.next = prev
+            prev = tmp
+        return prev
+
+
+"""109. Convert Sorted List to Binary Search Tree
+Given the head of a singly linked list where elements are sorted in ascending order, convert 
+it to a height balanced BST.
+
+For this problem, a height-balanced binary tree is defined as a binary tree in which the depth 
+of the two subtrees of every node never differ by more than 1.
+
+Given the sorted linked list: [-10,-3,0,5,9], One possible answer is: [0,-3,9,-10,null,5], 
+which represents the following height balanced BST:
+      0
+     / \
+   -3   9
+   /   /
+ -10  5
+"""
+class Solution:
+    def sortedListToBST(self, head):
+        if not head:
+            return None
+        if head.next is None:
+            return TreeNode(val=head.val)
+        slow = fast = head
+        while fast and fast.next:
+            fast = fast.next.next
+            last = slow  # prev of slow
+            slow = slow.next
+        root = TreeNode(val=slow.val)
+        root.right = self.sortedListToBST(slow.next)
+        last.next = None  # need to cut last o.w. dead loop
+        root.left = self.sortedListToBST(head)
+
+        return root
+
+"""Partition Equal Subset Sum 相同子集和分割 
+Given a non-empty array containing only positive integers, find if the array 
+can be partitioned into two subsets such that the sum of elements in both subsets is equal.
+
+Note:
+ Both the array size and each of the array element will not exceed 100. 
+Example 1: 
+Input: [1, 5, 11, 5]
+Output: true
+Explanation: The array can be partitioned as [1, 5, 5] and [11].
+
+Example 2:
+Input: [1, 2, 3, 5]
+Output: false
+Explanation: The array cannot be partitioned into equal sum subsets.
+"""
+# Solution 1: DFS + memo
+class Solution:
+    def canPartition(self, nums) -> bool:
+        target = sum(nums) / 2
+        if target != int(target):
+            return False
+        nums.sort()
+        memo=dict()
+        return self.dfs(nums, 0, target, memo)
+    
+    def dfs(self, nums, start_idx, target, memo):
+        if target in memo:
+            return memo[target]
+        for i in range(start_idx, len(nums)):
+            if nums[i] == target:
+                return True
+            if nums[i] < target:
+                if self.dfs(nums, i+1, target-nums[i], memo):
+                    return True
+            else:
+                break
+        memo[target] = False
+        return False
+
+sol=Solution()
+sol.canPartition([1, 5, 11, 5])
+
+# DP: kranpack : much slower than previous
+# dp[i][j] := whether using nums[:i] can find a subset sum to j
+# dp[n][target]
+# dp[i][j] = dp[i-1][j] or dp[i-1][j-nums[i-1]]
+class Solution:
+    def canPartition(self, nums) -> bool:
+        target = sum(nums) / 2
+        if target != int(target):
+            return False
+        target = int(target)
+        dp = [[False for _ in range(target+1)] for _ in range(len(nums)+1)]
+        for i in range(len(nums)+1):
+            dp[i][0] = True
+        for j in range(target+1):
+            dp[0][j] = False
+        
+        for i in range(1, len(nums)+1):
+            for j in range(1, target+1):
+                dp[i][j] = dp[i-1][j]
+                if j-nums[i-1] >= 0:
+                    dp[i][j] = dp[i][j] or dp[i-1][j-nums[i-1]]
+        
+        return dp[-1][-1]
+
+
+"""865. Smallest Subtree with all the Deepest Nodes
+Given the root of a binary tree, the depth of each node is the shortest distance to the root.
+Return the smallest subtree such that it contains all the deepest nodes in the original tree.
+
+A node is called the deepest if it has the largest depth possible among any node in the entire tree.
+The subtree of a node is a tree consisting of that node, plus the set of all descendants of that node.
+Input: {2,3,5,4,1}
+    2
+   / \
+  3   5
+ / \
+4   1
+Output: {3,4,1}
+"""
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+class Solution:
+    def subtreeWithAllDeepest(self, root: TreeNode):
+        ans, ans_depth = self.getDepth(root)
+        return ans
+        
+    
+    def getDepth(self, node):
+        # return depth and node
+        if node is None:
+            return None, 0
+        left, left_depth = self.getDepth(node.left)
+        right, right_depth = self.getDepth(node.right)
+        if left_depth == right_depth:
+            return node, 1 + left_depth
+        if left_depth > right_depth:
+            return left, 1 + left_depth
+        else:
+            return right, 1 + right_depth
 
 
 """ 
@@ -849,7 +2270,7 @@ public:
             if (out.size() > 1) res.push_back(out);
             return;
         }
-        for (int i = start; i <= n; ++i) {
+        for (int i = start; i <= int(sqrt(n)); ++i) { // add sqrt
             if (n % i != 0) continue;
             out.push_back(i);
             helper(n / i, i, out, res);
@@ -920,9 +2341,7 @@ Input: intervals = [[1,3],[6,9]], newInterval = [2,5]
 Output: [[1,5],[6,9]]
 
 Example 2:
-[[1,2],[3,5],[6,7],[8,10],[12,16]]
-[4,8]
-[4,8]
+[[1,2],[3,5],[6,7],[8,10],[12,16]], [4,8]
 [3,5],[6,7],[8,10]
 
 # O(n)
@@ -987,8 +2406,12 @@ Implement the RandomizedCollection class:
 
 RandomizedCollection() Initializes the empty RandomizedCollection object.
 bool insert(int val) Inserts an item val into the multiset, even if the item is already present. Returns true if the item is not present, false otherwise.
-bool remove(int val) Removes an item val from the multiset if present. Returns true if the item is present, false otherwise. Note that if val has multiple occurrences in the multiset, we only remove one of them.
-int getRandom() Returns a random element from the current multiset of elements. The probability of each element being returned is linearly related to the number of same values the multiset contains.
+
+bool remove(int val) Removes an item val from the multiset if present. Returns true if the item is present, false otherwise. 
+Note that if val has multiple occurrences in the multiset, we only remove one of them.
+
+int getRandom() Returns a random element from the current multiset of elements. The probability of each element being returned 
+is linearly related to the number of same values the multiset contains.
 You must implement the functions of the class such that each function works on average O(1) time complexity.
 """
 # use self.d = defaultdict(set) to make sure O(1) to remove
@@ -1150,7 +2573,7 @@ class Solution:
             # cannot put next word in the same line
             aligned_out = self.alignLine(out, maxWidth, last=(len(rem_words) == 0))
             res.append(aligned_out)
-            return self.JustifyRemWords(rem_words, "", res, maxWidth)
+            return res
         else:
             out = out + " " + rem_words[0]
             return self.JustifyRemWords(rem_words[1:], out.strip(), res, maxWidth)
@@ -1235,7 +2658,8 @@ class Solution2:
 
 
 """149. Max Points on a Line
-Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane, return the maximum number of points that lie on the same straight line.
+Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane, 
+return the maximum number of points that lie on the same straight line.
 Input: points = [[1,1],[2,2],[3,3]]
 Output: 3
 
@@ -1302,7 +2726,8 @@ points = [[1,1],[2,2],[3,3]]
 
 
 """7. Reverse Integer
-Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to go outside the signed 32-bit integer range [-231, 231 - 1], then return 0.
+Given a signed 32-bit integer x, return x with its digits reversed. If reversing x causes the value to 
+go outside the signed 32-bit integer range [-231, 231 - 1], then return 0.
 
 Assume the environment does not allow you to store 64-bit integers (signed or unsigned).
 Example 1:
@@ -1330,6 +2755,23 @@ class Solution:
         else:
             return -1 * + self.reverse(-1*x)
 
+class Solution:
+    def reverse(self, x: int) -> int:
+        if x == 0:
+            return 0
+        if x > 0:
+            res = 0
+            while x > 0:
+                res = x % 10 + res * 10
+                x = x // 10
+            return res if res < (2**31 - 1) else 0
+        else:
+            return -1 * + self.reverse(-1*x)
+
+sol=Solution()
+sol.reverse(123)
+
+
 """
 ############################################################################
 Microsoft
@@ -1338,47 +2780,49 @@ Microsoft
 """ Implement heap and quicksort
 """
 # two versions of partition
-def partition(arr, l, r):
-    pivot = l
-    i = l
-    for j in range(l+1, r+1):
-        # if 
-        if arr[j] < arr[pivot]:
-            i += 1 # can ensure arr[i] < arr[pivot]
-            arr[i], arr[j] = arr[j], arr[i]
-    
-    arr[pivot], arr[i], = arr[i], arr[pivot]
-    return i
+class Solution:
+    def partition1(self, arr, l, r):
+        pivot = l
+        i = l
+        for j in range(l+1, r+1):
+            # if 
+            if arr[j] < arr[pivot]:
+                i += 1 # can ensure arr[i] < arr[pivot]
+                arr[i], arr[j] = arr[j], arr[i]
+        arr[pivot], arr[i], = arr[i], arr[pivot]
+        return i
 
-def partition(nums, left, right):
-    # choose a pivot, put smaller elements on right, larger on left
-    # return rank of pivot (put on final r position)
-    pivot = nums[left]
-    l = left + 1
-    r = right
-    while l<=r:
-        if nums[l] > pivot and nums[r] < pivot:
-            nums[l], nums[r] = nums[r], nums[l]
-            l = l+1
-            r = r-1
-        if nums[l] <= pivot:
-            l = l+1
-        if nums[r] >= pivot:
-            r = r-1
-    nums[left], nums[r] = nums[r], nums[left]
-    return r
+    def partition(self, nums, left, right):
+        # choose a pivot, put smaller elements on right, larger on left
+        # return rank of pivot (put on final r position)
+        pivot = nums[left]
+        l = left + 1
+        r = right
+        while l <= r:
+            if nums[l] > pivot and nums[r] < pivot:
+                nums[l], nums[r] = nums[r], nums[l]
+                l = l+1
+                r = r-1
+            if nums[l] <= pivot:
+                l = l+1
+            if nums[r] >= pivot:
+                r = r-1
+        nums[left], nums[r] = nums[r], nums[left]
+        return r
 
-def qs(arr, l, r):
-    if l<r:
-        pivot = partition(arr, l, r)
-        qs(arr, l, pivot-1)
-        qs(arr, pivot+1, r)
-    return None
-
-arr = [1,3,4,2,3,5,10,1]
-qs(arr, 0, len(arr)-1)
+    def qs(self, arr, l, r):
+        if l < r:
+            pivot = self.partition(arr, l, r)  # nums[l:r+1]
+            self.qs(arr, l, pivot-1)
+            self.qs(arr, pivot+1, r)
+        return None
 
 
+arr = [1,3,4,2,3,5,3, 10,1]
+sol=Solution()
+sol.qs(arr, 0, len(arr)-1)
+arr = [10, 9, 8, 7, 5, 3, -1]
+arr = [3,2,1]
 """merge sort
 """
 from copy import deepcopy
@@ -1461,7 +2905,6 @@ Input: nums = [1,3,4,2,2]
 Output: 2
 """
 # nlogn: binary search : l,r=1,n, then mid = (l+r)/2, count # of nums < mid -> see whether duplicate happens at [1, mid]
-
 
 # n
 # http://bookshadow.com/weblog/2015/09/28/leetcode-find-duplicate-number/
@@ -1590,3 +3033,1018 @@ sol = Solution()
 sol.lastProb(2,2)
 sol.lastProb(2,1)
 
+"""1817. Finding the Users Active Minutes
+You are given the logs for users' actions on LeetCode, and an integer k. 
+The logs are represented by a 2D integer array logs where each logs[i] = [IDi, timei] 
+indicates that the user with IDi performed an action at the minute timei.
+
+Multiple users can perform actions simultaneously, and a single user can perform multiple actions in the same minute.
+
+The user active minutes (UAM) for a given user is defined as the number of unique minutes in which 
+the user performed an action on LeetCode. A minute can only be counted once, even if multiple actions occur during it.
+
+You are to calculate a 1-indexed array answer of size k such that, for each j (1 <= j <= k), answer[j] is 
+the number of users whose UAM equals j.
+
+Return the array answer as described above.
+
+Input: logs = [[0,5],[1,2],[0,2],[0,5],[1,3]], k = 5
+Output: [0,2,0,0,0]
+The user with ID=0 performed actions at minutes 5, 2, and 5 again. Hence, they have a UAM of 2 (minute 5 is only counted once).
+The user with ID=1 performed actions at minutes 2 and 3. Hence, they have a UAM of 2.
+Since both users have a UAM of 2, answer[2] is 2, and the remaining answer[j] values are 0.
+
+Input: logs = [[1,1],[2,2],[2,3]], k = 4
+Output: [1,1,0,0]
+The user with ID=1 performed a single action at minute 1. Hence, they have a UAM of 1.
+The user with ID=2 performed actions at minutes 2 and 3. Hence, they have a UAM of 2.
+There is one user with a UAM of 1 and one with a UAM of 2.
+Hence, answer[1] = 1, answer[2] = 1, and the remaining values are 0.
+"""
+import collections
+class Solution:
+    def findingUsersActiveMinutes(self, logs, k: int):
+        UAMs = collections.defaultdict(set)
+        ans = [0] * k
+        for ID, time in logs:
+            UAMs[ID].add(time)
+        for UAM in UAMs.values():
+            ans[len(UAM)-1] += 1
+        return ans
+
+sol=Solution()
+sol.findingUsersActiveMinutes([[1,1],[2,2],[2,3]], 4)
+
+
+"""
+############################################################################
+Amazon
+############################################################################
+"""
+""" delete a element from list (replace with -1), do it in-place
+"""
+nums = [1,2,3,4,3,2,1]
+def rm_target(nums, target):
+    target_pt = 0
+    for i in range(len(nums)):
+        if nums[i] != target:
+            nums[i], nums[target_pt] = nums[target], nums[i]
+            target_pt += 1
+    
+    for i in range(target_pt, len(nums)):
+        nums[i] = -1
+    return None
+
+rm_target(nums, 3)
+
+
+"""
+############################################################################
+Google
+############################################################################
+"""
+
+"""975. Odd Even Jump
+At odd, jump up to smalles num >= curr, at even, jump up to largest num <= curr,
+if more than one indeces, then only to the cloest j
+https://leetcode.com/problems/odd-even-jump/
+
+Input: arr = [10,13,12,14,15]
+Output: 2
+In total, there are 2 different starting indices i = 3 and i = 4, 
+where we can reach the end with some number of jumps.
+
+Input: arr = [2,3,1,1,4]
+Output: 3
+i= 1, 3, 4
+"""
+# two arrs to store the smallest next number >= curr (not first next number), 
+# and largest next num <= curr
+# then dp or dfs + memo
+A = [10,13,12,14,15]
+A = [1,2,3,2,1,4,4,5]
+class Solution:
+    def oddEvenJumps(self, A):
+        n = len(A)
+        next_higher, next_lower = [0] * n, [0] * n
+
+        stack = []
+        for a, i in sorted([a, i] for i, a in enumerate(A)):
+            while stack and stack[-1] < i: # saves index, can guarantee later >= earlier
+                next_higher[stack.pop()] = i
+            stack.append(i)
+
+        stack = []
+        for a, i in sorted([-a, i] for i, a in enumerate(A)):
+            while stack and stack[-1] < i:
+                next_lower[stack.pop()] = i
+            stack.append(i)
+
+        higher, lower = [0] * n, [0] * n   # whether can achieve at odd / even jump
+        higher[-1] = lower[-1] = 1
+        for i in range(n - 1)[::-1]: # from n-1 -> 0
+            higher[i] = lower[next_higher[i]] 
+            lower[i] = higher[next_lower[i]]
+        return sum(higher)
+
+
+"""LeetCode 1102. Path With Maximum Minimum Value
+Given a matrix of integers A with R rows and C columns, find the maximum score of a path starting at [0,0] and ending at [R-1,C-1].
+The score of a path is the minimum value in that path.  For example, the value of the path 8 →  4 →  5 →  9 is 4.
+A path moves some number of times from one visited cell to any neighbouring unvisited cell in north, east, west, south.
+
+Input: [[5,4,5],[1,2,6],[7,4,6]]
+Output: 4
+Explanation: 
+The path with the maximum score is highlighted in yellow. 
+
+Input: [[3,4,6,3,4],[0,2,1,1,7],[8,8,3,2,7],[3,2,4,9,8],[4,1,2,0,0],[4,6,5,4,3]]
+Output: 3
+
+Hint: BFS, use maxHeap so always pop the maximum neighbors
+From A[0][0], put element with index into maxHeap, sorted by element. Mark it as visited.
+When polling out the currrent, check its surroundings. If not visited before, put it into maxHeap.
+Until we hit the A[m-1][n-1].
+Time Complexity: O(m*n*logmn). m = A.length. n = A[0].length. maxHeap add and poll takes O(logmn).
+
+Space: O(m*n).
+
+# solution 2: DP XXXX (????)
+Define: dp[i][j] is the max score from [0][0] to [i][j]
+Recurrence: dp[i][j] = max( min(dp[i-1][j], grid[i][j]), min(dp[i][j-1]), grid[i][j] )
+https://www.cnblogs.com/Dylan-Java-NYC/p/11297106.html
+"""
+class Solution:
+    def maximumMinimumPath(self, A):
+        return 
+
+
+""" Actual interview: compare two strings
+# . represents backspace, decide whether two strings are equivalent
+# you may only use constant space
+Example
+str1 = "abc.cd" # -> abcd
+str2 = "ab.cd"  # -> acd
+Return: False
+"""
+compare("abc.cd",  "ab.cd")
+compare("ab.c.cd",  "ab.cd")
+class CompareStrings:
+    def compare(self, str1, str2):
+        n1, n2 = len(str1), len(str2)
+        b1, b2 = 0, 0
+        # str1[:n1], str2[:n2]
+        return self.compare_wt_back(str1, str2, n1, n2, b1, b2)
+
+    def compare_wt_back(self, str1, str2, i1, i2, b1, b2):
+        print("{} / {}".format(str1[:i1], str2[:i2]))
+        if i1 == 0 and i2 == 0:
+            return True
+        if str1[i1-1] == ".":
+            return self.compare_wt_back(str1, str2, i1-1, i2, b1+1, b2)
+        if str2[i2-1] == ".":
+            return self.compare_wt_back(str1, str2, i1, i2-1, b1, b2+1)
+        if b1 > 0:
+            return self.compare_wt_back(str1, str2, i1-1, i2, b1-1, b2)
+        if b2 > 0:
+            return self.compare_wt_back(str1, str2, i1, i2-1, b1, b2-1)
+        if str1[i1-1] != str2[i2-1]:
+            return False
+        return self.compare_wt_back(str1, str2, i1-1, i2-1, b1, b2)
+
+
+"""[LeetCode] Find Leaves of Binary Tree 找二叉树的叶节点
+Given a binary tree, collect a tree's nodes as if you were doing this: Collect and remove all leaves, 
+repeat until the tree is empty.
+
+Example:
+Input: [1,2,3,4,5]
+
+          1
+         / \
+        2   3
+       / \     
+      4   5    
+
+Output: [[4,5,3],[2],[1]]
+"""
+# https://www.cnblogs.com/grandyang/p/5616158.html
+def removeLeaves(root, res):
+    if not root:
+        return
+    if isLeave(root):
+        res.append(root)
+        return
+    root.left = removeLeaves(root.left, res)
+    root.right = removeLeaves(root.right, res)
+    return root
+
+def getLeaves(root):
+    res = []
+    while root:
+        leaves = []
+        root = removeLeaves(root, leaves)
+        res.append(leaves)
+    return res
+
+
+"""LeetCode 2096. Step-By-Step Directions From a Binary Tree Node to Another
+You are given the root of a binary tree with n nodes. Each node is uniquely assigned a value from 1 to n. 
+You are also given an integer startValue representing the value of the start node s, and a different integer 
+destValue representing the value of the destination node t.
+
+Find the shortest path starting from node s and ending at node t. Generate step-by-step directions of such 
+path as a string consisting of only the uppercase letters 'L', 'R', and 'U'. Each letter indicates a specific direction:
+
+'L' means to go from a node to its left child node.
+'R' means to go from a node to its right child node.
+'U' means to go from a node to its parent node.
+Return the step-by-step directions of the shortest path from node s to node t.
+
+Input: root = [5,1,2,3,null,6,4], startValue = 3, destValue = 6
+          5
+         / \
+        1   2
+       /   / \ 
+      3   6   4
+
+Output: "UURL"
+Explanation: The shortest path is: 3 → 1 → 5 → 2 → 6.
+"""
+class Solution:
+    def getDirections(self, root: Optional[TreeNode], startValue: int, destValue: int) -> str:
+        def getLCA(root,p,q):
+            if not root: return None
+            if root.val==p or root.val==q:
+                return root
+            L=getLCA(root.left,p,q)
+            R=getLCA(root.right,p,q)
+            if L and R:
+                return root
+            return L or R
+        
+        def getPath_dfs(node1, node2, path): #---> Problem here
+            # can also use BFS
+            if not node1: 
+                return
+            if node1.val==node2: 
+                return path
+            left_path = getPath(node1.left,node2,path+["L"])
+            right_path = getPath(node1.right,node2,path+["R"])
+            return left_path if left_path else right_path
+        
+        def getPath_bfs(root, startValue, destValue):
+            # option 2
+            startPath = ""
+            endPath = ""
+            q = deque()
+            q.append(root)
+            while q:
+                node, path = q.popleft()
+                if node.val == startValue:
+                    startPath = path
+                if node.val == destValue:
+                    endPath = path
+                if startPath and endPath:
+                    startPath, endPath
+                if node.left:
+                    q.append((node.left, path+["L"]))
+                if node.right:
+                    q.append((node.right, path+["R"]))
+                
+            return -1, -1
+        
+        LCA=getLCA(root,startValue,destValue)
+        path1=getPath_dfs(LCA,startValue,[]) 
+        path2=getPath_dfs(LCA,destValue,[])
+        path=["U"]*len(path1) + path2 if path1 else path2 
+        return "".join(path)
+
+
+"""2128 Remove All Ones With Row and Column Flips
+Given a binary matrix, tell if it is possible to convert entire matrix to zeroes using below operations :
+flip entire column
+flip entire row
+
+Input :
+[[0,0,1,0],
+[1,1,0,1],
+[0,0,1,0],
+[1,1,0,1]]
+
+Output : Yes
+[[0,0,0,0],
+[0,0,0,0],
+[0,0,0,0],
+[0,0,0,0]]
+这题只需要判断第一行, 见到0不动, 见到1翻过来,这样第一行就是全0. 然后通过判断其他行是不是全1或者全0, 即可知道答案.
+
+证: 如果第一行已经全0, 其他某行, 非全1或者全0, 那么这行通过行翻转, 肯定不能得到全1或者全0, 
+但是通过列翻转, 又破坏第一行的全0,故此.
+https://www.chenguanghe.com/remove-all-ones-with-row-and-column-flips/
+"""
+
+
+"""2034. Stock Price Fluctuation
+You are given a stream of records about a particular stock. Each record contains a timestamp and the corresponding price of the stock at that timestamp.
+
+Unfortunately due to the volatile nature of the stock market, the records do not come in order. 
+Even worse, some records may be incorrect. Another record with the same timestamp may appear later in the 
+stream correcting the price of the previous wrong record.
+
+Design an algorithm that:
+Updates the price of the stock at a particular timestamp, correcting the price from any previous records at the timestamp.
+Finds the latest price of the stock based on the current records, at the latest timestamp recorded.
+Finds the maximum price the stock has been based on the current records.
+Finds the minimum price the stock has been based on the current records.
+
+Implement the StockPrice class:
+StockPrice() Initializes the object with no price records.
+void update(int timestamp, int price) Updates the price of the stock at the given timestamp.
+int current() Returns the latest price of the stock.
+int maximum() Returns the maximum price of the stock.
+int minimum() Returns the minimum price of the stock
+
+Example 1:
+Input
+["StockPrice", "update", "update", "current", "maximum", "update", "maximum", "update", "minimum"]
+[[], [1, 10], [2, 5], [], [], [1, 3], [], [4, 2], []]
+Output
+[null, null, null, 5, 10, null, 5, null, 2]
+"""
+# https://leetcode.com/problems/stock-price-fluctuation/discuss/1513628/Python3-SortedDict-and-SortedList
+# SOlution 1: map + sortedlist
+from sortedcontainers import SortedList
+class StockPrice:
+    def __init__(self):
+        self.latest_time = -1
+        self.time2prices = dict()
+        self.prices = SortedList()  # logN to insert, remove, peek by index/value
+        
+    def update(self, timestamp: int, price: int) -> None:
+        if timestamp in self.time2prices:
+            old_price = self.time2prices[timestamp]
+            self.time2prices[timestamp] = price
+            self.prices.remove(old_price)
+            self.prices.add(price)
+        else:
+            self.time2prices[timestamp] = price
+            self.prices.add(price)
+        self.latest_time = max(self.latest_time, timestamp)
+        return
+
+    def current(self) -> int:
+        return self.time2prices[self.latest_time]
+        
+    def maximum(self) -> int:
+        return self.prices[-1]
+        
+    def minimum(self) -> int:
+        return self.prices[0]
+
+
+sol = StockPrice()
+sol.update(1, 10)
+sol.update(2, 5) 
+sol.current()
+sol.maximum()
+
+# Solutin 2: use two heaps, a dict and a latest_time constant; (not optimal to use two priority queue + dict)
+# Keep a dict of timestamp to prices. When updating a timestamp, push it in a heap along with it's timestamp.
+# When maximum or minimum is called, if the timestamp doesn't match it's current price, this indiciates 
+# it's value has been updated in the meantime. 
+# Keeping popping elements off the heap until an element matches it's current price
+# https://leetcode.com/problems/stock-price-fluctuation/discuss/1513293/Python-Clean-2-Heaps-Commented-Code
+
+""" 1146. Snapshot Array
+Implement a SnapshotArray that supports the following interface:
+
+SnapshotArray(int length) initializes an array-like data structure with the given length.  Initially, each element equals 0.
+void set(index, val) sets the element at the given index to be equal to val.
+int snap() takes a snapshot of the array and returns the snap_id: the total number of times we called snap() minus 1.
+int get(index, snap_id) returns the value at the given index, at the time we took the snapshot with the given snap_id
+
+Input: ["SnapshotArray","set","snap","set","get"]
+[[3],[0,5],[],[0,6],[0,0]]
+Output: [null,null,0,null,5]
+Explanation: 
+SnapshotArray snapshotArr = new SnapshotArray(3); // set the length to be 3
+snapshotArr.set(0,5);  // Set array[0] = 5
+snapshotArr.snap();  // Take a snapshot, return snap_id = 0
+snapshotArr.set(0,6);
+snapshotArr.get(0,0);  // Get the value of array[0] with snap_id = 0, return 5
+"""
+from sortedcontainers import SortedDict
+class SnapshotArray:
+    def __init__(self, length: int):
+        self.array = [SortedDict({-1: 0}) for _ in range(length)] # -1 handle if no snap_id 
+        self.snap_id = 0
+
+    def set(self, index: int, val: int) -> None:
+        self.array[index][self.snap_id] = val
+        return 
+
+    def snap(self) -> int:
+        self.snap_id += 1
+        return self.snap_id - 1
+        
+    def get(self, index: int, snap_id: int) -> int:
+        if index < 0 or index >= len(self.array):
+            return 0
+        if snap_id in self.array[index]:
+            return self.array[index][snap_id]
+        # find the id before 
+        prev_snap_id = self.array[index].bisect_left(snap_id)  # location to insert snap_id
+        # prev_snap_id = self.find_last_smaller_than_id(snap_id)  # location to insert snap_id
+        if prev_snap_id == 1: # snap_id < all prev snap_id since first is -1
+            return 0
+        sorted_ids = self.array[index].keys()
+        if snap_id > sorted_ids[-1]:
+            return self.array[index][sorted_ids[-1]]
+        insert_key = sorted_ids[prev_snap_id-1]
+        return self.array[index][insert_key]
+        
+
+"""2013. Detect Squares
+Use diagnal point to iterate 
+p1  p4
+p3  p2
+
+given p1, for each p2, find cnt of p2, p3, p4 to multiple
+"""
+
+
+"""2115. Find All Possible Recipes from Given Supplies
+Example 1:
+Input: recipes = ["bread"], ingredients = [["yeast","flour"]], supplies = ["yeast","flour","corn"]
+Output: ["bread"]
+Note that two recipes may contain each other in their ingredients.
+Explanation:
+We can create "bread" since we have the ingredients "yeast" and "flour".
+"""
+from collections import defaultdict
+class Solution:
+    def findAllRecipes(self, recipes, ingredients, supplies):
+        rec2ing = defaultdict(set)
+        ing2rec = defaultdict(set)  # may only need indegree instead of a set
+        supplies = set(supplies)
+        q = deque()
+        for i, rec in enumerate(recipes):
+            for ing in ingredients[i]:
+                if ing not in supplies:
+                    # ing is a rec
+                    rec2ing[rec].add(ing)
+                    ing2rec[ing].add(rec)
+        res = []
+        for rec in recipes:
+            if len(rec2ing[rec]) == 0: # enough to only count
+                q.append(rec)
+                res.append(rec)
+        
+        while q:
+            curr_rec = q.popleft() # rec can be made
+            for next_rec in ing2rec[curr_rec]:
+                rec2ing[next_rec].remove(curr_rec)
+                if len(rec2ing[next_rec]) == 0:
+                    q.append(next_rec)
+                    res.append(next_rec)
+        
+        return res
+
+
+""" 552. Student Attendance Record II
+Any student is eligible for an attendance award if they meet both of the following criteria:
+
+The student was absent ('A') for strictly fewer than 2 days total.
+The student was never late ('L') for 3 or more consecutive days.
+
+Input: n = 2
+Output: 8
+Explanation: There are 8 records with length 2 that are eligible for an award:
+"PP", "AP", "PA", "LP", "PL", "AL", "LA", "LL"
+Only "AA" is not eligible because there are 2 absences (there need to be fewer than 2).
+"""
+# 下面这种方法来自 大神 dettier 的帖子，这里面定义了两个数组P和 PorL，其中 P[i] 表示数组前i个数字中1以P结尾的排列个数，
+# PorL[i] 表示数组前i个数字中已P或者L结尾的排列个数。这个解法的精髓是先不考虑字符A的情况，而是先把定义的这个数组先求出来，
+# 由于P字符可以再任意字符后面加上，所以 P[i] = PorL[i-1]；而 PorL[i] 由两部分组成，P[i] + L[i]，其中 P[i] 已经更新了，
+# L[i] 只能当前一个字符是P，或者前一个字符是L且再前一个字符是P的时候加上，即为 P[i-1] + P[i-2]，
+# 所以 PorL[i] = P[i] + P[i-1] + P[i-2]。
+
+# 那么这里就已经把不包含A的情况求出来了，存在了 PorL[n] 中，下面就是要求包含一个A的情况，那么就得去除一个字符，
+# 从而给A留出位置。就相当于在数组的任意一个位置上加上A，数组就被分成左右两个部分了，而这两个部分当然就不能再有A了，
+# 实际上所有不包含A的情况都已经在数组 PorL 中计算过了，而分成的子数组的长度又不会大于原数组的长度，
+# 所以直接在 PorL 中取值就行了，两个子数组的排列个数相乘，然后再把所有分割的情况累加起来就是最终结果啦，参见代码如下：
+"""
+class Solution {
+public:
+    int checkRecord(int n) {
+        int M = 1e9 + 7;
+        vector<long> P(n + 1), PorL(n + 1);
+        P[0] = 1; PorL[0] = 1; PorL[1] = 2;
+        for (int i = 1; i <= n; ++i) {
+            P[i] = PorL[i - 1];
+            if (i > 1) PorL[i] = (P[i] + P[i - 1] + P[i - 2]) % M;
+        }
+        long res = PorL[n];
+        for (int i = 0; i < n; ++i) {
+            long t = (PorL[i] * PorL[n - 1 - i]) % M;
+            res = (res + t) % M;
+        }
+        return res;
+    }
+};
+"""
+
+"""2158. Amount of New Area Painted Each Day
+input: [[1,4], [4, 7], [5,8]]
+output: [3, 3, 1]
+Explanation, day 1 paint 4-1 = 3, day 2 paints 7-4=3, day 3 paint 8-7, 
+because 5-7 already painted
+
+psuedo code:
+for time, (idx, in) in dict.items():
+    if in: # add in
+        ds[idx] = time # or can be a dict, ds[idx] = time
+    else: # remove
+        if idx == ds.find_first_idx():
+            res[idx] += ds[idx][1] - time
+            ds.remove(idx)
+            ds[ds.find_first_idx] = time # important! 
+"""
+# https://www.youtube.com/watch?v=BuPTkTw2dC4
+# sweepline, always add the new segment into the earliest day index 
+class Solution:
+    def amountPainted(self, paint: List[List[int]]) -> List[int]:
+        dic = collections.defaultdict(list)
+        # construct sweepline dict
+        for i, (start, end) in enumerate(paint):
+            dic[start].append([i, 1]) # start
+            dic[end].append([i, -1]) # end
+        daySet = SortedList()
+        ans = [0 for _ in paint]
+        arr = [(k, dic[k]) for k in sorted(dic)]
+        # go through sweepline
+        for i, (pos, flags) in enumerate(arr):
+            for idx, flag in flags:
+                if flag == -1: # rm idx
+                    daySet.pop(idx) # logN
+                else:
+                    daySet.add(idx) # logN
+            if i < len(arr) - 1 and daySet:
+                ans[daySet[0]] += arr[i+1][0]- arr[i][0] # into the earliest day index 
+        return ans
+
+
+"""1554. Strings Differ by One Character
+Given a list of strings dict where all the strings are of the same length.
+
+Return True if there are 2 strings that only differ by 1 character in the same index, otherwise return False.
+
+Follow up: Could you solve this problem in O(n*m) where n is the length of dict and m is the length of each string.
+
+Example 1:
+Input: dict = ["abcd","acbd", "aacd"]
+Output: true
+Output: Strings "abcd" and "aacd" differ only by one character in the index 1
+"""
+
+# 举个例子，对于上面的示例1，dict = [“abcd”,“acbd”, “aacd”]，首先遍历第一个字符串的第一个字符，将其用*代替，
+# “abcd"变为”*bcd"，然后dicts["*bcd"]+=1；剩下的同理；
+# 我们希望字符串之间只有一个字符不同，我们分别将字符串中的某一个字符变为"*"，然后比较某一种字符串类别是否有两个，
+# 如果出现两个，则返回True。
+
+"""[LeetCode] 660. Remove 9 移除9
+Start from integer 1, remove any integer that contains 9 such as 9, 19, 29...
+So now, you will have a new integer sequence: 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, ...
+
+Given a positive integer n, you need to return the n-th integer after removing. Note that 1 will be the first integer.
+
+Example 1:
+Input: 9
+Output: 10
+Hint: n will not exceed 9 x 10^8.
+
+这道题让我们移除所有包含数字9的数字，然后得到一个新的数列，给了一个数字n，求在这个新的数组中第n个数字。多写些数字来看看：
+0，1，2，3，4，5，6，7，8 （移除了9）
+10，11，12，13，14，15，16，17，18 （移除了19）
+.....
+80，81，82，83，84，85，86，87，88 （移除了89）
+（移除了 90 - 99 ）
+100，101，102，103，104，105，106，107，108 （移除了109）
+
+可以发现，8的下一位就是10了，18的下一位是20，88的下一位是100，实际上这就是九进制的数字的规律，那么这道题就变成了将十进制数n转为九进制数，
+这个就没啥难度了，就每次对9取余，然后乘以 base，n每次自除以9，base 每次扩大10倍，参见代码如下：
+
+class Solution {
+public:
+   int newInteger(int n) {
+        long res = 0, base = 1;
+        while (n > 0) {
+            multiplier += n % 9;
+            res += multiplier * base
+            n = n / 9;
+            base *= 10;
+        }
+        return res;
+   }
+};
+
+
+此解法只限于对9， 如果对其他数字， 参见
+https://www.cnblogs.com/grandyang/p/8261714.html
+"""
+
+
+"""792. Number of Matching Subsequences
+Given a string s and an array of strings words, return the number of words[i] that is a subsequence of s.
+
+Example: 
+Input: s = "abcde", words = ["a","bb","acd","ace"]
+Output: 3
+Explanation: There are three strings in words that are a subsequence of s: "a", "acd", "ace".
+"""
+
+"""
+Solution: 
+Given the input
+"abcde"
+["a","bb","acd","ace"]
+Create a word dict to keep track of prefix -> candidates
+
+{
+  "a": ["a", "acd", "ace"],
+  "b": ["bb"]
+}
+Go through each char in s and find candidates that start with char. The candidate has length of 1, 
+then we found one of the subsequences
+For char "a", we found these candidates
+["a", "acd", "ace"]
+Only "a" is a subsequence, then we increment count
+Then we update the word dict by 
+taking out all the candidates start with "a" becuase we have processed them
+add new candidates with the prefix "a" removed, aka ["cd", "ce"]
+{
+  "a": [],
+  "b": ["bb"],
+  "c": ["cd", "ce"]
+}
+Keep repeating until the input s is processed.
+"""
+
+"""[LeetCode] 652. Find Duplicate Subtrees 寻找重复树
+Given the root of a binary tree, return all duplicate subtrees.
+For each kind of duplicate subtrees, you only need to return the root node of any one of them.
+Two trees are duplicate if they have the same structure with the same node values.
+
+Example 1:
+
+    4
+   / \
+  9   9
+ /   /  \
+3   3   27
+
+Output: [node(val=9),node(val=3)]
+"""
+#后序遍历，还有数组序列化，并且建立序列化跟其出现次数的映射，这样如果得到某个结点的序列化字符串，而该字符串正好出现的次数为1，
+# 说明之前已经有一个重复树了，将当前结点存入结果res，这样保证了多个重复树只会存入一个结点，参见代码如下：
+"""
+class Solution {
+public:
+    vector<TreeNode*> findDuplicateSubtrees(TreeNode* root) {
+        vector<TreeNode*> res;
+        unordered_map<string, int> m;
+        postorder(root, m, res);
+        return res;
+    }
+    string postorder(TreeNode* node, unordered_map<string, int>& m, vector<TreeNode*>& res) {
+        if (!node) return "#";
+        string str = to_string(node->val) + "," + postorder(node->left, m, res) + "," + postorder(node->right, m, res);
+        if (m[str] == 1) res.push_back(node); // postorder
+        ++m[str];
+        return str;
+    }
+};
+"""
+
+"""562 Longest Line of Consecutive One in Matrix
+Given a 01 matrix M, find the longest line of consecutive one in the matrix. The line could be horizontal, 
+vertical, diagonal or anti-diagonal.
+
+Input:
+[[0,1,1,0],
+ [0,1,1,0],
+ [0,0,0,1]]
+Output: 3
+
+Solution: DP, use four dp[i][j][0-3] matrix to record longest one line ends at mat[i][j] for horizontal, vertical, diag, and anti-diag
+anti-diag: dp[i][j][3] = dp[i - 1][j + 1][3] + 1 if M[i][j]==1 else 0
+"""
+
+
+"""302. Smallest Rectangle Enclosing Black Pixels
+An image is represented by a binary matrix with 0 as a white pixel and 1 as a black pixel. 
+The black pixels are connected, i.e., there is only one black region. Pixels are connected horizontally and vertically. 
+Given the location (x, y) of one of the black pixels, 
+return the area of the smallest (axis-aligned) rectangle that encloses all black pixels.
+
+For example, given the following image:
+[
+  "0010",
+  "0110",
+  "0100"
+]
+and x = 0, y = 2,
+
+Return 6.
+"""
+# can you think of a solution at runtime O(mlogn + nlogm)? m=nrow, n=ncol
+# binary search to find the four boundraies
+# for example, for horizontal, everytime take mid, and then check each elem from mat[mid][0] to mat[mid][ncol] - logn * m
+
+
+""" 889 · Sentence Screen Fitting ???
+Given a rows x cols screen and a sentence represented by a list of non-empty words, find how many times the given sentence can be fitted on the screen.
+
+Example 1:
+	Input: rows = 4, cols = 5, sentence = ["I", "had", "apple", "pie"]
+	Output: 1
+	
+	Explanation:
+	I-had
+	apple
+	pie-I
+	had--
+	
+	The character '-' signifies an empty space on the screen.
+	
+Example 2:
+	Input:  rows = 2, cols = 8, sentence = ["hello", "world"]
+	Output:  1
+	
+	Explanation:	
+	hello---
+	world---
+
+Example 3:
+	Input: rows = 3, cols = 6, sentence = ["a", "bcd", "e"]
+	Output:  2
+	
+	Explanation:
+	a-bcd-
+	e-a---
+	bcd-e-
+"""
+class Solution:
+    def wordsTyping(self, sentence: List[str], rows: int, cols: int) -> int:
+        num_words = len(sentence)
+        dp = [0] * num_words
+        #dp[i] denotes if a new row starts with word[i], # of words we can put there, inclusive
+        for i in range(num_words):
+            length = cols
+            j = i 
+            while len(sentence[j % num_words]) <= length:
+                length = length - len(sentence[j % num_words]) - 1
+                j += 1
+            dp[i] = j - i 
+        print(dp)
+        
+        k, index = 0, 0 #initialization 
+        total_num_words = 0 
+        for k in range(rows):
+            total_num_words += dp[index]
+            index = (index + dp[index%num_words]) % num_words
+        return total_num_words//num_words
+
+
+
+
+"""
+############################################################################
+Snapchat
+############################################################################
+"""
+
+"""
+Given an m * n matrix, find the sliding square submatrix mean.
+比如：
+input matrix=[
+[2,2,3,0],
+[3,1,3,6],
+[5,0,7,0]
+], and an integer k = 2, k代表submatrix的size，那么答案就是
+[[2, 2.25, 3], [2.25, 2.75, 4]]
+"""
+import numpy as np
+class Solution:
+    def sliding_average(self, matrix, k):
+        matrix = np.array(matrix)
+        kernel = np.array([[1/k**k for _ in range(k)] for _ in range(k)])
+        output = np.zeros((len(matrix)-k+1, len(matrix[0])-k+1))
+        for i in range(len(output)):
+            for j in range(len(output[0])):
+                # m * n * k^2
+                output[i, j] = np.sum(matrix[i:i+k, j:j+k] * kernel)
+        return output
+
+sol=Solution()
+sol.sliding_average([[2,2,3,0], [3,1,3,6], [5,0,7,0]], 2)
+# improve time complexity
+class Solution:
+    def sliding_average(self, matrix, k):
+        matrix = np.array(matrix)
+        output = np.zeros((len(matrix)-k+1, len(matrix[0])-k+1))
+        cumsum_mat = self.get_cumsum(matrix)
+        for i in range(len(output)):
+            for j in range(len(output[0])):
+                # m * n
+                # cumsum_mat[i, j]: sum(matrix[:i, :j])
+                # output[i, j] = sum(matrix[i:i+k, j:j+k])
+                # = sum(matrix[:i+k, :j+k]) - sum(matrix[:i, :j+k]) - sum(matrix[:i+k, :j]) + sum(matrix[:i, :j])
+                output[i, j] = cumsum_mat[i+k, j+k] - cumsum_mat[i, j+k] - cumsum_mat[i+k, j] + cumsum_mat[i, j]
+        return output / k**2
+    
+    def get_cumsum(self, matrix):
+        mat = [[0 for _ in range(len(matrix[0])+1)] for _ in range(len(matrix)+1)]
+        for i in range(1, len(mat)):
+            for j in range(1, len(mat[0])):
+                mat[i][j] = mat[i-1][j] + mat[i][j-1] - mat[i-1][j-1] + matrix[i-1][j-1]
+        return np.array(mat)
+
+
+"""1498. Number of Subsequences That Satisfy the Given Sum Condition
+You are given an array of integers nums and an integer target.
+
+Return the number of non-empty subsequences of nums such that the sum of the minimum and maximum 
+element on it is less or equal to target. Since the answer may be too large, return it modulo 109 + 7.
+
+Input: nums = [3,5,6,7], target = 9
+Output: 4
+Explanation: There are 4 subsequences that satisfy the condition.
+[3] -> Min value + max value <= target (3 + 3 <= 9)
+[3,5] -> (3 + 5 <= 9)
+[3,5,6] -> (3 + 6 <= 9)
+[3,6] -> (3 + 6 <= 9)
+
+Input: nums = [3,3,6,8], target = 10
+Output: 6
+Explanation: There are 6 subsequences that satisfy the condition. (nums can have repeated numbers).
+[3] , [3] , [3,3], [3,6] , [3,6] , [3,3,6]
+
+Hint: Since order of the elements in the subsequence doesn’t matter, we can sort the input array.
+Very similar to two sum, we use two pointers (i, j) to maintain a window, s.t. nums[i] +nums[j] <= target.
+Then fix nums[i], any subset of (nums[i+1~j]) gives us a valid subsequence, 
+thus we have 2^(j-(i+1)+1) = 2^(j-i) valid subsequence for window (i, j).
+"""
+class Solution:
+    def numSubseq(self, nums, target: int) -> int:
+        nums.sort()
+        i, j = 0, len(nums) - 1
+        res = 0
+        mod = 10**9 + 7
+        while i <= j:
+            if nums[i] + nums[j] > target:
+                j -= 1
+            else:
+                # always include nums[i], For each elements in the subarray A[i+1] ~ A[j]
+                # we can pick or not pick,
+                res += 2 ** (j-i)  # pow(2, j-i, mod) is much faster
+                res = res % mod
+                i += 1
+        return res
+
+sol=Solution()
+sol.numSubseq([3,5,6,7], 9)
+sol.numSubseq([2,3,3,4,6,7], 12) # 61
+
+
+""" 按频率对数组排序
+Example:
+  input: [1, 3, 1, 1, 4, 2, 2, 3]
+  output: [1, 1, 1, 3, 3, 2, 2, 4]
+Have an O(nlogn) solution, but needs one O(n) solution
+
+bucket sort: index as freq
+"""
+
+
+"""241. Different Ways to Add Parentheses 添加括号的不同方式 
+Given a string of numbers and operators, return all possible results from 
+computing all the different possible ways to group numbers and operators. The 
+valid operators are +, -and *.
+
+Example 2
+
+Input: "2*3-4*5"
+(2*(3-(4*5))) = -34
+((2*3)-(4*5)) = -14
+((2*(3-4))*5) = -10
+(2*((3-4)*5)) = -10
+(((2*3)-4)*5) = 10
+
+Output: [-34, -14, -10, -10, 10]
+
+DFS + memo
+dfs("2*3-4*5") = 
+dfs("2") * dfs ("3-4*5")
+dfs("2*3") - dfs ("4*5")
+dfs("2*3-4") * dfs ("5")
+
+T(n) = T(1)*T(n-1) + ... + T(n-1)*T(1) (no memo)
+"""
+from functools import lru_cache
+class Solution:
+    @lru_cache(None)
+    def diffWaysToCompute(self, expression: str):
+        res = []
+        for i in range(len(expression)):
+            if expression[i] in ["+", "-", "*"]:
+                left = self.diffWaysToCompute(expression[:i])
+                right = self.diffWaysToCompute(expression[i+1:])
+                for l in left:
+                    for r in right:
+                        if expression[i] == "+":
+                            curr_res = l + r
+                        elif expression[i] == "-":
+                            curr_res = l - r
+                        else:
+                            curr_res = l * r
+                        res.append(curr_res)
+
+        return res if len(res) > 0 else [int(expression)]
+
+sol=Solution()
+sol.diffWaysToCompute("2*3-4*5")
+
+
+"""
+a list of tasks with project id, start time, and end time [[p_i, s_i, e_i],...], \
+    为了让员工不无聊, 员工不能连续处理两个属于相同project的task. 
+    问given 这个list，员工最多能处理的tasks有多少?
+similar to 1235. Maximum Profit in Job Scheduling ? 
+"""
+# sort + dp
+# dp[i] max at time i
+tasks = [[1, 0, 2], [2, 1, 3], [1, 3, 4], [2, 5, 6]] # 3
+class Solution:
+    def max_tasks(self, tasks):
+        return 
+    
+
+"""1926. Nearest Exit from Entrance in Maze
+
+Return the number of steps in the shortest path from the entrance to the nearest exit, 
+or -1 if no such path exists.
+
+Input: maze = [["+","+",".","+"],[".",".",".","+"],["+","+","+","."]], entrance = [1,2]
+Output: 1
+Explanation: There are 3 exits in this maze at [1,0], [0,2], and [2,3].
+Initially, you are at the entrance cell [1,2].
+- You can reach [1,0] by moving 2 steps left.
+- You can reach [0,2] by moving 1 step up.
+It is impossible to reach [2,3] from the entrance.
+Thus, the nearest exit is [0,2], which is 1 step away.
+"""
+from collections import deque
+class Solution:
+    def nearestExit(self, maze, entrance) -> int:
+        visited = set()
+        q = deque()
+        entrance = tuple(entrance)
+        q.append((entrance[0], entrance[1], 0))
+        visited.add(entrance)
+        while q:
+            for _ in range(len(q)):
+                curr_i, curr_j, step = q.popleft()
+                if self.is_exit(curr_i, curr_j, maze) and (curr_i, curr_j) != entrance:
+                    return step
+                for next_i, next_j in self.get_nb(curr_i, curr_j, maze):
+                    if (next_i, next_j) not in visited and maze[next_i][next_j] != "+":
+                        visited.add((next_i, next_j))
+                        q.append((next_i, next_j, step+1))
+        
+        return -1
+    
+    def is_exit(self, curr_i, curr_j, maze):
+        return curr_i in [0, len(maze)-1] or curr_j in [0, len(maze[0])-1]
+    
+    def get_nb(self, i, j, maze):
+        res = []
+        for (di, dj) in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            next_i, next_j = di + i, dj + j
+            if 0 <= next_i < len(maze) and 0 <= next_j < len(maze[0]):
+                res.append((next_i, next_j))
+        return res
+
+sol=Solution()
+sol.nearestExit([["+","+",".","+"],[".",".",".","+"],["+","+","+","."]], [1,2])
+
+
+"""Check if thief can get from bottom to top without triggering any sensors
+https://leetcode.com/discuss/interview-question/1743143/airbnb-onsite
+
+You are a thief standing in a room. The room has length L and width W. Your goal is to go from the bottom wall to 
+anywhere on the top wall. The room has a set of sensors. Each sensor consists of x, y coordinates, and radius r. 
+If you go within r of the center, the sensor is triggered and you get caught. You can move in any continuous path. 
+Given the dimensions of the room L, W, Sensors. Return true if the thief can get from bottom to top without triggering any sensors? 
+"""
