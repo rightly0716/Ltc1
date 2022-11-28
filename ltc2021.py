@@ -5,6 +5,20 @@ Leetcode by categories and ds
 # https://www.hackerearth.com/practice/notes/big-o-cheatsheet-series-data-structures-and-algorithms-with-thier-complexities-1/
 # !!! means interview qn candidates
 
+""" 额外知识点归纳
+1. 如果判断一个图中是否有环？
+- 无向图
+求出图中所有结点的度。
+将所有度 <= 1 的结点入队。（独立结点的度为 0）
+当队列不空时，弹出队首元素，把与队首元素相邻节点的度减一。如果相邻节点的度变为一，则将相邻结点入队。
+循环结束时判断已经访问的结点数是否等于 n。等于 n 说明全部结点都被访问过，无环；反之，则有环。
+- 有向图
+在判断无向图中是否存在环时，是将所有**度 <= 1** 的结点入队；
+在判断有向图中是否存在环时，是将所有**入度 = 0** 的结点入队
+
+也可以用DFS，详见https://zhuanlan.zhihu.com/p/214747022
+"""
+
 """
 ############################################################################
 Sort 排序类
@@ -1224,7 +1238,7 @@ cache.get(1);       // returns -1 (not found)
 cache.get(3);       // returns 3
 cache.get(4);       // returns 4
 """
-# in python, one can use OrderedDict (a dict that has pipitem() to remove the last or first key)
+# in python, one can use OrderedDict (a dict that has popitem() to remove the last or first key)
 from collections import OrderedDict
 class LRUCache(object):
     def __init__(self, capacity):
@@ -2230,8 +2244,15 @@ https://www.cnblogs.com/grandyang/p/6854825.html
 若 right 初始化为了 nums.size()，那么就必须用 left < right，而最后的 right 的赋值必须用 right = mid。
 但是如果我们 right 初始化为 nums.size() - 1，那么就必须用 left <= right，并且right的赋值要写成 right = mid - 1，不然就会出错
 
-Find the peak is an exceptional. Use left, right = 0, len-1 and while left < right. 
+Find the mtn peak is an exceptional. Use left, right = 0, len-1 and while left < right. 
 Because condition is nums[mid] < nums[mid+1] and mid+1 can out of range if right=len
+
+还有一类是排序区间的插入，删除，和合并。一般思路是对于待处理的区间，查找第一个和最后一个与它overlap的区间(可以左闭右开)，然后用for来处理中间的，
+一个例子是715. Range Module.
+intervals=[[1,2], [3,4], [5,6]], interval=[2.5,4.5] -> first=0 and last=2 (左闭右开，i.e. intervals[2]是第一个不overlap的)
+一般可以考虑
+1) 新建一个list存放,O(n) -- 添加区间的一个常用技巧是bool inserted=False，一般添加完毕后设成True然后后面所有区间直接加进来
+2) treemap(SortedDict) 的数据结构，用bisect_left和bisect_right来查找头尾(logn) -- 见715. Range Module
 """
 # note: if ascending
 # if finish: l = r + 1
@@ -2257,13 +2278,13 @@ def bin_search(nums, target):
     l, r = 0, len(nums)
     while l < r:
         mid = l + (r-l)//2
-        if nums[mid] == target:
-            return mid # or do nothing
-        elif nums[mid] < target:
-            l = mid + 1
+        # if nums[mid] == target:
+        #     return mid # or do nothing
+        if nums[mid] < target:
+            l = mid + 1 # not soln except for last
         else: # (nums[mid] >= target)
-            r = mid
-    return -1
+            r = mid # r is soln candidate
+    return l # (or r)
 
 # note: if ascending
 # if finish, l = r
@@ -2272,13 +2293,11 @@ def bin_search(nums, target):
     l, r = 0, len(nums)
     while l < r:
         mid = l + (r-l)//2
-        if nums[mid] == target:
-            return mid # or do nothing
-        elif nums[mid] <= target:
-            l = mid + 1
+        if nums[mid] <= target:
+            l = mid + 1 # l-1 is soln candidate
         else: # (nums[mid] >= target)
-            r = mid
-    return -1
+            r = mid # not soln, upper bound
+    return l-1
 
 
 """34. Find First and Last Position of Element in Sorted Array
@@ -2878,6 +2897,96 @@ def get_num_ribbons(arr, size):
 
 greatestLength(arr, k)
 
+
+"""715. Range Module
+A Range Module is a module that tracks ranges of numbers. Design a data structure to track the ranges represented as 
+half-open intervals and query about them.
+A half-open interval [left, right) denotes all the real numbers x where left <= x < right.
+
+Implement: 
+void addRange(int left, int right) Adds the half-open interval [left, right)
+boolean queryRange(int left, int right) Returns true if every real number in the interval [left, right) is currently being tracked
+void removeRange(int left, int right) Stops tracking every real number currently being tracked in the half-open interval [left, right)
+
+Input
+["RangeModule", "addRange", "removeRange", "queryRange", "queryRange", "queryRange"]
+[[], [10, 20], [14, 16], [10, 14], [13, 15], [16, 17]]
+Output
+[null, null, null, true, false, true]
+
+Explanation
+RangeModule rangeModule = new RangeModule();
+rangeModule.addRange(10, 20);
+rangeModule.removeRange(14, 16);
+rangeModule.queryRange(10, 14); // return True,(Every number in [10, 14) is being tracked)
+rangeModule.queryRange(13, 15); // return False,(Numbers like 14, 14.03, 14.17 in [13, 15) are not being tracked)
+rangeModule.queryRange(16, 17); // return True, (The number 16 in [16, 17) is still being tracked, despite the remove operation)
+"""
+# http://zxi.mytechroad.com/blog/data-structure/leetcode-715-range-module/
+from sortedcontainers import SortedDict
+class RangeModule:
+    def __init__(self):
+        self.start2end = SortedDict()
+
+    def addRange(self, left: int, right: int):
+        # find the first and last interval overlaps with [left, right]
+        # [[1,3], [4,6], [7,8]], [3,4] -> first=0, last=2 although [)
+        first, last = self.find_first_and_last(left, right)
+        if first < last:
+            # merge from first to last, pop out all the intervals
+            sorted_start_time = self.start2end.keys()
+            for key in sorted_start_time[first:last]:
+                curr_start = key
+                left = min(left, curr_start)
+                right = max(right, self.start2end[curr_start])
+                del self.start2end[key]
+        self.start2end[left] = right
+        return 
+
+    def queryRange(self, left: int, right: int) -> bool:
+        # return whether overlap
+        first, last = self.find_first_and_last(left, right)
+        if first < last:
+            start, end = self.start2end.peekitem(first) # only need to check left overlap interval
+            return start <= left and right <= end
+        return False
+
+    def removeRange(self, left: int, right: int) -> None:
+        first, last = self.find_first_and_last(left, right)
+        if first < last:
+            sorted_start_time = self.start2end.keys()
+            # delete all overlap intervals
+            # [[1,3], [4,6]], [3,5] 
+            left_start = min(sorted_start_time[first], left)  # keep left_start -> left
+            right_end = max(self.start2end[sorted_start_time[last-1]], right) # keep right -> right_end
+            for key in sorted_start_time[first:last]:
+                del self.start2end[key]
+            if left_start < left:
+                self.start2end[left_start] = left
+            if right_end > right:
+                self.start2end[right] = right_end
+        return 
+        
+    def find_first_and_last(self, left, right):
+        # find the first and last interval overlaps with [left, right]
+        start_idx = self.start2end.bisect_left(left) # [[1,2], [3,4]], [5,6] -> return 2, [3.5,5] -> return 2 (needs adjust)
+        end_idx = self.start2end.bisect_right(right)  # end_idx -> first interval with start > right
+        if start_idx != 0:
+            # if prev interval overlap with [left, right], then start_idx -= 1
+            if self.start2end[self.start2end.keys()[start_idx - 1]] >= left: # start_idx : first interval with end >= left
+                # no move when self.start2end[start_idx] == left, e.g., [[2,3], [4,6]], [6,8], then start_idx=1
+                start_idx -= 1
+        return start_idx, end_idx
+
+
+#  [[1,3], [4,6], [7,8]]
+sol=RangeModule()
+sol.addRange(1, 4)
+sol.addRange(5, 6)
+sol.start2end
+sol.addRange(7,8)
+sol.addRange(6.5, 6.6)
+sol.addRange(5,8)
 
 """
 ############################################################################
@@ -9385,7 +9494,7 @@ class Solution:
                 province_set.add(root)
         
         return len(province_set)
-
+text 
 
 """[LeetCode] 737. Sentence Similarity II 句子相似度之二
 

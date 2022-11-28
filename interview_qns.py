@@ -2380,6 +2380,7 @@ sol.insert(intervals = [[1,5]], newInterval = [2,3])
 
 
 class Solution2:
+    # another way is to use inserted bool to decide whether insertion happens or not
     def insert(self, intervals, newInterval):
         res = []
         newStart, newEnd = newInterval
@@ -2397,6 +2398,10 @@ class Solution2:
         res.append([newStart, newEnd])
         return res
 
+# follow up: what if you need to remove an interval instead of insert? 
+# same except for overlap case, if overlap, 
+# 1) if end > newStart: res.append([start, newStart])
+# 2) if start < newEnd: res.append([newEnd, end])
 
 """381. Insert Delete GetRandom O(1) - Duplicates allowed
 RandomizedCollection is a data structure that contains a collection of numbers, possibly duplicates (i.e., a multiset).
@@ -2573,7 +2578,7 @@ class Solution:
             # cannot put next word in the same line
             aligned_out = self.alignLine(out, maxWidth, last=(len(rem_words) == 0))
             res.append(aligned_out)
-            return res
+            return self.JustifyRemWords(rem_words, "", res, maxWidth)
         else:
             out = out + " " + rem_words[0]
             return self.JustifyRemWords(rem_words[1:], out.strip(), res, maxWidth)
@@ -3126,7 +3131,7 @@ A = [1,2,3,2,1,4,4,5]
 class Solution:
     def oddEvenJumps(self, A):
         n = len(A)
-        next_higher, next_lower = [0] * n, [0] * n
+        next_higher, next_lower = [0] * n, [0] * n  # idx of the number >= or <= curr
 
         stack = []
         for a, i in sorted([a, i] for i, a in enumerate(A)):
@@ -3344,6 +3349,34 @@ Output : Yes
 https://www.chenguanghe.com/remove-all-ones-with-row-and-column-flips/
 """
 
+"""1937. Maximum Number of Points with Cost
+
+To gain points, you must pick one cell in each row. Picking the cell at coordinates (r, c) will add points[r][c] to your score.
+However, you will lose points if you pick a cell too far from the cell that you picked in the previous row. 
+For every two adjacent rows r and r + 1 (where 0 <= r < m - 1), picking cells at coordinates (r, c1) and 
+(r + 1, c2) will subtract abs(c1 - c2) from your score.
+
+Return the maximum number of points you can achieve.
+
+Input: points = [[1,2,3],[1,5,1],[3,1,1]]
+Output: 9
+Explanation:
+The blue cells denote the optimal cells to pick, which have coordinates (0, 2), (1, 1), and (2, 0).
+You add 3 + 5 + 3 = 11 to your score.
+However, you must subtract abs(2 - 1) + abs(1 - 0) = 2 from your score.
+Your final score is 11 - 2 = 9.
+"""
+# DFS is likely to TLE
+# https://leetcode.com/problems/maximum-number-of-points-with-cost/discuss/1344888/C%2B%2B-dp-from-O(m-*-n-*-n)-to-O(m-*-n)
+# DP[i][j]: means the maximum points ends with points[i][j]. The value is from previous row with costs abs(j - k).
+# dp[i][j] = max(dp[i - 1][k] + point[i][j] - abs(j - k)) for each 0 <= k < points[i - 1].szie()  O(m*n*n)
+# can still improve because the comparison of row i-1 can be indep of j
+# from left side: dp[i][j] = max(dp[i - 1][k] + k-j) + points[i][j], for all 0 <= k <= j
+#                           = max(dp[i - 1][k] + k) + points[i][j] - j -> no j in max()!!
+# In this way, we can compute all the dp[i-1][k] for all j's, and then just compute diff j to find the biggest dp[i][j]
+# same for right side: dp[i][j] = max(dp[i - 1][k] - k) + points[i][j] + j for all j <= k < n
+
+
 
 """2034. Stock Price Fluctuation
 You are given a stream of records about a particular stock. Each record contains a timestamp and the corresponding price of the stock at that timestamp.
@@ -3416,6 +3449,7 @@ sol.maximum()
 # Keeping popping elements off the heap until an element matches it's current price
 # https://leetcode.com/problems/stock-price-fluctuation/discuss/1513293/Python-Clean-2-Heaps-Commented-Code
 
+
 """ 1146. Snapshot Array
 Implement a SnapshotArray that supports the following interface:
 
@@ -3459,8 +3493,6 @@ class SnapshotArray:
         if prev_snap_id == 1: # snap_id < all prev snap_id since first is -1
             return 0
         sorted_ids = self.array[index].keys()
-        if snap_id > sorted_ids[-1]:
-            return self.array[index][sorted_ids[-1]]
         insert_key = sorted_ids[prev_snap_id-1]
         return self.array[index][insert_key]
         
@@ -3473,14 +3505,48 @@ p3  p2
 given p1, for each p2, find cnt of p2, p3, p4 to multiple
 """
 
+"""833. Find And Replace in String
+Input: s = "abcd", indices = [0, 2], sources = ["a", "cd"], targets = ["eee", "ffff"]
+Output: "eeebffff"
+Explanation:
+"a" occurs at index 0 in s, so we replace it with "eee".
+"cd" occurs at index 2 in s, so we replace it with "ffff".
+
+Input: s = "abcd", indices = [0, 2], sources = ["ab","ec"], targets = ["eee","ffff"]
+Output: "eeecd"
+Explanation:
+"ab" occurs at index 0 in s, so we replace it with "eee".
+"ec" does not occur at index 2 in s, so we do nothing.
+"""
+# use list to simplify the operation 
+def findReplaceString(self, S, indices, sources, targets):
+        """
+        :type S: str
+        :type indexes: List[int]
+        :type sources: List[str]
+        :type targets: List[str]
+        :rtype: str
+        """
+        modified = list(S)
+        for index, source, target in zip(indices, sources, targets):
+            if not S[index:].startswith(source):
+                continue
+            else:
+                modified[index] = target
+                for i in range(index+1, len(source) + index):
+                    modified[i] = ""
+
+        return "".join(modified)
+
 
 """2115. Find All Possible Recipes from Given Supplies
-Example 1:
-Input: recipes = ["bread"], ingredients = [["yeast","flour"]], supplies = ["yeast","flour","corn"]
-Output: ["bread"]
-Note that two recipes may contain each other in their ingredients.
+Example 2
+Input: recipes = ["bread","sandwich"], ingredients = [["yeast","flour"],["bread","meat"]], 
+supplies = ["yeast","flour","meat"]
+Output: ["bread","sandwich"]
 Explanation:
 We can create "bread" since we have the ingredients "yeast" and "flour".
+We can create "sandwich" since we have the ingredient "meat" and can create the ingredient "bread"
 """
 from collections import defaultdict
 class Solution:
@@ -3564,13 +3630,50 @@ because 5-7 already painted
 psuedo code:
 for time, (idx, in) in dict.items():
     if in: # add in
-        ds[idx] = time # or can be a dict, ds[idx] = time
+        res[idx] += time - ds[ds.find_first_idx()]
+        ds[ds.find_first_idx()] = time
+        ds[idx] = time # store start time of job idx
     else: # remove
         if idx == ds.find_first_idx():
-            res[idx] += ds[idx][1] - time
+            res[idx] += time - ds[idx]
             ds.remove(idx)
-            ds[ds.find_first_idx] = time # important! 
+            ds[ds.find_first_idx] = time # current top idx, important! 
+        else:
+            ds.remove(idx)
 """
+from collections import defaultdict
+class Solution:
+    def amountPainted(self, paint):
+        day2idx = defaultdict(list)
+        for i, (start, end) in enumerate(paint):
+            day2idx[start].append([i, 1]) # start
+            day2idx[end].append([i, -1]) # end
+        
+        res = [0] * len(paint)
+        idx2startTime = SortedDict()
+        for time, vals in sorted(day2idx.items()):
+            for idx, status in vals:
+                if status == 1:
+                    if len(idx2startTime) > 0:
+                        top_idx = idx2startTime.keys()[0]
+                        res[top_idx] += time - idx2startTime[top_idx]
+                        idx2startTime[top_idx] = time
+                    idx2startTime[idx] = time
+                else:
+                    if idx == idx2startTime.keys()[0]:
+                        res[idx] += time - idx2startTime[idx]
+                        idx2startTime.pop(idx)
+                        if len(idx2startTime) > 0:
+                            idx2startTime[idx2startTime.keys()[0]] = time
+                    else:
+                        idx2startTime.pop(idx)
+        
+        return res
+
+
+sol=Solution()
+sol.amountPainted(paint = [[1,4], [4, 7], [5,8]])
+
 # https://www.youtube.com/watch?v=BuPTkTw2dC4
 # sweepline, always add the new segment into the earliest day index 
 class Solution:
@@ -3580,9 +3683,9 @@ class Solution:
         for i, (start, end) in enumerate(paint):
             dic[start].append([i, 1]) # start
             dic[end].append([i, -1]) # end
-        daySet = SortedList()
+        daySet = SortedList() # only store index
         ans = [0 for _ in paint]
-        arr = [(k, dic[k]) for k in sorted(dic)]
+        arr = [(k, dic[k]) for k in sorted(dic)]  # (time, [idx, status])
         # go through sweepline
         for i, (pos, flags) in enumerate(arr):
             for idx, flag in flags:
@@ -3593,6 +3696,74 @@ class Solution:
             if i < len(arr) - 1 and daySet:
                 ans[daySet[0]] += arr[i+1][0]- arr[i][0] # into the earliest day index 
         return ans
+
+
+"""777. Swap Adjacent in LR String
+In a string composed of 'L', 'R', and 'X' characters, like "RXXLRXRXL", a move consists of either replacing 
+one occurrence of "XL" with "LX", or replacing one occurrence of "RX" with "XR". Given the starting string 
+start and the ending string end, return True if and only if there exists a sequence of moves to transform 
+one string to the other.
+
+Input: start = "RXXLRXRXL", end = "XRLXXRRLX"
+Output: true
+Explanation: We can transform start to end following these steps:
+RXXLRXRXL ->
+XRXLRXRXL ->
+XRLXRXRXL ->
+XRLXXRRXL ->
+XRLXXRRLX
+"""
+# https://leetcode.com/problems/swap-adjacent-in-lr-string/discuss/873004/Easy-to-understand-explanation-with-PICTURE
+# L can only move to left, and R can only move to right, they cannot cross
+# check the index of L in start, and that of end -> start index should be on right of end
+# same for R
+class Solution:
+    def canTransform(self, start: str, end: str) -> bool:
+        if len(start) != len(end): return False
+        
+        # check L R orders are the same
+        if start.replace('X','') != end.replace('X', ''): return False
+        
+        n = len(start)
+        Lstart = [i for i in range(n) if start[i] == 'L']
+        Lend = [i for i in range(n) if end[i] == 'L']
+        
+        Rstart = [i for i in range(n) if start[i] == 'R']
+        Rend = [i for i in range(n) if end[i] == 'R']
+		# check L positions are correct
+        for i, j in zip(Lstart, Lend):
+            if i < j:
+                return False
+            
+        # check R positions are correct
+        for i, j in zip(Rstart, Rend):
+            if i > j:
+                return False
+            
+        return True
+
+
+"""2135. Count Words Obtained After Adding a Letter
+For each string in targetWords, check if it is possible to choose a string from startWords and perform a conversion 
+operation on it to be equal to that from targetWords
+- Append any lowercase letter that is not present in the string to its end
+- Rearrange the letters of the new string in any arbitrary order
+Return the number of strings in targetWords that can be obtained by performing the operations on any string of startWords
+
+Input: startWords = ["ant","act","tack"], targetWords = ["tack","act","acti"]
+Output: 2
+Explanation:
+- In order to form targetWords[0] = "tack", we use startWords[1] = "act", append 'k' to it, and rearrange "actk" to "tack".
+- There is no string in startWords that can be used to obtain targetWords[1] = "act".
+  Note that "act" does exist in startWords, but we must append one letter to the string before rearranging it.
+- In order to form targetWords[2] = "acti", we use startWords[1] = "act", append 'i' to it, and rearrange "acti" to "acti" itself.
+
+No letter occurs more than once in any string of startWords or targetWords!
+"""
+# a more efficient way is bitmask, which can quickly decide whether two strings are the same after sorting O(1)
+# If not using bitmask, we can use a Trie to store all sorted strings from startWords, and also store
+# the original start words in a set, sort it, and search in the Trie
+# note that we should allow exact one mismatch due to append operation (give a bool app=False)
 
 
 """1554. Strings Differ by One Character
@@ -3648,7 +3819,6 @@ public:
         return res;
    }
 };
-
 
 此解法只限于对9， 如果对其他数字， 参见
 https://www.cnblogs.com/grandyang/p/8261714.html
@@ -3754,9 +3924,7 @@ For example, given the following image:
   "0110",
   "0100"
 ]
-and x = 0, y = 2,
-
-Return 6.
+and x = 0, y = 2, return 6.
 """
 # can you think of a solution at runtime O(mlogn + nlogm)? m=nrow, n=ncol
 # binary search to find the four boundraies
@@ -3816,6 +3984,496 @@ class Solution:
             index = (index + dp[index%num_words]) % num_words
         return total_num_words//num_words
 
+
+"""[LeetCode] 920. Number of Music Playlists 音乐播放列表的个数
+Your music player contains `N` different songs and she wants to listen to `L` (not necessarily different) songs during your trip.  You create a playlist so that:
+Every song is played at least once
+A song can only be played again only if K other songs have been played
+
+Example
+Input: N = 2, L = 3, K = 0
+Output: 6 Explanation: There are 6 possible playlists. 
+[1, 1, 2], [1, 2, 1], [2, 1, 1], [2, 2, 1], [2, 1, 2], [1, 2, 2]
+
+Input: N = 2, L = 3, K = 1
+Output: 2
+Explanation: There are 2 possible playlists. [1, 2, 1], [2, 1, 2]
+
+一个是每首歌都必须至少播放1次，第二个是两首重复歌的中间至少要有K首其他的歌
+dp[i][j] 表示当一共有N首unique的歌时, 放一个有i首unique歌曲的长度为j的歌单有多少种。
+下面来考虑状态转移方程，在加入一首歌的时候，此时有两种情况：
+- 当加入的是一首新歌，则表示之前的 j-1 首歌中有 i-1 首不同的歌曲，其所有的组合情况都可以加上这首新歌，
+那么当前其实有 N-(i-1) 首新歌可以选。
+- 当加入的是一首重复的歌，则表示之前的 j-1 首歌中已经有了 i 首不同的歌，那么若没有K的限制，则当前有 i 首重复的歌可以选。
+但是现在有了K的限制，意思是两首重复歌中间必须要有K首其他的歌，则当前只有 i-K 首可以选。而当 i<K 时，其实这种情况是为0的。
+            dp[i-1][j-1] * (N-(i-1)) + dp[i][j-1] * (i-K)    (i > K)
+           /
+dp[i][j] = 
+           \
+            dp[i-1][j-1] * (N-(i-1))   (j <= K)
+
+"""
+# dp[i][j] 表示当一共有N首unique的歌时, 放一个有i首unique歌曲的长度为j的歌单有多少种
+class Solution:
+    def numMusicPlaylists(self, N, L, K):
+        dp = [[0 for j in range(L + 1)] for i in range(N + 1)]
+        mod = 10**9 + 7
+        for i in range(1, N+1): # unique songs
+            for j in range(1, L+1): # len of list
+                if j == 1:
+                    dp[i][j] = N if i == 1 else 0
+                    continue
+                if i == 1: # j > 1
+                    dp[i][j] = N if K == 0 else 0
+                    continue
+                if i > K:
+                    # jth is a new or old song from first j-1 + 
+                    dp[i][j] = (dp[i-1][j-1] * (N-(i-1)) + dp[i][j-1] * (i-K)) % mod
+                else:
+                    # jth can only be a new song from first j-1
+                    dp[i][j] = (dp[i-1][j-1] * (N-(i-1))) % mod
+
+        return dp[N][L]
+
+
+# https://leetcode.com/problems/number-of-music-playlists/discuss/178415/C%2B%2BJavaPython-DP-Solution
+# dp[i][j] 表示当一共有i首unique, 歌单长度为j首，不同的方法的数量
+class Solution2:
+    # F(N,L,K) = F(N - 1, L - 1, K) * N + F(N, L - 1, K) * (N - K)
+    def numMusicPlaylists(self, N, L, K):
+        dp = [[0 for i in range(L + 1)] for j in range(N + 1)]
+        for i in range(K + 1, N + 1): # i unique songs
+            for j in range(i, L + 1): # j-long songs
+                if i == j or i == K + 1:
+                    dp[i][j] = math.factorial(i)
+                else:
+                    dp[i][j] = dp[i - 1][j - 1] * i + dp[i][j - 1] * (i - K)
+        return dp[N][L] % (10**9 + 7)
+
+
+"""664. Strange Printer
+There is a strange printer with the following two special properties:
+
+The printer can only print a sequence of the same character each time.
+At each turn, the printer can print new characters starting from and ending at any place and will cover the original existing characters.
+
+Given a string s, return the minimum number of turns the printer needed to print it.
+
+Input: s = "aaabbb"
+Output: 2
+Explanation: Print "aaa" first and then print "bbb".
+
+Input: s = "aba"
+Output: 2
+Explanation: Print "aaa" first and then print "b" from the second place of the string, which will cover the existing character 'a'.
+
+Solution: https://leetcode.com/problems/strange-printer/discuss/152758/Clear-Logical-Thinking-with-Code
+
+divide the problem:
+we keep dividing s until the substring contains 1 or 2 characters (as the base case)
+Take s = "abc" for example,
+
+  abc
+ /    \
+a,bc ab,c (base case here)
+
+conquer the subproblems:
+turns s needed = min(turns one substring needed + turns the other needed) (since there are many ways to divide s, 
+we pick the one needs minimum turns)
+Please note that, if s = "aba", and we divide it into "a,ba", turns "aba" needed = turns "a" needed + turns "ba" needed - 1 
+(aaa => aba rather than a => ab => aba).
+
+state: state[i][j] turns needed to print s[i .. j] (both inclusive)
+aim state: state[0][n - 1] (n = s.length() - 1)
+state transition:
+
+state[i][i] = 1;
+state[i][i + 1] = 1 if s[i] == s[i + 1]
+state[i][i + 1] = 2 if s[i] != s[i + 1]
+state[i][j] = min(state[i][k] + state[k + 1][j]) for i <= k <= j - 1
+	please note that, if s[i] equals to s[j] , state[i][j] should -1
+
+# Code: 
+public int strangePrinter(String s) {
+
+    if (s == null || s.length() == 0) {
+        return 0;
+    }
+
+    int n = s.length();
+    int[][] state = new int[n][n];
+
+    for (int i = 0; i < n; i++) {
+        state[i][i] = 1;
+    }
+
+    for (int i = n - 1; i >= 0; i--) {
+        for (int dist = 1; dist + i < n; dist++) {
+            int j = dist + i;
+            if (dist == 1) {
+                state[i][j] = (s.charAt(i) == s.charAt(j)) ? 1 : 2;
+                continue;
+            }
+            state[i][j] = Integer.MAX_VALUE;
+            for (int k = i; k + 1 <= j; k++) {
+                int tmp = state[i][k] + state[k + 1][j];
+                state[i][j] = Math.min(state[i][j], tmp);
+            }
+            if (s.charAt(i) == s.charAt(j)) {
+                state[i][j]--;
+            }
+        }
+    }
+
+    return state[0][n - 1];
+}
+"""
+
+"""642. Design Search Autocomplete System
+Design a search autocomplete system for a search engine. 
+
+Example:
+Operation: AutocompleteSystem(["i love you", "island","ironman", "i love leetcode"], [5,3,2,2]) 
+The system have already tracked down the following sentences and their corresponding times: 
+"i love you" : 5 times 
+"island" : 3 times 
+"ironman" : 2 times 
+"i love leetcode" : 2 times 
+Now, the user begins another search: 
+
+Operation: input('i') 
+Output: ["i love you", "island","i love leetcode"] 
+Explanation: 
+There are four sentences that have prefix "i". Among them, "ironman" and "i love leetcode" have same hot degree. 
+Since ' ' has ASCII code 32 and 'r' has ASCII code 114, "i love leetcode" should be in front of "ironman". 
+Also we only need to output top 3 hot sentences, so "ironman" will be ignored. 
+
+Operation: input(' ') 
+Output: ["i love you","i love leetcode"] 
+Explanation: 
+There are only two sentences that have prefix "i ".
+
+Operation: input('a') 
+Output: [] 
+Explanation: 
+There are no sentences that have prefix "i a". 
+"""
+# similar to word auto completion, design a Trie and save the auto-complete at each tree node with maxheap 
+
+
+"""715. Range Module
+A Range Module is a module that tracks ranges of numbers. Design a data structure to track the ranges represented as 
+half-open intervals and query about them.
+A half-open interval [left, right) denotes all the real numbers x where left <= x < right.
+
+Implement: 
+void addRange(int left, int right) Adds the half-open interval [left, right)
+boolean queryRange(int left, int right) Returns true if every real number in the interval [left, right) is currently being tracked
+void removeRange(int left, int right) Stops tracking every real number currently being tracked in the half-open interval [left, right)
+
+Input
+["RangeModule", "addRange", "removeRange", "queryRange", "queryRange", "queryRange"]
+[[], [10, 20], [14, 16], [10, 14], [13, 15], [16, 17]]
+Output
+[null, null, null, true, false, true]
+
+Explanation
+RangeModule rangeModule = new RangeModule();
+rangeModule.addRange(10, 20);
+rangeModule.removeRange(14, 16);
+rangeModule.queryRange(10, 14); // return True,(Every number in [10, 14) is being tracked)
+rangeModule.queryRange(13, 15); // return False,(Numbers like 14, 14.03, 14.17 in [13, 15) are not being tracked)
+rangeModule.queryRange(16, 17); // return True, (The number 16 in [16, 17) is still being tracked, despite the remove operation)
+"""
+# http://zxi.mytechroad.com/blog/data-structure/leetcode-715-range-module/
+from sortedcontainers import SortedDict
+class RangeModule:
+    def __init__(self):
+        self.start2end = SortedDict()
+
+    def addRange(self, left: int, right: int):
+        # find the first and last interval overlaps with [left, right]
+        # [[1,3], [4,6], [7,8]], [3,4] -> first=0, last=2 although [)
+        first, last = self.find_first_and_last(left, right)
+        if first < last:
+            # merge from first to last, pop out all the intervals
+            sorted_start_time = self.start2end.keys()
+            for key in sorted_start_time[first:last]:
+                curr_start = key
+                left = min(left, curr_start)
+                right = max(right, self.start2end[curr_start])
+                del self.start2end[key]
+        self.start2end[left] = right
+        return 
+
+    def queryRange(self, left: int, right: int) -> bool:
+        # return whether overlap
+        first, last = self.find_first_and_last(left, right)
+        if first < last:
+            start, end = self.start2end.peekitem(first) # only need to check left overlap interval
+            return start <= left and right <= end
+        return False
+
+    def removeRange(self, left: int, right: int) -> None:
+        first, last = self.find_first_and_last(left, right)
+        if first < last:
+            sorted_start_time = self.start2end.keys()
+            # delete all overlap intervals
+            # [[1,3], [4,6]], [3,5] 
+            left_start = min(sorted_start_time[first], left)  # keep left_start -> left
+            right_end = max(self.start2end[sorted_start_time[last-1]], right) # keep right -> right_end
+            for key in sorted_start_time[first:last]:
+                del self.start2end[key]
+            if left_start < left:
+                self.start2end[left_start] = left
+            if right_end > right:
+                self.start2end[right] = right_end
+        return 
+        
+    def find_first_and_last(self, left, right):
+        # find the first and last interval overlaps with [left, right]
+        start_idx = self.start2end.bisect_left(left) # [[1,2], [3,4]], [5,6] -> return 2, [3.5,5] -> return 2 (needs adjust)
+        end_idx = self.start2end.bisect_right(right)  # end_idx -> first interval with start > right
+        if start_idx != 0:
+            # if prev interval overlap with [left, right], then start_idx -= 1
+            if self.start2end[self.start2end.keys()[start_idx - 1]] >= left: # start_idx : first interval with end >= left
+                # no move when self.start2end[start_idx] == left, e.g., [[2,3], [4,6]], [6,8], then start_idx=1
+                start_idx -= 1
+        return start_idx, end_idx
+
+
+#  [[1,3], [4,6], [7,8]]
+sol=RangeModule()
+sol.addRange(1, 4)
+sol.addRange(5, 6)
+sol.start2end
+sol.addRange(7,8)
+sol.addRange(6.5, 6.6)
+sol.addRange(5,8)
+
+
+"""1631. Path With Minimum Effort
+You are situated in the top-left cell, (0, 0), and you hope to travel to the bottom-right cell, (rows-1, columns-1) (i.e., 0-indexed). 
+You can move up, down, left, or right, and you wish to find a route that requires the minimum effort
+
+A route's effort is the maximum absolute difference in heights between two consecutive cells of the route.
+
+Input: heights = [
+    [1,2,2],
+    [3,8,2],
+    [5,3,5]]
+Output: 2
+Explanation: The route of [1,3,5,3,5] has a maximum absolute difference of 2 in consecutive cells.
+This is better than the route of [1,2,2,2,5], where the maximum absolute difference is 3.
+"""
+from heapq import heappush, heappop
+class Solution:
+    def minimumEffortPath(self, heights) -> int:
+        q = []  # (min heap)
+        visited = set()
+        heappush(q, (0, 0, 0))
+        while q:
+            max_diff, x, y  = heappop(q)
+            if (x, y) in visited:
+                continue
+            visited.add((x, y))
+            if x == len(heights) - 1 and y== len(heights[0]) - 1:
+                return max_diff
+            for next_x, next_y in self.get_nb(x, y, len(heights), len(heights[0])):
+                if (next_x, next_y) not in visited:
+                    curr_diff = abs(heights[next_x][next_y] - heights[x][y])
+                    heappush(q, (max(max_diff, curr_diff), next_x, next_y))
+        
+        return 
+    
+    def get_nb(self, x, y, m, n):
+        res = []
+        for dx, dy in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            if 0 <= x+dx < m and 0 <= y+dy < n:
+                res.append([x+dx, y+dy])
+        return res
+
+
+"""1834. Single-Threaded CPU
+You are given n​​​​​​ tasks labeled from 0 to n - 1 represented by a 2D integer array tasks, where tasks[i] = [enqueueTimei, processingTimei] 
+means that the i​​​​​​th​​​​ task will be available to process at enqueueTimei and will take processingTimei to finish processing.
+
+If the CPU is idle and there are available tasks, the CPU will choose the one with the shortest processing time. If multiple tasks 
+have the same shortest processing time, it will choose the task with the smallest index.
+
+Return the order in which the CPU will process the tasks.
+
+Input: tasks = [[1,2],[2,4],[3,2],[4,1]]
+Output: [0,2,3,1]
+
+Input: tasks = [[7,10],[7,12],[7,5],[7,4],[7,2]]
+Output: [4,3,2,0,1]
+"""
+# idea:
+# sort tasks by start_time, length
+# start from the 1st job, add jobs into min heap by (start_time, original_idx) until curr_time
+# pop heap, and update curr_time
+# repeat
+
+from heapq import heappush, heappop
+class Solution:
+    def getOrder(self, tasks):
+        res = []
+        h = []
+        sorted_tasks = sorted([(task[0], task[1], i) for i, task in enumerate(tasks)], key=lambda x:x[0])  # start_time, last_time, idx
+        curr_time = sorted_tasks[0][0]
+        job_id = 0
+        while len(res) < len(sorted_tasks):
+            while job_id < len(sorted_tasks) and sorted_tasks[job_id][0] <= curr_time:
+                heappush(h, (sorted_tasks[job_id][1], sorted_tasks[job_id][2], sorted_tasks[job_id][0])) # last_time, idx, start_time
+                job_id += 1
+            
+            if h:
+                curr_last_time, curr_idx, curr_start_time  = heappop(h)
+                res.append(curr_idx)
+                curr_time += curr_last_time
+            else:
+                if job_id < len(sorted_tasks):
+                    # h is empty
+                    curr_time = sorted_tasks[job_id][0] # go to the next start time
+        
+        return res
+
+        
+"""1477. Find Two Non-overlapping Sub-arrays Each With Target Sum
+You are given an array of integers arr and an integer target.
+
+You have to find two non-overlapping sub-arrays of arr each with a sum equal target. There can be multiple answers so you 
+have to find an answer where the sum of the lengths of the two sub-arrays is minimum.
+
+Return the minimum sum of the lengths of the two required sub-arrays, or return -1 if you cannot find such two sub-arrays.
+
+1 <= arr[i] <= 1000  !! 
+
+Input: arr = [3,2,2,4,3], target = 3
+Output: 2
+Explanation: Only two sub-arrays have sum = 3 ([3] and [3]). The sum of their lengths is 2.
+
+Input: arr = [7,3,4,7], target = 7
+Output: 2
+Explanation: Although we have three non-overlapping sub-arrays of sum = 7 ([7], [3,4] and [7]), 
+but we will choose the first and third sub-arrays as the sum of their lengths is 2.
+
+Input: arr = [4,3,2,6,2,3,4], target = 6
+Output: -1
+Explanation: We have only one sub-array of sum = 6.
+"""
+# 1) create prefix sum, use a dict (cumsum -> idx) because all positive numbers! 
+# 2) for i, track of min_len on left (idx of cumsum[i] - target), and update left + right (idx of cumsum[i] + target)
+class Solution:
+    def minSumOfLengths(self, arr: List[int], target: int) -> int:
+        s, lsize, res = 0, float('inf'), float('inf')
+        prefixSum = { 0: -1 }
+        for i, val in enumerate(arr):
+            s += val
+            prefixSum[s] = i
+            
+        s = 0  # curr sum
+        for i, val in enumerate(arr):
+            s += val
+            if s - target in prefixSum: # left can be found
+                lsize = min(i - prefixSum[s - target], lsize)
+            if s + target in prefixSum and lsize != float('inf'): # right soln exists
+                rsize = prefixSum[s + target] - i
+                res = min(res, rsize + lsize)
+                
+        return res if res != float('inf') else -1
+
+
+"""489. Robot Room Cleaner
+Given a robot cleaner in a room modeled as a grid.
+Each cell in the grid can be empty or blocked.
+The robot cleaner with 4 given APIs can move forward, turn left or turn right. Each turn it made is 90 degrees.
+When it tries to move into a blocked cell, its bumper sensor detects the obstacle and it stays on the current cell.
+Design an algorithm to clean the entire room using only the 4 given APIs shown below.
+
+interface Robot {
+  // returns true if next cell is open and robot moves into the cell.
+  // returns false if next cell is obstacle and robot stays on the current cell.
+  boolean move();
+
+  // Robot will stay on the same cell after calling turnLeft/turnRight.
+  // Each turn will be 90 degrees.
+  void turnLeft();
+  void turnRight();
+
+  // Clean the current cell.
+  void clean();
+}
+
+Input:
+room = [
+  [1,1,1,1,1,0,1,1],
+  [1,1,1,1,1,0,1,1],
+  [1,0,1,1,1,1,1,1],
+  [0,0,0,1,0,0,0,0],
+  [1,1,1,1,1,1,1,1]
+],
+row = 1, col = 3
+
+Explanation:
+All grids in the room are marked by either 0 or 1.
+0 means the cell is blocked, while 1 means the cell is accessible.
+The robot initially starts at the position of row=1, col=3.
+From the top left corner, its position is one row below and three columns right.
+"""
+
+
+"""Robot clean up
+/**
+ * // This is the robot's control interface.
+ * // You should not implement it, or speculate about its implementation
+ * class Robot {
+ *   public:
+ *     // Returns true if the cell in front is open and robot moves into the cell.
+ *     // Returns false if the cell in front is blocked and robot stays in the current cell.
+ *     bool move();
+ *
+ *     // Robot will stay in the same cell after calling turnLeft/turnRight.
+ *     // Each turn will be 90 degrees.
+ *     void turnLeft();
+ *     void turnRight();
+ *
+ *     // Clean the current cell.
+ *     void clean();
+ * };
+ */
+ 
+class Solution {
+    
+    void dfs(Robot &robot, set<pair<int, int>>& visited, int i, int j, int dir) {
+        robot.clean();
+        visited.insert({i, j});
+        pair<int, int> directions[4] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+        for (int k = 0; k < 4; k++) {
+            int new_i = i + directions[dir].first;
+            int new_j = j + directions[dir].second;
+            if (visited.count({new_i, new_j}) == 0 && robot.move()) {
+                dfs(robot, visited, new_i, new_j, dir);
+                robot.turnRight();
+                robot.turnRight();
+                robot.move();
+                robot.turnRight();
+                robot.turnRight();
+            }
+            dir = (dir + 1) % 4;
+            robot.turnRight();
+        }
+    }
+    
+public:
+    void cleanRoom(Robot& robot) {
+        set<pair<int, int>> visited;
+        dfs(robot, visited, /*i=*/0, /*j=*/0, /*dir=*/0);
+    }
+};
+
+"""
 
 
 
@@ -3920,8 +4578,8 @@ sol.numSubseq([2,3,3,4,6,7], 12) # 61
 
 """ 按频率对数组排序
 Example:
-  input: [1, 3, 1, 1, 4, 2, 2, 3]
-  output: [1, 1, 1, 3, 3, 2, 2, 4]
+input: [1, 3, 1, 1, 4, 2, 2, 3]
+output: [1, 1, 1, 3, 3, 2, 2, 4]
 Have an O(nlogn) solution, but needs one O(n) solution
 
 bucket sort: index as freq
