@@ -1264,4 +1264,853 @@ sol.isMatchhelper("ab", ".*c", 2, 2)
 sol.isMatchhelper("a","ab*", 1,1 )
 sol.isMatch("aab", "c*a*b")
 sol.isMatch("mississippi", "mis*is*p*.")
+
+
+"""[LeetCode] 146. LRU Cache 最近最少使用页面置换缓存器 !!! (linked list solution)
+"""
+class Node:
+    def __init__(self, key=-1, val=-1, nxt=None, prev=None):
+        self.key, self.val, self.next, self.prev = key, val, nxt, prev
+
+class LinkedList:
+    def __init__(self):
+        self.head = self.tail = Node()
+        self.head.next, self.tail.prev = self.tail, self.head
+    
+    def remove(self, node):
+        prev_node, next_node = node.prev, node.next
+        prev_node.next, next_node.prev = next_node, prev_node
+        return None
+    
+    def appendleft(self, node):
+        head_next = self.head.next
+        self.head.next, head_next.prev, node.prev, node.next = \
+            node, node, self.head, head_next
+        return None
+
+    def pop(self):
+        if self.tail.prev != self.head:
+            node = self.tail.prev
+            self.remove(node)
+            return node
+    
+    def popleft(self):
+        if self.head.next != self.tail:
+            node = self.head.next
+            self.remove(node)
+            return node
+
+
+class LRUCache(object):
+    def __init__(self, capacity):
+        """
+        :type capacity: int
+        """
+        self.capacity = capacity
+        self.key2node = dict()
+        self.l = LinkedList()
         
+    def get(self, key):
+        """
+        :type key: int
+        :rtype: int
+        """
+        if key not in self.key2node:
+            return -1
+        node = self.key2node[key]
+        self.l.remove(node)
+        self.l.appendleft(node)  # add from head side
+        return node.val
+        
+    def put(self, key, value):
+        """
+        :type key: int
+        :type value: int
+        :rtype: None
+        """
+        if key in self.key2node:
+            self.l.remove(self.key2node[key])
+            self.key2node[key] = Node(key=key, val=value)
+            self.l.appendleft(self.key2node[key])
+        else:
+            self.key2node[key] = Node(key=key, val=value)
+            self.l.appendleft(self.key2node[key])
+            if len(self.key2node) > self.capacity:
+                key_to_del = self.l.pop().key
+                del self.key2node[key_to_del]
+        return None
+
+
+# Definition for a binary tree node.
+class Node:
+    def __init__(self, val=0, left=None, right=None):
+        self.val = val
+        self.left = left
+        self.right = right
+
+class BSTIterator:
+    def __init__(self, root):
+        self.stack = []
+        self.in_order(root) # recursively push left child
+
+    def in_order(self, node):
+        temp_stack = []
+        curr = node
+        while curr or temp_stack:
+            if curr:
+                temp_stack.append(curr)
+                curr = curr.left
+            else:
+                curr = temp_stack.pop()
+                # self.stack.append(curr)
+                print(curr.val)
+                curr = curr.right
+        print(self.stack)
+        return 
+
+    def next(self) -> int:
+        next_node = self.stack.pop()
+        return next_node.val
+        
+    def hasNext(self) -> bool:
+        return len(self.stack) > 0
+
+
+root = Node(1)
+root.left = Node(2)
+root.right = Node(3)
+root.left.left = Node(4)
+root.left.right = Node(5)
+
+sol=BSTIterator(root)
+sol.inOrder(root)
+
+s = "4(2(3)(1))(6(5))"
+class TreeNode:
+    def __init__(self, x):
+        self.val = x
+        self.left = None
+        self.right = None
+
+
+class Solution:
+    def str2tree(self, s):
+        self.m = self.match_pair_idx(s)
+        print(self.m)
+        root = self.str2treehelper(s, 0, len(s)-1)
+        return root
+    
+    def str2treehelper(self, s, start, end):
+        if start > end:
+            return None
+        root = TreeNode(int(s[start]))
+        if start == end:
+            return root
+        left = self.str2treehelper(s, start+2, self.m[start+1]-1)
+        root.left = left
+        if end > self.m[start+1]:
+            right = self.str2treehelper(s, self.m[start+1]+2, end-1)
+            root.right = right
+        return root
+
+    def match_pair_idx(self, s):
+        d = dict()
+        stack = []
+        for i in range(len(s)):
+            if s[i] == '(':
+                stack.append(i)
+            elif s[i] == ')':
+                d[stack.pop()] = i
+            else:
+                continue
+        return d
+
+sol=Solution()
+root = sol.str2tree("4(2(3)(1))(6(5))")
+inorder(root)
+def inorder(root):
+    if root is None:
+        return
+    inorder(root.left)
+    print(root.val)
+    inorder(root.right)
+    return 
+
+
+
+class Solution:
+    def wordBreak(self, s: str, wordDict: List[str]) -> bool:
+        wordSet = set(wordDict)
+        dp = [False] * len(s) # s[:i+1] 
+        for i in range(len(s)):
+            if s[:i+1] in wordSet:
+                dp[i] = True
+                continue
+            for j in range(i):
+                if s[j+1:i+1] in wordSet and s[:j+1]:
+                    dp[i] = True
+        return dp[-1]
+                
+sol = SOlu
+"catsandog"
+["cats","dog","sand","and","cat"]
+        
+"""1110. Delete Nodes And Return Forest
+"""
+# Definition for a binary tree node.
+# class TreeNode:
+#     def __init__(self, val=0, left=None, right=None):
+#         self.val = val
+#         self.left = left
+#         self.right = right
+
+class Solution:
+    def delNodes(self, root, to_delete):
+        to_del_set = set(to_delete)
+        res = []
+        self.delNodesHelper(root, None, None, to_del_set, res)
+        return res
+    
+    def delNodesHelper(self, node, prev, from_left, to_del_set, res):
+        if node is None:
+            return 
+        if node.val in to_del_set:
+            if prev:
+                if from_left:
+                    prev.left = None
+                else:
+                    prev.right = None
+            self.delNodesHelper(node.left, None, True, to_del_set, res)
+            self.delNodesHelper(node.right, None, False, to_del_set, res) 
+        else:
+            if prev is None:
+                res.append(node)
+            self.delNodesHelper(node.left, node, True, to_del_set, res)
+            self.delNodesHelper(node.right, node, False, to_del_set, res)
+        return 
+            
+
+
+"""
+Input: [10,5,15,1,8,null,7]
+
+   10 
+   / \ 
+  5  15 
+ / \   \ 
+1   8   7
+"""
+def largestBSTSubtree(root):
+    self.res = 1
+    self.dfs(root, float('-Inf'), float('Inf'))
+    return self.res
+
+def getBST(node, mn, mx):
+    if node is None:
+        return 0
+    if mx <= node.val or mn >= node.val:
+        return -1
+
+class Solution:
+    def findLadders(self, beginWord: str, endWord: str, wordList):
+        L = len(beginWord)
+        graph = defaultdict(list)
+
+        for word in wordList:
+            for i in range(L):
+                graph[word[:i] + '*' + word[i + 1:]].append(word)
+        print(graph)
+        queue = deque([(beginWord, [beginWord])])
+        seen = set()
+        seen.add(beginWord)
+        res = []
+
+        while queue:
+            queue_length = len(queue)
+            # bot -> hot -> cot, bot -> dot -> cot is valid,
+            # so we cannot add cot to global set before finishing current level.
+            new_nodes = set()
+            found = False
+
+            for _ in range(queue_length):
+                word, path = queue.popleft()
+
+                for i in range(L):
+                    transformed_word = word[:i] + '*' + word[i + 1:]
+
+                    for w in graph[transformed_word]:
+
+                        if w in seen:
+                            continue
+
+                        if w == endWord:
+                            path.append(endWord)
+                            res.append(path[:])
+                            path.pop()
+                            found = True
+                            continue
+
+                        new_nodes.add(w)
+                        path.append(w)
+                        queue.append((w, path[:]))
+                        path.pop()
+
+            # Found the shortest paths, bail early.
+            if found:
+                return res
+
+            seen.update(new_nodes)
+
+        return res
+
+sol=Solution()
+sol.findLadders(beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"])
+
+[["hit","hot","dot","dog","cog"],["hit","hot","lot","log","cog"]]
+
+
+for i in range(niter):
+    clusters = estimate_cluster(X, curr_centroids)
+    new_centroids = calc_centroids(X, clusters)
+    diff = get_dist(new_centroids, curr_centroids)
+    if diff < eps:
+        break
+    curr_centroids = new_centroids
+
+
+
+from heapq import heappush, heappop
+import numpy as np
+from scipy.stats import mode
+# Test distance function
+dataset = [[2.7810836,2.550537003,0],
+	[1.465489372,2.362125076,0],
+	[3.396561688,4.400293529,0],
+	[1.38807019,1.850220317,0],
+	[3.06407232,3.005305973,0],
+	[7.627531214,2.759262235,1],
+	[5.332441248,2.088626775,1],
+	[6.922596716,1.77106367,1],
+	[8.675418651,-0.242068655,1],
+	[7.673756466,3.508563011,1]]
+
+X_train = [d[:2] for d in dataset[1:]]
+y_train = [d[2] for d in dataset[1:]]
+X_test = [d[:2] for d in dataset[:2]]
+y_test = [d[2] for d in dataset[:2]]
+class KNN:
+    def knn(self, X_train, y_train, X_test, k):
+        predictions = []
+        for x in X_test:
+            idx = self.find_nn(x, X_train, k)
+            pred = mode(np.array(y_train)[idx])[0][0]
+            predictions.append(pred)
+        return predictions
+
+    def find_nn(self, x, train_data, k):
+        k = min(k, len(train_data))
+        q = [] # can also directly sort res by dist
+        for idx, train_i in enumerate(train_data):
+            curr_dist = self.get_dist(train_i, x)
+            heappush(q, (curr_dist, idx))
+        
+        res = []
+        for i in range(k):
+            res.append(heappop(q)[1])
+        return res
+
+    def get_dist(self, l1, l2):
+        return sum((np.array(l1) - np.array(l2)) ** 2)
+
+m1 = KNN()
+m1.knn(X_train, y_train, X_test, k)
+y_test
+
+nestedList = [[1,1],2,[1,1]]
+from collections import defaultdict
+class Solution:
+    def depthSumInverse(self, nestedList):
+        self.d = defaultdict(lambda :0)
+        self.getSum(nestedList, 1)
+        print(self.d)
+        max_lv = max(self.d.keys())
+        res = 0
+        for k, v in self.d.items():
+            res += (max_lv-k+1) * v
+        
+        return res
+
+    def getSum(self, nestedList, lv):
+        res = 0
+        for i in range(len(nestedList)):
+            if isinstance(nestedList[i], int):
+                res +=  nestedList[i]
+            else:
+                self.getSum(nestedList[i], lv+1)
+        self.d[lv] += res
+        return 
+
+sol=Solution()
+sol.depthSumInverse([[1,1],2,[1,1]])
+sol.depthSumInverse([1,[4,[6]]])
+
+
+
+class Solution:
+    def largestIsland(self, grid) -> int:
+        cur_id = 2
+        id2size = dict()
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 1:
+                    id2size[cur_id] = self.getCurrIslandSize(grid, i, j, cur_id)
+                    cur_id += 1
+        print(grid)
+        print(id2size)
+        res = 0
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 0:
+                    curr_max = self.get_max_size(grid, i, j, id2size)
+                    res = max(res, curr_max)
+        
+        return res if res > 0 else len(grid) * len(grid[0])
+    
+    def get_max_size(self, grid, i, j, id2size):
+        res = 1
+        id_set = set()
+        for n_i, n_j in self.get_nb(grid, i, j):
+            if grid[n_i][n_j] != 0 and grid[n_i][n_j] not in id_set:
+                res += id2size[grid[n_i][n_j]]
+                id_set.add(grid[n_i][n_j])
+        return res
+
+    def getCurrIslandSize(self, grid, i, j, cur_id):
+        res = 1
+        grid[i][j] = cur_id
+        for n_i, n_j in self.get_nb(grid, i, j):
+            if grid[n_i][n_j] == 1:
+                res += self.getCurrIslandSize(grid, n_i, n_j, cur_id)
+        return res
+
+    def get_nb(self, grid, i, j):
+        res = []
+        for di, dj in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
+            next_i, next_j = i+di, j+dj
+            if 0 <= next_i < len(grid) and 0<= next_j < len(grid[0]):
+                res.append((next_i, next_j))
+        return res
+
+sol=Solution()
+sol.largestIsland([[1,0],[0,1]])
+sol.largestIsland([[1,1],[1,0]])
+sol.largestIsland([[0,0],[0,0]])
+sol.largestIsland([[1,1],[1,1]])
+
+
+class UF:
+    def __init__(self, N):
+        self.parents = list(range(N))
+        self.weights = [0]*N
+
+    def find(self, x):
+        if self.parents[x] != x:
+            curr_parent = self.parents[x]
+            self.parents[x] = self.find(curr_parent)
+        return self.parents[x]
+
+    def union(self, x, y):
+        root_x = self.find(x)
+        root_y = self.find(y)
+        if root_x == root_y:
+            return
+        if self.weights[x] < self.weights[y]:
+            self.parents[root_x] = root_y
+            self.weights[root_y] += self.weights[root_x]
+        else:
+            self.parents[root_y] = root_x
+            self.weights[root_x] += self.weights[root_y]
+        return 
+    
+
+class Solution:
+    def accountsMerge(self, accounts):
+        uf = UF(len(accounts))  # account num 1-N, now need to find which nums should be unioned
+        email2id = defaultdict(int)
+        for idx, account in enumerate(accounts):
+            for i in range(1, len(account)):
+                if account[i] in email2id:
+                    uf.union(idx, email2id[account[i]])
+                else:
+                    email2id[account[i]] = idx
+        
+        # merge union accounts
+        id2emails = defaultdict(list)
+        for email in email2id.keys():
+            root_id = uf.find(email2id[email])
+            id2emails[root_id].append(email)
+
+        res = []
+        for root_id in id2emails.keys():
+            curr_res = [accounts[root_id][0]] + sorted(id2emails[root_id])
+            res.append(curr_res)
+        return res
+
+
+
+accounts = [["Hanzo","Hanzo2@m.co","Hanzo3@m.co"],["Hanzo","Hanzo4@m.co","Hanzo5@m.co"],["Hanzo","Hanzo0@m.co","Hanzo1@m.co"],
+["Hanzo","Hanzo3@m.co","Hanzo4@m.co"],["Hanzo","Hanzo7@m.co","Hanzo8@m.co"],["Hanzo","Hanzo1@m.co","Hanzo2@m.co"],
+["Hanzo","Hanzo6@m.co","Hanzo7@m.co"],["Hanzo","Hanzo5@m.co","Hanzo6@m.co"]]
+sol=Solution()
+sol.accountsMerge(accounts)
+
+
+class Solution:
+    def checkSubarraySum(self, nums, k: int) -> bool:
+        d = dict{0: -1}
+        cumsum = 0
+        for i, num in enumerate(nums):
+            cumsum += num
+            curr_key = cumsum % k if k != 0 else cumsum
+            if curr_key in d:
+                if i - d[curr_key] > 1:
+                    return True
+            else:
+                d[curr_key] = i
+        return False
+
+
+logs = ["0:start:0",  "1:start:2",  "1:end:5",  "0:end:6"]
+n = 2
+class Solution:
+    def exclusiveTime(self, n, logs):
+
+
+
+"""301. Remove Invalid Parentheses  !!!
+Given a string s that contains parentheses and letters, 
+remove the minimum number of invalid parentheses to make the 
+input string valid.
+
+Return all the possible results. You may return the answer in any order.
+
+Example 1:
+Input: s = "()())()"
+Output: ["(())()","()()()"]
+"""
+class Solution:
+    def removeInvalidParentheses(self, s: str):
+        l, r = self.count_invalid(s)
+        res = []
+        self.rmParenthesis(s, idx, l, r, res)
+        return res
+    
+    def rmParenthesis(s, start_idx, l_count, r_count, res):
+        if l_count == 0 and r_count == 0 and isValid(s):
+            res.append(s)
+            return 
+        for i in range(start_idx, len(s)):
+            if s[i] == '(' and l_count > 0:
+                self.rmParenthesis(s[:i] + s[i+1:], l_count-1, r_count, res)
+            if s[i] == ')' and r_count > 0:
+                self.rmParenthesis(s[:i] + s[i+1:], l_count, r_count-1, res)
+        return
+
+
+"""[LeetCode] Merge Intervals 合并区间 
+Given a collection of intervals, merge all overlapping intervals.
+
+For example,
+ Given [1,3],[2,6],[8,10],[15,18],
+ return [1,6],[8,10],[15,18]. 
+"""
+s = [[2,6],[8,10],[1,3],[15,18]]
+class Solution:
+    def mergeInterval(self, s):
+        s = sorted(s, key=lambda x:x[0])
+        res = []
+        start, end = s[0]
+        for interval in s[1:]:
+            if interval[0] <= end:
+                end = max(end, interval[1])
+            else:
+                res.append(start, end)
+                start, end = interval
+        
+        res.append([start, end])
+        return res
+
+
+class Solution:
+    def findDiagonalOrder(self, mat):
+        r, c= 0, 0
+        up = True
+        res = []
+
+        while True:
+            res.append(mat[r][c])
+            if stop:
+                break
+
+            if up:
+                r -= 1
+                c += 1
+            else:
+                r += 1
+                c -= 1
+
+            if r < 0 and c > m - 1:
+                r += 2
+                c -= 1
+            elif r < 0 :
+                r += 1
+            elif r > m-1 and c < 0:
+                r -= 1
+                c += 2
+            elif r>m-1:
+                c += 1
+                r -= 1
+
+
+class Solution:
+    def exclusiveTime(self, n, logs):
+        res = [0] * n
+        stack = []
+        for log in logs:
+            jid, status, t = log.split(':')
+            jid, t = int(jid), int(t)
+            if status == 'start':
+                if len(stack) == 0:
+                    stack.append([jid, t])
+                else:
+                    prev_jid, prev_t = stack[-1]
+                    res[prev_jid] += t - prev_t
+                    stack.append([jid, t])
+            else:
+                prev_jid, prev_t = stack.pop()
+                res[prev_jid] += t - prev_t + 1
+                if len(stack) > 0:
+                    stack[-1][1] = t + 1 # end defined at end of time
+        return res
+
+
+sol=Solution()
+sol.addOperators("123", 6)
+sol.addOperators("00", 0)
+class Solution:
+    def addOperators(self, num: str, target: int):
+
+    
+    def dfs(self, num, start_idx, curr, target, out, res):
+        if curr == target and start_idx == len(num):
+            res.append(out)
+            return
+        
+        for i in range(start_idx, len(num)):
+            prev_num = num[start_idx:i+1]
+            if prev_num[0] == '0' and len(prev_num) > 1:
+                return 
+            # +
+            self.dfs(num, i+1, curr + int(prev_num), target, out + "+" + prev_num, res)
+            # -
+            self.dfs(num, i+1, curr - int(prev_num), target, out + "-" + prev_num, res)
+            # * 
+
+        return
+
+
+class Solution:
+    def sumNumbers(self, root) -> int:
+        return self.helper(root, 0)
+
+    def helper(node, res):
+        if node is None:
+            return res
+        if node.left is None and node.right is None:
+            return node.val + res*10
+        res_left = self.helper(node.left, node.val + res*10)
+        res_right = self.helper(node.right, node.val + res*10)
+        return res_left + res_right
+
+
+
+class Codec:
+    def serialize(self, root):
+    
+
+    def deserialize(self, data):
+        # data: list
+        if len(data) == 0:
+            return 
+        root = TreeNode(data[0])
+        q = deque()
+        q.append(root)
+        idx = 1
+        while q:
+            curr_node = q.popleft()
+            if idx < len(data) and data[idx]:
+                curr_node.left = TreeNode(data[idx])
+                q.append(curr_node.left)
+            idx += 1
+            if idx < len(data) and data[idx]:
+                curr_node.right = TreeNode(data[idx])
+                q.append(curr_node.right)
+            idx += 1
+        return root
+
+
+    
+
+def construct(input):
+    self.num_nodes = 0
+    construct_at_depth(input, 1)
+    
+
+def construct_at_depth(input, level):
+    if not input:
+        return None
+    node = TreeNode(val=0)
+    if input[0][1] < level:
+        return False
+    if input[0][1] == level:
+        node.left = input[0][0]
+        node.right = construct_at_depth(input[1:], level+1)
+    if input[0][1] 
+    
+
+
+class Pair {
+    char c;
+    int level;
+}
+class TreeNode {
+      char val;
+      TreeNode left;
+      TreeNode right;
+      TreeNode(char val) { this.val = val; }
+  }
+public class TreeBuilder {
+    public static TreeNode buildTree(Pair[] inputs) {
+        TreeMap<Integer, PriorityQueue<Character>> charsByLevel = new TreeMap<>();
+        for (Pair p: inputs) {
+            charsByLevel.computeIfAbsent(p.level, key -> new PriorityQueue<>()).offer(p.c);
+        }
+        TreeNode root = recursiveHelper(charsByLevel, 0);
+        if (!charsByLevel.isEmpty()) {
+            return null;
+        }
+        return root;
+    }
+    private static TreeNode recursiveHelper(TreeMap<Integer, PriorityQueue<Character>> charsByLevel, int level) {
+        // we stop in this case because no leaves above this level exist.
+        if (charsByLevel.ceilingKey(level) == null) {
+            return null;
+        }
+        TreeNode curNode;
+        if (charsByLevel.containsKey(level)) {
+            curNode = new TreeNode(charsByLevel.get(level).poll());
+            if (charsByLevel.get(level).isEmpty()) {
+                charsByLevel.remove(level);
+            }
+        } else {
+            curNode = new TreeNode('*');
+            curNode.left = recursiveHelper(charsByLevel, level + 1);
+            curNode.right = recursiveHelper(charsByLevel, level + 1);
+        }
+        return curNode;
+    }
+}
+
+
+def bin_search(nums, target):
+    left, right = 0, len(nums)
+    while left < right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            return mid
+        if nums[mid] > target:
+            right = mid
+        else:
+            left = mid + 1
+    
+    return -1
+
+class Node:
+    def __init__(self, val):
+        self.left = None
+        self.right = None
+        self.val = val
+
+
+class Codec:
+    def serialize(self, root):
+        if root is None:
+            return [None]
+        q = deque()
+        q.append(root)
+        res = []
+        while len(q) > 0:
+            for _ in range(len(q)):
+                curr_node = q.popleft()
+                if curr_node is None:
+                    res.append(None)
+                else:
+                    res.append(curr_node.val)
+                    q.append(curr_node.left)
+                    q.append(curr_node.right)
+        return res
+    
+    def deserialize(self, data):
+        root = Node(data[0]) if data[0] else None
+        q = deque()
+        q.append(root)
+        idx = 1
+        while idx < len(val):
+            curr_node = q.popleft()
+            if data[idx] is not None:
+                curr_node.left = Node(data[idx])
+                q.append(curr_node.left)
+            idx += 1
+            if data[idx] is not None:
+                curr_node.right = Node(data[idx])
+                q.append(curr_node.right)
+            idx += 1
+        return root
+
+"""
+For example, you may serialize the following tree
+    1
+   / \
+  2   3
+     / \
+    4   5
+as "[1,2,3,null,null,4,5,null,null,null,null]", just the same as how LeetCode OJ serializes a binary tree. You do not necessarily need to
+follow this format, so please be creative and come up with different approaches yourself.
+"""
+class Codec:
+    def serialize_helper(self, node, res):
+        if node is None:
+            res.append(None)
+            return 
+        res.append(node.val)
+        self.serialize_helper(node.left, res)
+        self.serialize_helper(node.right, res)
+        return
+
+    def serialize(self, root):
+        res = []
+        self.serialize_helper(root, res)
+        return res
+
+    def deserialize_helper(self, data):
+        if len(data) == 0 or data[0] == None:
+            return None
+        node = Node(data[0])
+        data = data[1:]
+        node.left = self.deserialize_helper(data)
+        node.right = self.deserialize_helper(data)
+        return node
+
+    def deserialize(self, data):
+        root = self.deserialize_helper(data)
+        return root

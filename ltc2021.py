@@ -24,6 +24,7 @@ Leetcode by categories and ds
 Sort 排序类
 ############################################################################
 OrderedDict: popitem() will pop the most recent item
+-- hashmap.popitem(last=False) # O(1)
 """
 
 """[LeetCode] 148. Sort List 链表排序
@@ -1456,8 +1457,8 @@ class RandomizedSet:
         # swap val location with the last one, then pop from vector
         if val in self.val2index:
             location = self.val2index[val]
+            self.val2index[self.vector[-1]] = location
             self.vector[location], self.vector[-1] = self.vector[-1], self.vector[location]
-            self.val2index[self.vector[location]] = location
             del self.val2index[val]
             self.vector.pop()
             self.size = self.size - 1
@@ -1610,8 +1611,8 @@ Heap／Priority Queue题目
 ############################################################################
 import heapq # python only support min heap
 heapq.heappush(q, x); x=heapq.heappop(q) # min
-heapq.nsmallest(k, q, key) # return the k smallest
-heapq.nlargest(k, q, key=None)  # return k largest 
+heapq.nsmallest(k, q, key) # return the k smallest, klogn, [note: sum(logn) ~ nlogn]
+heapq.nlargest(k, q, key=None)  # return k largest , klogn
 
 # example: 
 tags = [ ("python", 30), ("ruby", 25), ("c++", 50), ("lisp", 20) ]
@@ -2004,6 +2005,7 @@ Follow up: bucket search
 # obj = MedianFinder()
 # obj.addNum(num)
 # param_2 = obj.findMedian()
+# T(n) = logn + T(n-1) = logn! = nlogn
 import heapq
 class MedianFinder:
     def __init__(self):
@@ -3742,7 +3744,7 @@ For example, you may serialize the following tree
   2   3
      / \
     4   5
-as "[1,2,3,null,null,4,5]", just the same as how LeetCode OJ serializes a binary tree. You do not necessarily need to
+as "[1,2,3,null,null,4,5,null,null,null,null]", just the same as how LeetCode OJ serializes a binary tree. You do not necessarily need to
 follow this format, so please be creative and come up with different approaches yourself.
 """
 # Definition for a binary tree node.
@@ -3831,12 +3833,6 @@ class Codec:
         if data[0] == '' or data[0] == '#':
             return None
         return self.deserialize_helper(data)
-
-        # root = TreeNode(int(data[0]))
-        # data = ','.join(data[1:])
-        # root.left = self.deserialize(data)
-        # root.right = self.deserialize(data)
-        # return root
         
     def deserialize_helper(self, res):
         # res is a list
@@ -10203,8 +10199,8 @@ class Solution:
 # left[i]: max height on the left of height[i]
 # right[i]:max height on the right of height[i]
 # the water that point i can contribute is: min(l, r) - height[i]
-# left[i] = max(height[i], left[i-1])
-# right[i] = max(height[i], right[i+1])
+# left[i] = max(height[i], left[i-1]) if i>0 else height[i]
+# right[i] = max(height[i], right[i+1]) if i<len(height)-1 else height[i]
 """
 // Author: Huahua
 class Solution {
@@ -10839,7 +10835,7 @@ class MyCalendar:
         if start in self.treemap:
             return False
         keys = self.treemap.keys() # sorted, O(1)
-        floor = bisect.bisect(keys, start) - 1
+        floor = bisect.bisect(keys, start) - 1  # keys[i] < start for i <= floor
         ceiling = floor + 1
         if floor >= 0:
             # [s, e) (floor), [start, end), [s, e) (ceiling)
@@ -12897,6 +12893,7 @@ class Solution:
 
 sol=Solution()
 sol.change(5, [1, 2, 5])
+
 # DFS+cache trick
 class Solution:
     def change(self, amount: int, coins) -> int:
@@ -13479,7 +13476,7 @@ for i = 1,...,N
 dp[i][j]表示将前i种物品装进限重为j的背包可以获得的最大价值, 0<=i<=N, 0<=j<=W
 这个状态转移方程与01背包问题唯一不同就是max第二项不是dp[i-1]而是dp[i]。
 i.e., 
-dp[i][j] = max(dp[i-1][j], dp[i][j-weights[i]] + values[i])
+dp[i][j] = max(dp[i-1][j], dp[i][j-weights[i]] + values[i-1])
 
 if reduce space complexity using 1-d
 // 完全背包问题思路一伪代码(空间优化版)

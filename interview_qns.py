@@ -2526,22 +2526,54 @@ def product(d1, d2):
                 res += d1[k] * d2[k]
     return res
 
-# 
-A = [[(0, 1)], [(0, -1), (2, 3)]]
-B = [[(0, 7)], [], [(2, 1)]]
+# Another way to reduce runtime but increase storage: 
+Arow = [[(0, 1)], [(0, -1), (2, 3)]]  # A[i] means ith row, [[1, 0, 0], [-1, 0, 3]]
+Bcol = [[(0, 7)], [], [(2, 1)]]  # B[k] means kth col, [[7, 0], [0, 0], [1, 0]]
 colB = 3
 C = [[0]*colB for _ in range(len(A))]
 # C is not in sparse format, needs to convert
 class Solution:
     def multiply(self, A, B, colB):
-        C = [[0]*colB for _ in range(len(A))]
+        # C = [[0]*colB for _ in range(len(A))]
+        C = [[] for _ in range(len(A))]
         for i in range(len(A)):
+            res = 0
             for k, val in A[i]:
                 # C[i][j] = A[i][k] * B[k][j]
                 for j, valb in B[k]:
-                    C[i][j] += val * valb
+                    res += val * valb  # C[i][j]
+            if res != 0:
+                C[i].append((j, res))  # rowi, colj
         return C
 
+
+from copy import deepcopy
+class SparseMatrix:
+    def __init__(self, nrow, ncol, S):
+        self.nrow = nrow
+        self.ncol = ncol
+        self.S = S
+    
+    def matmul(self, B):
+        # S * B
+        res = dict()
+        for (i, k), val in self.S.items():
+            for j in range(B.ncol):
+                if (k, j) in B.S:
+                    res[(i, j)] = res.get((i, j), 0) + self.S[(i, k)] * B.S[(k, j)]
+        return SparseMatrix(self.nrow, B.ncol, res)
+
+    def add(self, B):
+        assert self.nrow==B.nrow and self.ncol==B.ncol
+        res_dict = deepcopy(self.S)
+        for (i, j), val in B.S.items():
+            res_dict[(i, j)] = res_dict.get((i,j), 0) + val
+        return SparseMatrix(self.nrow, self.ncol, res_dict)
+
+
+matA = SparseMatrix(3, 1, {(2,0):5})
+matB = SparseMatrix(1, 3, {(0,2):5})
+matA.matmul(matB).S
 
 """68. Text Justification
 Given an array of strings words and a width maxWidth, format the text such that each line has exactly 
