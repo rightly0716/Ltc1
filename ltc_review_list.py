@@ -1,4 +1,16 @@
-"""[LeetCode] 215. Kth Largest Element in an Array 数组中第k大的数字
+"""
+In Ltc, some questions need hard memory
+This file contains such questions
+"""
+
+"""写一个quicksort来找arr的第k大的数字
+1. partition 
+- 函数 while是<=, 先写swap的逻辑(不然可能在不满足left<=right的条件下错误swap)
+- 非swap条件都包括=
+2. 主函数while可以是true,想清楚什么时候left=pivot_index+1
+
+[LeetCode] 215. Kth Largest Element in an Array 数组中第k大的数字
+
 Find the kth largest element in an unsorted array. Note that it is the kth largest element in the 
 sorted order, not the kth distinct element.
 
@@ -16,7 +28,6 @@ Output: 4
 Note: 
 You may assume k is always valid, 1 ≤ k ≤ array's length.
 """
-
 class kthlargest:
     def findKthLargest(self, arr, k):
         n=len(arr)
@@ -49,9 +60,6 @@ class kthlargest:
         arr[left], arr[r_index] = arr[r_index], arr[left]
         return r_index
 
-arr=[3,2,3,1,2,4,5,5,6] 
-k=4
+arr=[3,2,3,1,2,4,5,5,6]; k=4
 solution=kthlargest()
 solution.findKthLargest(arr, k)
-
-
