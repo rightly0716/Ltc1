@@ -341,9 +341,7 @@ Explanation: There is a cycle in the linked list, where tail connects to the sec
 这个求单链表中的环的起始点是之前那个判断单链表中是否有环的延伸，可参之前那道 Linked List Cycle。这里还是要设快慢指针，
 不过这次要记录两个指针相遇的位置，当两个指针相遇了后，让其中一个指针从链表头开始，
 此时再相遇的位置就是链表中环的起始位置，为啥是这样呢，这里直接贴上热心网友「飞鸟想飞」的解释哈，
-因为快指针每次走2，慢指针每次走1，快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。所以 head 
-到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。现在重新开始，head 运行到环起点 和 相遇点到环起点 
-的距离也是相等的，相当于他们同时减掉了 环的起点到他们相遇的点的距离。
+因为快指针每次走2，慢指针每次走1，快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。所以 head到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。现在重新开始，head 运行到环起点 和 相遇点到环起点的距离也是相等的，相当于他们同时减掉了 环的起点到他们相遇的点的距离。
 because AB = m*l, then BC-AC=l-CB-AC=l-m*l  (A:head, B: fast catch slow, C: head of cycle)
 class Solution {
 public:
@@ -438,8 +436,8 @@ Stack: string processing, calculator,
 """ Stack and (de)queue in python
 stack = []
 stack.append('a')
-print(stack.pop())   # pop the last
-print(stack.pop(0))  # pop the first
+print(stack.pop())   # pop the last, O(1)
+print(stack.pop(0))  # pop the first, O(n)
 
 from collections import deque
 d = deque()
@@ -651,8 +649,7 @@ push(x) -- Push element x onto stack.
 pop() -- Remove the element on top of the stack and return it.
 top() -- Get the element on the top.
 peekMax() -- Retrieve the maximum element in the stack.
-popMax() -- Retrieve the maximum element in the stack, and remove it. If you find more than one maximum elements, 
-only remove the top-most one.
+popMax() -- Retrieve the maximum element in the stack, and remove it. If you find more than one maximum elements, only remove the top-most one.
 
 Example 1:
 MaxStack stack = new MaxStack();
@@ -762,8 +759,7 @@ class Solution:
 Implement a basic calculator to evaluate a simple expression string.
 
 The expression string may contain open ( and closing parentheses ), the plus + or minus sign -, non-negative integers and empty spaces .
-The expression string contains only non-negative integers, +, -, *, / operators , open ( and closing parentheses ) 
-and empty spaces . The integer division should truncate toward zero.
+The expression string contains only non-negative integers, +, -, *, / operators , open ( and closing parentheses ) and empty spaces . The integer division should truncate toward zero.
 
 You may assume that the given expression is always valid. All intermediate results will be in the range of [-2147483648, 2147483647].
 
@@ -817,33 +813,34 @@ class Solution:
         # https://www.youtube.com/watch?v=Tm_hHBhQgII&t=682
         Stack = []
         n = len(s)
-        temp = ''
+        curr_num_str = ''
+        sign = 1
         op = '+' # previous operator
         for i in range(n):
             if s[i].isdigit():
-                temp = temp + s[i]
+                curr_num_str = curr_num_str + s[i]
             if s[i] in ['+', '-', '*', '/'] or i == n-1:
-                if 0 < i < n-1 and not s[i-1].isdigit():
+                if i==0 or (i < n-1 and not s[i-1].isdigit()):
                     # not an operator but a sign, can only be + or -
                     # *-4, --4, +-4
                     if s[i] == '-':
-                        temp = '-' + temp  # if ---4 then fails and need a sign instead
+                        sign = sign * -1
+                        # curr_num_str = '-' + curr_num_str  # if ---4 then fails
                 else:
                     # if operator, need previous operator
                     if op == '-':
-                        if temp != '':
-                            Stack.append(int(temp) * -1)
+                        Stack.append(int(curr_num_str) * sign * -1)
                     elif op == '+':
-                        if temp != '':
-                            Stack.append(int(temp))
+                        Stack.append(int(curr_num_str) * sign)
                     elif op == '*':
                         top_num = Stack.pop()
-                        Stack.append(top_num*int(temp))
+                        Stack.append(top_num*int(curr_num_str) * sign)
                     elif op == '/':
                         top_num = Stack.pop()
-                        Stack.append(int(top_num / int(temp)))
+                        Stack.append(int(top_num  * sign/ int(curr_num_str)))
+                    sign = 1
                     op = s[i]
-                    temp = ''
+                    curr_num_str = ''
         res = 0
         while len(Stack) > 0:
             res  = res + Stack.pop()
@@ -855,13 +852,13 @@ def calculator2(s):
     # https://www.youtube.com/watch?v=Tm_hHBhQgII&t=682
     s = str.replace(s, " ", "") 
     # Stack = []
-    prev_num, curr_num = 0, 0
+    prev_num, curr_num = 0, 0  # 2-size stack: [prev_num, curr_num]
     s = '+' + s
     i = 0
     while i < len(s):
         if s[i] in ['+', '-']:
-            curr_num += prev_num
-            prev_num = 0
+            prev_num += curr_num
+            curr_num = 0
             j = i + 1  # + -456 -> + int(-456)
             if s[j] in ['+', '-']:
                 j += 1  # sign instead of op
@@ -869,10 +866,10 @@ def calculator2(s):
                 j += 1
             if s[i] == '+':
                 # Stack.append(int(s[i+1:j]))
-                prev_num = int(s[i+1:j])
+                curr_num = int(s[i+1:j])
             else:
                 # Stack.append(-1 * int(s[i+1:j]))
-                prev_num = -1 * int(s[i+1:j])
+                curr_num = -1 * int(s[i+1:j])
             i = j
         elif s[i] in ['*', '/']:
             j = i + 1  # + -456 -> + int(-456)
@@ -882,10 +879,10 @@ def calculator2(s):
                 j += 1
             if s[i] == '*':
                 # Stack[-1] = Stack[-1]*int(s[i+1:j])
-                prev_num *= int(s[i+1:j])
+                curr_num *= int(s[i+1:j])
             else:
                 # Stack[-1] = int(Stack[-1] / int(s[i+1:j]))
-                prev_num = int(prev_num / int(s[i+1:j]))
+                curr_num = int(curr_num / int(s[i+1:j]))
             i = j  
         else:
             i += 1            
@@ -894,63 +891,58 @@ def calculator2(s):
 
 calculator2("2 * -4")
 calculator2("2 * -4 --5")
-"14-3/2"
-s="2 * -4"
 
 # Solution 2 for calculator 3: combine together, can handle 2*(2-4)
 def calculator3(s):
     m = dict()  # map all ( and ) pair location
-    stack=[]
+    stack = []  # for parenthesis location
     for i in range(len(s)):
         if s[i] == '(':
             stack.append(i)
         if s[i] == ')':
             m[stack.pop()] = i
 
-    op = '+'  # previous operator
-    curr_num = ''
+    op, curr_num = '+', ''  # previous operator
     n = len(s)
-    stack = []  # may not need 
+    stack = []  # can use prev_num and curr_num to save ram
+    sign = 1
     i = 0
     while i < n: # cannot use FOR because i needs to update in loop at '('
         if s[i].isdigit(): # 0-9
             curr_num = curr_num + s[i]
-        if s[i] in ['(']:
+        if s[i] == '(':
             # treat the part between ( and ) as a number (curr_num)
-            cnt = 0
-            curr_i = i
             j = m[i]
-            i = j  # set i at the location of )
-            sub_string = s[curr_i+1:j]
+            sub_string = s[(i+1):j]
             curr_num = calculator3(sub_string)
+            i = j  # set i at the location of )
         if s[i] in ['+', '-', '*', '/'] or i == n-1:
-            if op == '+':
-                if curr_num != '': # -4*3
-                    stack.append(int(curr_num))
-            if op == '-':
-                stack.append(int(curr_num) * -1)
-            if op =='*':
-                previous_num = stack.pop()
-                stack.append(previous_num * int(curr_num))
-            if op == '/':
-                previous_num = stack.pop()
-                stack.append(int(previous_num / int(curr_num)))
-            op = s[i]
-            curr_num = ''
+            if i==0 or (i<n-1 and not s[i-1].isdigit() and s[i-1] not in '()'):
+                # sign, not a op
+                if s[i] == '-':
+                    sign = sign * -1
+            else:
+                # if s[i] is a operator, not a sign
+                if op == '+':
+                    stack.append(int(curr_num) * sign)
+                if op == '-':
+                    stack.append(int(curr_num) * -1 * sign)
+                if op =='*':
+                    previous_num = stack.pop()
+                    stack.append(previous_num * int(curr_num) * sign)
+                if op == '/':
+                    previous_num = stack.pop()
+                    stack.append(int(previous_num / int(curr_num)) * sign)
+                sign = 1  # reset sign!
+                op = s[i]
+                curr_num = ''
         i = i + 1
-    
-    res = 0
-    while len(stack) > 0:
-        res = res + stack.pop()
-    return res
 
+    return sum(stack)
 
-calculator3("4*(2-4)")
-calculator3("4*(1-2)")
-calculator3("-4*(1-2)")
-calculator3(s1) # -12
-calculator(s2) # 21
-calculator(s3) # 4
+calculator3("1-(-2)*5")
+calculator3("2+6*3+5-(3*14/7+2)*5+3")==eval("2+6*3+5-(3*14/7+2)*5+3")
+calculator3("-4*(-1-2)")
 
 
 """[LeetCode] 1472. Design Browser History
