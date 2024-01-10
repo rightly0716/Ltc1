@@ -3,6 +3,34 @@ In Ltc, some questions need hard memory
 This file contains such questions
 """
 
+
+"""
+in python, one can use OrderedDict (a dict that has popitem() to remove the last or first key)
+"""
+from collections import OrderedDict
+hashmap = OrderedDict()
+hashmap.pop(key)
+hashmap.popitem(last=False) # O(1)
+
+
+""" Stack and (de)queue in python
+stack = []
+stack.append('a')
+print(stack.pop())   # pop the last, O(1)
+print(stack.pop(0))  # pop the first, O(n)
+
+from collections import deque
+d = deque()
+d.append('j')
+d.appendleft('f')
+d.pop()  # pop from right
+d[-1] # peek from right
+d.popleft() 
+d[0]  # peek from left
+d.extend('jkl')  # add multiple elements at once
+"""
+
+
 """写一个quicksort来找arr的第k大的数字
 1. partition 
 - 函数 while是<=, 先写swap的逻辑(不然可能在不满足left<=right的条件下错误swap)
@@ -175,3 +203,59 @@ def calculator3(s):
 calculator3("1-(-2)*5")
 calculator3("2+6*3+5-(3*14/7+2)*5+3")==eval("2+6*3+5-(3*14/7+2)*5+3")
 calculator3("-4*(-1-2)")
+
+class node:
+    def __init__(self, val=None, prev=None, next=None):
+        self.val = val
+        self.next = None
+        self.prev = None
+    
+class LinkedList:
+    def __init__(self):
+        self.head = self.tail = Node()
+        self.head.next, self.tail.prev = self.tail, self.head
+    
+    def remove(self, node):
+        node.next.prev, node.prev.next = node.prev, node.next
+    
+    def appendleft(self, node):
+        old_first_node = self.head.next
+        self.head.next, node.prev = node, self.head
+        old_first_node.prev, node.next = node, old_first_node
+        
+
+
+    def pop(self):
+
+    
+    def popleft(self):
+
+
+class LRU:
+    def __init__(self, capacity):
+        self.capacity = capacity
+        self.llist = LinkedList()
+        self.node2val = dict()
+    
+    def get(self, key):
+        curr_node = node(key)
+        if curr_node in self.node2val:
+            self.llist.remove(curr_node)
+            self.llist.appendleft(curr_node)
+            return self.node2val[curr_node]
+        return -1
+
+    def put(self, key, value):
+        curr_node = node(key)
+        if curr_node in self.node2val:
+            self.llist.remove(curr_node)
+            self.llist.appendleft(curr_node)
+        else:
+            self.llist.appendleft(curr_node)
+            if len(self.node2val) > capacity:
+                key_rm = self.llist.pop()
+                del self.node2val[node(key_rm)]
+        self.node2val[curr_node] = value
+
+
+

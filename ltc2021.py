@@ -1211,8 +1211,7 @@ sol.asteroidCollision(asteroids)
 Design and implement a data structure for Least Recently Used (LRU) cache. It should support the following operations: get and put.
 
 get(key) - Get the value (will always be positive) of the key if the key exists in the cache, otherwise return -1.
-put(key, value) - Set or insert the value if the key is not already present. When the cache reached its 
-capacity, it should invalidate the least recently used item before inserting a new item.
+put(key, value) - Set or insert the value if the key is not already present. When the cache reached its capacity, it should invalidate the least recently used item before inserting a new item.
 
 Follow up:
 Could you do both operations in O(1) time complexity?
@@ -1315,6 +1314,7 @@ class LinkedList:
 
 
 class LRUCache:
+    # 另一种思路是用node2val作为dict，node里面存key
     def __init__(self, capacity):
         """
         :type capacity: int
@@ -1353,10 +1353,10 @@ class LRUCache:
                 del self.key2node[key_to_del]
         return None
 
+
 """[LeetCode] Set Matrix Zeroes 矩阵赋零
 Given a m x n matrix, if an element is 0, set its entire row and column to 0. Do it in place.
-Follow up:
-Did you use extra space?
+Follow up: Did you use extra space?
 
 A straight forward solution using O(mn) space is probably a bad idea.
 A simple improvement uses O(m + n) space, but still not the best solution.
