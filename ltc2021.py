@@ -1460,7 +1460,7 @@ class RandomizedSet:
 
     def getRandom(self) -> int:
         rand_index = random.randint(0, self.size-1)
-        return self.vector[rand_index]
+        return self.vector[rand_index] # or random.choice(self.vector)
 
 
 # Your RandomizedSet object will be instantiated and called as such:
@@ -1530,20 +1530,20 @@ Explanation: Bulls are connected with a '|' and cows are underlined:
 # omit
 # you can only go through strings for once (see below)
 # can also run through twice, note that when secret[i] == guess[i], do not add in hashmap (B)
+from collections import defaultdict
 def getHint(secret, guess):
     bulls, cows = 0, 0
-    dp1, dp2 = {}, {} # keep dictionaries of values which are not bulls
+    d1, d2 = defaultdict(lambda: 0), defaultdict(lambda: 0) # keep dictionaries of values which are not bulls
     for n1, n2 in zip(secret, guess):
         if n1 == n2:
             bulls += 1
         else:
-            dp1[n1] = 1 if n1 not in dp1 else dp1[n1] + 1
-            dp2[n2] = 1 if n2 not in dp2 else dp2[n2] + 1
-    for k, v in dp2.items(): # go through your guess, determine if each digit is a cow
-        v2 = dp1[k] if k in dp1 else None
-        if v2 is not None:
-            cows += min(v, v2)
-    return str(bulls) + "A" + str(cows) + "B"
+            d1[n1] += 1
+            d2[n2] += 1
+    for k2, v2 in d2.items(): # go through your guess, determine if each digit is a cow
+        v1 = d1[k2] 
+        cows += min(v1, v2)
+    return f"{bulls}A{cows}B"
 
 
 """Design Tic-Tac-Toe 设计井字棋游戏 
@@ -1594,7 +1594,7 @@ class TicTacToe:
 
 """
 ############################################################################
-Heap／Priority Queue题目
+Heap/Priority Queue题目
 # time complexity of building a heap is O(n)
 # https://www.geeksforgeeks.org/time-complexity-of-building-a-heap/
 # insert/remove max from max heap is O(logn)
@@ -1644,7 +1644,7 @@ class Solution:
         for (x, y) in points:
             dist = -(x*x + y*y)
             if len(heap) == K:
-                heapq.heappushpop(q, (dist, x, y))
+                heapq.heappushpop(q, (dist, x, y))  # more efficient than push+pop
             else:
                 heapq.heappush(q, (dist, x, y))
         return [(x,y) for (dist,x, y) in q]

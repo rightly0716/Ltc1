@@ -55,69 +55,24 @@ solution=kthlargest()
 solution.findKthLargest(arr, k)
 
 
-"""[LeetCode] 772. Basic Calculator III 基本计算器之三 !!!
-Implement a basic calculator to evaluate a simple expression string.
+from collections import defaultdict
 
-The expression string may contain open ( and closing parentheses ), the plus + or minus sign -, non-negative integers and empty spaces .
-The expression string contains only non-negative integers, +, -, *, / operators , open ( and closing parentheses ) and empty spaces . The integer division should truncate toward zero.
+def getHint(secret, guess):
+    d1, d2 = defaultdict(lambda: 0), defaultdict(lambda: 0)
+    A, B = 0, 0
+    for num1, num2 in zip(secret, guess):
+        if num1 == num2:
+            A += 1
+        else:
+            if d1[num2] > 0:
+                B += 1
+                d1[num2] -= 1
+            if d2[num1] > 0:
+                B += 1
+                d2[num1] -= 1
+            d2[num2] += 1
+            d1[num1] += 1
+    return f"{A}A{B}B"
 
-You may assume that the given expression is always valid. All intermediate results will be in the range of [-2147483648, 2147483647].
 
-Some examples:
-"1 + 1" = 2
-" 6-4 / 2 " = 4
-"2*(5+5*2)/3+(6/2+8)" = 21
-"(2+6* 3+5- (3*14/7+2)*5)+3"=-12
-
-Note: Do not use the eval built-in library function.
-"""
-def calculator3(s):
-    m = dict()  # map all ( and ) pair location
-    stack = []  # for parenthesis location
-    for i in range(len(s)):
-        if s[i] == '(':
-            stack.append(i)
-        if s[i] == ')':
-            m[stack.pop()] = i
-
-    op, curr_num = '+', ''  # previous operator
-    n = len(s)
-    stack = []  # can use prev_num and curr_num to save ram
-    sign = 1
-    i = 0
-    while i < n: # cannot use FOR because i needs to update in loop at '('
-        if s[i].isdigit(): # 0-9
-            curr_num = curr_num + s[i]
-        if s[i] == '(':
-            # treat the part between ( and ) as a number (curr_num)
-            j = m[i]
-            sub_string = s[(i+1):j]
-            curr_num = calculator3(sub_string)
-            i = j  # set i at the location of )
-        if s[i] in ['+', '-', '*', '/'] or i == n-1:
-            if i==0 or (i<n-1 and not s[i-1].isdigit() and s[i-1] not in '()'):
-                # sign, not a op
-                if s[i] == '-':
-                    sign = sign * -1
-            else:
-                # if s[i] is a operator, not a sign
-                if op == '+':
-                    stack.append(int(curr_num) * sign)
-                if op == '-':
-                    stack.append(int(curr_num) * -1 * sign)
-                if op =='*':
-                    previous_num = stack.pop()
-                    stack.append(previous_num * int(curr_num) * sign)
-                if op == '/':
-                    previous_num = stack.pop()
-                    stack.append(int(previous_num / int(curr_num)) * sign)
-                sign = 1  # reset sign!
-                op = s[i]
-                curr_num = ''
-        i = i + 1
-
-    return sum(stack)
-
-calculator3("1-(-2)*5")
-calculator3("2+6*3+5-(3*14/7+2)*5+3")==eval("2+6*3+5-(3*14/7+2)*5+3")
-calculator3("-4*(-1-2)")
+getHint("2962","7236") # '0A2B'

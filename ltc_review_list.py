@@ -14,6 +14,7 @@ hashmap.popitem(last=False) # O(1)
 
 
 """ Stack and (de)queue in python
+"""
 stack = []
 stack.append('a')
 print(stack.pop())   # pop the last, O(1)
@@ -28,7 +29,33 @@ d[-1] # peek from right
 d.popleft() 
 d[0]  # peek from left
 d.extend('jkl')  # add multiple elements at once
+
+"""Heap/Priority Queue
+# time complexity of building a heap is O(n)
+# https://www.geeksforgeeks.org/time-complexity-of-building-a-heap/
+# insert/remove max from max heap is O(logn)
+# find max is O(1)
+# use case: k largest/smallest, k most frequent
 """
+import heapq # python only support min heap
+q = [1,2,3,1]
+heapq.heapify(q) # make q a heap, O(n)
+heapq.heappush(q, x); x=heapq.heappop(q) # min
+# the way to customize the heap order is to have each element on the heap to be a tuple, with the first tuple element being one that accepts normal Python comparisons.
+
+heapq.nsmallest(k, q, key) # return the k smallest, klogn, [note: sum(logn) ~ nlogn]
+heapq.nlargest(k, q, key=None)  # return k largest , klogn
+# example: 
+tags = [ ("python", 30), ("ruby", 25), ("c++", 50), ("lisp", 20) ]
+heapq.nlargest(2, tags, key=lambda e:e[1]) # Gives [ ("c++", 50), ("python", 30) ]
+
+
+"""In python, define a defaultdict/Counter in this:
+"""
+from collections import defaultdict, Counter
+d1 = defaultdict(lambda: 0)
+words = ["apple", "banana", "apple", "orange", "mango"]
+word_counts = Counter(words)
 
 
 """写一个quicksort来找arr的第k大的数字
@@ -222,13 +249,9 @@ class LinkedList:
         old_first_node = self.head.next
         self.head.next, node.prev = node, self.head
         old_first_node.prev, node.next = node, old_first_node
-        
-
 
     def pop(self):
 
-    
-    def popleft(self):
 
 
 class LRU:
