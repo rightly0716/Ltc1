@@ -9,14 +9,14 @@ Leetcode by categories and ds
 1. 如果判断一个图中是否有环？
 - 无向图
 求出图中所有结点的度。
-将所有度 <= 1 的结点入队。（独立结点的度为 0）
-当队列不空时，弹出队首元素，把与队首元素相邻节点的度减一。如果相邻节点的度变为一，则将相邻结点入队。
-循环结束时判断已经访问的结点数是否等于 n。等于 n 说明全部结点都被访问过，无环；反之，则有环。
+将所有度 <= 1 的结点入队。(独立结点的度为 0)
+当队列不空时, 弹出队首元素, 把与队首元素相邻节点的度减一。如果相邻节点的度变为一, 则将相邻结点入队。
+循环结束时判断已经访问的结点数是否等于 n。等于 n 说明全部结点都被访问过, 无环；反之, 则有环。
 - 有向图
-在判断无向图中是否存在环时，是将所有**度 <= 1** 的结点入队；
-在判断有向图中是否存在环时，是将所有**入度 = 0** 的结点入队
+在判断无向图中是否存在环时, 是将所有**度 <= 1** 的结点入队；
+在判断有向图中是否存在环时, 是将所有**入度 = 0** 的结点入队
 
-也可以用DFS，详见https://zhuanlan.zhihu.com/p/214747022
+也可以用DFS, 详见https://zhuanlan.zhihu.com/p/214747022
 """
 
 """
@@ -338,10 +338,10 @@ Input: head = [3,2,0,-4], pos = 1
 Output: tail connects to node index 1
 Explanation: There is a cycle in the linked list, where tail connects to the second node.
 
-这个求单链表中的环的起始点是之前那个判断单链表中是否有环的延伸，可参之前那道 Linked List Cycle。这里还是要设快慢指针，
-不过这次要记录两个指针相遇的位置，当两个指针相遇了后，让其中一个指针从链表头开始，
-此时再相遇的位置就是链表中环的起始位置，为啥是这样呢，这里直接贴上热心网友「飞鸟想飞」的解释哈，
-因为快指针每次走2，慢指针每次走1，快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。所以 head到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。现在重新开始，head 运行到环起点 和 相遇点到环起点的距离也是相等的，相当于他们同时减掉了 环的起点到他们相遇的点的距离。
+这个求单链表中的环的起始点是之前那个判断单链表中是否有环的延伸, 可参之前那道 Linked List Cycle。这里还是要设快慢指针, 
+不过这次要记录两个指针相遇的位置, 当两个指针相遇了后, 让其中一个指针从链表头开始, 
+此时再相遇的位置就是链表中环的起始位置, 为啥是这样呢, 这里直接贴上热心网友「飞鸟想飞」的解释哈, 
+因为快指针每次走2, 慢指针每次走1, 快指针走的距离是慢指针的两倍。而快指针又比慢指针多走了一圈。所以 head到环的起点+环的起点到他们相遇的点的距离 与 环一圈的距离相等。现在重新开始, head 运行到环起点 和 相遇点到环起点的距离也是相等的, 相当于他们同时减掉了 环的起点到他们相遇的点的距离。
 because AB = m*l, then BC-AC=l-CB-AC=l-m*l  (A:head, B: fast catch slow, C: head of cycle)
 class Solution {
 public:
@@ -427,7 +427,7 @@ class Solution:
 
 """
 ############################################################################
-堆（Heap or Priority Queue）、栈（Stack）、队列（Queue）、哈希表类（Hashmap、Hashset）
+堆(Heap or Priority Queue)、栈(Stack)、队列(Queue)、哈希表类(Hashmap、Hashset)
 ############################################################################
 Stack: string processing, calculator, 
 (de)Queue: streaming data
@@ -629,15 +629,15 @@ What if the number of hits per second could be very large? Does your design scal
 """
 
 """ Solution
-这道题让我们设计一个点击计数器，能够返回五分钟内的点击数，提示了有可能同一时间内有多次点击。由于操作都是按时间顺序的，
-下一次的时间戳都会大于等于本次的时间戳，那么最直接的方法就是用一个队列queue，每次点击时都将当前时间戳加入queue中，
-然后在需要获取点击数时，我们从队列开头开始看，如果开头的时间戳在5分钟以外了，就删掉，直到开头的时间戳在5分钟以内停止，
-然后返回queue的元素个数即为所求的点击数，参见代码如下：
+这道题让我们设计一个点击计数器, 能够返回五分钟内的点击数, 提示了有可能同一时间内有多次点击。由于操作都是按时间顺序的, 
+下一次的时间戳都会大于等于本次的时间戳, 那么最直接的方法就是用一个队列queue, 每次点击时都将当前时间戳加入queue中, 
+然后在需要获取点击数时, 我们从队列开头开始看, 如果开头的时间戳在5分钟以外了, 就删掉, 直到开头的时间戳在5分钟以内停止, 
+然后返回queue的元素个数即为所求的点击数, 参见代码如下：
 
-由于Follow up中说每秒中会有很多点击，下面这种方法就比较巧妙了，定义了两个大小为300的一维数组times和hits，
-分别用来保存时间戳和点击数，在点击函数中，将时间戳对300取余，然后看此位置中之前保存的时间戳和当前的时间戳是否一样，
-一样说明是同一个时间戳，那么对应的点击数自增1，如果不一样，说明已经过了五分钟了，那么将对应的点击数重置为1。
-那么在返回点击数时，我们需要遍历times数组，找出所有在5分中内的位置，然后把hits中对应位置的点击数都加起来即可，参见代码如下：
+由于Follow up中说每秒中会有很多点击, 下面这种方法就比较巧妙了, 定义了两个大小为300的一维数组times和hits, 
+分别用来保存时间戳和点击数, 在点击函数中, 将时间戳对300取余, 然后看此位置中之前保存的时间戳和当前的时间戳是否一样, 
+一样说明是同一个时间戳, 那么对应的点击数自增1, 如果不一样, 说明已经过了五分钟了, 那么将对应的点击数重置为1。
+那么在返回点击数时, 我们需要遍历times数组, 找出所有在5分中内的位置, 然后把hits中对应位置的点击数都加起来即可, 参见代码如下：
 
 https://www.cnblogs.com/grandyang/p/5605552.html
 """
@@ -1314,7 +1314,7 @@ class LinkedList:
 
 
 class LRUCache:
-    # 另一种思路是用node2val作为dict，node里面存key
+    # 另一种思路是用node2val作为dict, node里面存key
     def __init__(self, capacity):
         """
         :type capacity: int
@@ -1425,10 +1425,10 @@ randomSet.insert(2);
 // Since 1 is the only number in the set, getRandom always return 1.
 randomSet.getRandom();
 """
-# 删除操作是比较 tricky 的，还是要先判断其是否在 HashMap 里，如果没有，直接返回 false。由于 HashMap 的
-# 删除是常数时间的，而数组并不是，为了使数组删除也能常数级，实际上将要删除的数字和数组的最后一个数字
-# 调换个位置，然后修改对应的 HashMap 中的值，这样只需要删除数组的最后一个元素即可，保证了常数时间
-# 内的删除。而返回随机数对于数组来说就很简单了，只要随机生成一个位置，返回该位置上的数字即可
+# 删除操作是比较 tricky 的, 还是要先判断其是否在 HashMap 里, 如果没有, 直接返回 false。由于 HashMap 的
+# 删除是常数时间的, 而数组并不是, 为了使数组删除也能常数级, 实际上将要删除的数字和数组的最后一个数字
+# 调换个位置, 然后修改对应的 HashMap 中的值, 这样只需要删除数组的最后一个元素即可, 保证了常数时间
+# 内的删除。而返回随机数对于数组来说就很简单了, 只要随机生成一个位置, 返回该位置上的数字即可
 import random
 class RandomizedSet:
     def __init__(self):
@@ -1556,14 +1556,14 @@ A player who succeeds in placing n of their marks in a horizontal, vertical, or 
 
 https://www.cnblogs.com/grandyang/p/5467118.html
 
-我们首先来O(n2)的解法，这种方法的思路很straightforward，就是建立一个nxn大小的board，其中0表示该位置没有棋子，
-1表示玩家1放的子，2表示玩家2。那么棋盘上每增加一个子，我们都扫描当前行列，对角线，
-和逆对角线(只有在row==col时才check)，看看是否有三子相连的情况，有的话则返回对应的玩家，没有则返回0，参见代码如下：
+我们首先来O(n2)的解法, 这种方法的思路很straightforward, 就是建立一个nxn大小的board, 其中0表示该位置没有棋子, 
+1表示玩家1放的子, 2表示玩家2。那么棋盘上每增加一个子, 我们都扫描当前行列, 对角线, 
+和逆对角线(只有在row==col时才check), 看看是否有三子相连的情况, 有的话则返回对应的玩家, 没有则返回0, 参见代码如下：
 
-Follow up中让我们用更高效的方法，那么根据提示中的，我们建立一个大小为n的一维数组rows和cols，
-还有变量对角线diag和逆对角线rev_diag，这种方法的思路是，如果玩家1在第一行某一列放了一个子，那么rows[0]自增1，
-如果玩家2在第一行某一列放了一个子，则rows[0]自减1，那么只有当rows[0]等于n或者-n的时候，
-表示第一行的子都是一个玩家放的，则游戏结束返回该玩家即可，其他各行各列，对角线和逆对角线都是这种思路，参见代码如下：
+Follow up中让我们用更高效的方法, 那么根据提示中的, 我们建立一个大小为n的一维数组rows和cols, 
+还有变量对角线diag和逆对角线rev_diag, 这种方法的思路是, 如果玩家1在第一行某一列放了一个子, 那么rows[0]自增1, 
+如果玩家2在第一行某一列放了一个子, 则rows[0]自减1, 那么只有当rows[0]等于n或者-n的时候, 
+表示第一行的子都是一个玩家放的, 则游戏结束返回该玩家即可, 其他各行各列, 对角线和逆对角线都是这种思路, 参见代码如下：
 """
 class TicTacToe:
     def __init__(self, n):
@@ -1691,9 +1691,9 @@ Input:
 ]
 Output: 1->1->2->3->4->4->5->6
 
-利用了最小堆这种数据结构，首先把k个链表的首元素都加入最小堆中，它们会自动排好序。然后每次取出最小的那个元素
-加入最终结果的链表中，然后把取出元素的下一个元素再加入堆中，下次仍从堆中取出最小的元素做相同的操作，
-以此类推，直到堆中没有元素了，此时k个链表也合并为了一个链表，返回首节点即可, logk * n
+利用了最小堆这种数据结构, 首先把k个链表的首元素都加入最小堆中, 它们会自动排好序。然后每次取出最小的那个元素
+加入最终结果的链表中, 然后把取出元素的下一个元素再加入堆中, 下次仍从堆中取出最小的元素做相同的操作, 
+以此类推, 直到堆中没有元素了, 此时k个链表也合并为了一个链表, 返回首节点即可, logk * n
 Anther idea is merge sort based on merging two sorted linked list, n*k
 """
 # Definition for singly-linked list.
@@ -1738,17 +1738,17 @@ Most numbers are not ugly. Try to focus your effort on generating only the ugly 
 3) The key is how to maintain the order of the ugly numbers. Try a similar approach of merging from three sorted lists: L1, L2, and L3.
 4) Assume you have Uk, the kth ugly number. Then Uk+1 must be Min(L1 * 2, L2 * 3, L3 * 5).
 
-这道题是之前那道 Ugly Number 的拓展，这里让找到第n个丑陋数，还好题目中给了很多提示，
-基本上相当于告诉我们解法了，根据提示中的信息，丑陋数序列可以拆分为下面3个子列表：
+这道题是之前那道 Ugly Number 的拓展, 这里让找到第n个丑陋数, 还好题目中给了很多提示, 
+基本上相当于告诉我们解法了, 根据提示中的信息, 丑陋数序列可以拆分为下面3个子列表：
 (1) 1x2,  2x2, 2x2, 3x2, 3x2, 4x2, 5x2...
 (2) 1x3,  1x3, 2x3, 2x3, 2x3, 3x3, 3x3...
 (3) 1x5,  1x5, 1x5, 1x5, 2x5, 2x5, 2x5...
-仔细观察上述三个列表，可以发现每个子列表都是一个丑陋数分别乘以 2，3，5，
-而要求的丑陋数就是从已经生成的序列中取出来的，每次都从三个列表中取出当前最小的那个加入序列，请参见代码如下：
+仔细观察上述三个列表, 可以发现每个子列表都是一个丑陋数分别乘以 2, 3, 5, 
+而要求的丑陋数就是从已经生成的序列中取出来的, 每次都从三个列表中取出当前最小的那个加入序列, 请参见代码如下：
 
-我们也可以使用最小堆来做，首先放进去一个1，然后从1遍历到n，每次取出堆顶元素，为了确保没有重复数字，
-进行一次 while 循环，将此时和堆顶元素相同的都取出来，然后分别将这个取出的数字乘以 2，3，5，
-并分别加入最小堆。这样最终 for 循环退出后，堆顶元素就是所求的第n个丑陋数
+我们也可以使用最小堆来做, 首先放进去一个1, 然后从1遍历到n, 每次取出堆顶元素, 为了确保没有重复数字, 
+进行一次 while 循环, 将此时和堆顶元素相同的都取出来, 然后分别将这个取出的数字乘以 2, 3, 5, 
+并分别加入最小堆。这样最终 for 循环退出后, 堆顶元素就是所求的第n个丑陋数
 """
 class Solution:
     def nthUglyNumber(self, n: int) -> int:
@@ -2060,6 +2060,8 @@ class Solution:
         prev_freq, prev_letter = heapq.heappop(q)
         res = prev_letter
         while len(q) > 0:
+            if prev_freq > len(q) + 1:
+                return ""
             freq, letter = heapq.heappop(q)
             res = res + letter
             if prev_freq + 1 != 0:
@@ -2069,7 +2071,7 @@ class Solution:
         if len(res) == len(s):
             return res
         else:
-            return ''
+            return ""
 
 
 """[LeetCode] 1438. Longest Continuous Subarray With Absolute Diff Less Than or Equal to Limit !!!
@@ -2085,25 +2087,28 @@ Input: nums = [4,2,2,2,4,4,2,2], limit = 0
 Output: 3
 
 Solution
-sliding window + 单调queue。注意不是单调栈，而是单调queue。
+sliding window + 单调queue。注意不是单调栈, 而是单调queue。
 
-我们维护一个单调递减queue maxQueue和一个单调递增queue minQueue，里面存的都是下标。
-maxQueue的首元素是当前遍历到的最大元素的下标，minQueue的首元素是当前遍历到的最小元素的下标。
-注意存元素也可以，但是存下标的好处是如果有重复元素，对下标是没有影响的。
+我们维护一个单调递减queue maxQueue和一个单调递增queue minQueue, 里面存的都是下标。
+maxQueue的首元素是当前遍历到的最大元素的下标, minQueue的首元素是当前遍历到的最小元素的下标。
+注意存元素也可以, 但是存下标的好处是如果有重复元素, 对下标是没有影响的。
 
-同时我们需要两个指针start和end。一开始end往后走，当发现
+同时我们需要两个指针start和end。一开始end往后走, 当发现
 
-maxQueue不为空且maxQueue的最后一个元素小于当前元素nums[end]了，则不断往外poll元素，直到整个maxQueue变回降序
-minQueue不为空且minQueue的最后一个元素大于当前元素nums[end]了，则不断往外poll元素，直到整个minQueue变回升序
-此时再判断，如果两个queue都不为空但是两个queue里的最后一个元素（一个是最大值，一个是最小值）的差值大于limit了，
-则开始左移start指针，左移的同时，如果两个queue里有任何元素的下标<= start，则往外poll，因为不需要了。
-这里也是存下标的另一个好处，因为下标一定是有序被放进两个queue的，所以如果大于limit了，
+maxQueue不为空且maxQueue的最后一个元素小于当前元素nums[end]了, 则不断往外poll元素, 直到整个maxQueue变回降序
+minQueue不为空且minQueue的最后一个元素大于当前元素nums[end]了, 则不断往外poll元素, 直到整个minQueue变回升序
+此时再判断, 如果两个queue都不为空但是两个queue里的最后一个元素(一个是最大值, 一个是最小值)的差值大于limit了, 
+则开始左移start指针, 左移的同时, 如果两个queue里有任何元素的下标<= start, 则往外poll, 因为不需要了。
+这里也是存下标的另一个好处, 因为下标一定是有序被放进两个queue的, 所以如果大于limit了, 
 你是需要从最一开始的start指针那里开始检查的。
 
 时间O(n)
 
 空间O(n)
 """
+# solution 0: for each element i, treat as left end, then iterate right end until max-min>limit
+# O(n^2)
+
 # Solution 1: binary insert and remove, O(n^2), sliding window left-right
 # Keep an increasing list L. Binary insert the current element nums[right].
 # If the L[L.size() - 1] - L[0] > limit, binary search the position of nums[left] and remove it from the list.
@@ -2130,19 +2135,19 @@ class Solution:
         l = 0 # left side of window
         res = 0
         for r in range(len(nums)):
-            while len(max_q) > 0 and max_q[-1] < nums[r]:
+            while len(max_q) > 0 and nums[max_q[-1]] < nums[r]:
                 max_q.pop()  # popright
-            while len(min_q) > 0 and min_q[-1] > nums[r]:
+            while len(min_q) > 0 and nums[min_q[-1]] > nums[r]:
                 min_q.pop()
-            max_q.append(nums[r])
-            min_q.append(nums[r])
-            while max_q[0] - min_q[0] > limit:
+            max_q.append(r)
+            min_q.append(r)
+            while nums[max_q[0]] - nums[min_q[0]] > limit:
                 # remove very left elem
-                if max_q[0] == nums[l]:
+                if nums[max_q[0]] == nums[l]:
                     max_q.popleft()
-                if min_q[0] == nums[l]:
+                if nums[min_q[0]] == nums[l]:
                     min_q.popleft()
-                l += 1
+                l += 1  # can't be min(min_q[0], max_q[0]), [1,3,2,4], limit=2
             res = max(res, r-l+1)
         return res
 
@@ -2168,7 +2173,7 @@ class Solution:
 """[LeetCode] 895. Maximum Frequency Stack 最大频率栈 !!!
 Implement `FreqStack`, a class which simulates the operation of a stack-like data structure.
 FreqStack has two functions:
-push(int x), which pushes an integer xonto the stack.
+push(int x), which pushes an integer x onto the stack.
 pop(), which removes and returns the most frequent element in the stack.
 If there is a tie for most frequent element, the element closest to the top of the stack is removed and returned.
 
@@ -2204,8 +2209,7 @@ class FreqStack:
         # update f2n
         self.m_f2n[self.m_n2f[val]].append(val)  # later to right
         # update max_Freq
-        if self.m_n2f[val] > self.max_Freq:
-            self.max_Freq = self.m_n2f[val]
+        self.max_Freq = max(self.max_Freq, self.m_n2f[val])
 
     def pop(self) -> int:
         val = self.m_f2n[self.max_Freq].pop()  # take from right
@@ -2230,23 +2234,22 @@ obj.pop()
 
 """
 ############################################################################
-二分法（Binary Search)
+二分法(Binary Search)
 ############################################################################
-Summary
-https://www.cnblogs.com/grandyang/p/6854825.html
+Summary https://www.cnblogs.com/grandyang/p/6854825.html
 
-若 right 初始化为了 nums.size()，那么就必须用 left < right，而最后的 right 的赋值必须用 right = mid。
-但是如果我们 right 初始化为 nums.size() - 1，那么就必须用 left <= right，并且right的赋值要写成 right = mid - 1，不然就会出错
+若 right 初始化为了 nums.size(), 那么就必须用 left < right, 而最后的right 的赋值必须用 right = mid。这种情况一般用于不会中间停止的
+但是如果我们 right 初始化为 nums.size() - 1, 那么就必须用 left <= right, 并且right的赋值要写成 right = mid - 1, 不然就会出错。
 
 Find the mtn peak is an exceptional. Use left, right = 0, len-1 and while left < right. 
-Because condition is nums[mid] < nums[mid+1] and mid+1 can out of range if right=len
+Because peak cannot be on nums[n-1] and condition is nums[mid] < nums[mid+1] and mid+1 can out of range if right=len
 
-还有一类是排序区间的插入，删除，和合并。一般思路是对于待处理的区间，查找第一个和最后一个与它overlap的区间(可以左闭右开)，然后用for来处理中间的，
+还有一类是排序区间的插入, 删除, 和合并。一般思路是对于待处理的区间, 查找第一个和最后一个与它overlap的区间(可以左闭右开), 然后用for来处理中间的, 
 一个例子是715. Range Module.
-intervals=[[1,2], [3,4], [5,6]], interval=[2.5,4.5] -> first=0 and last=2 (左闭右开，i.e. intervals[2]是第一个不overlap的)
+intervals=[[1,2], [3,4], [5,6]], interval=[2.5,4.5] -> first=0 and last=2 (左闭右开, i.e. intervals[2]是第一个不overlap的)
 一般可以考虑
-1) 新建一个list存放,O(n) -- 添加区间的一个常用技巧是bool inserted=False，一般添加完毕后设成True然后后面所有区间直接加进来
-2) treemap(SortedDict) 的数据结构，用bisect_left和bisect_right来查找头尾(logn) -- 见715. Range Module
+1) 新建一个list存放,O(n) -- 添加区间的一个常用技巧是bool inserted=False, 一般添加完毕后设成True然后后面所有区间直接加进来
+2) treemap(SortedDict) 的数据结构, 用bisect_left和bisect_right来查找头尾(logn) -- 见715. Range Module
 """
 # note: if ascending
 # if finish: l = r + 1
@@ -2345,8 +2348,7 @@ Before being passed to your function, nums is rotated at an unknown pivot index 
 [nums[k], nums[k+1], ..., nums[n-1], nums[0], nums[1], ..., nums[k-1]] (0-indexed). 
 For example, [0,1,2,4,4,4,5,6,6,7] might be rotated at pivot index 5 and become [4,5,6,6,7,0,1,2,4,4].
 
-Given the array nums after the rotation and an integer target, return true if target is in nums, 
-or false if it is not in nums.
+Given the array nums after the rotation and an integer target, return true if target is in nums, or false if it is not in nums.
 
 You must decrease the overall operation steps as much as possible.
 
@@ -2355,12 +2357,12 @@ Input: nums = [2,5,6,0,0,1,2], target = 0
 Output: true
 
 Solution
-数组中允许出现重复数字，这个也会影响我们选择哪半边继续搜索，由于之前那道题不存在相同值，
-我们在比较中间值和最右值时就完全符合之前所说的规律：如果中间的数小于最右边的数，
-则右半段是有序的，若中间数大于最右边数，则左半段是有序的。而如果可以有重复值，
-就会出现来面两种情况，[3 1 1] 和 [1 1 3 1]，对于这两种情况中间值等于最右值时，
-目标值3既可以在左边又可以在右边，那怎么办么，对于这种情况其实处理非常简单，只要把最右值向左一位即可继续循环，
-如果还相同则继续移，直到移到不同值为止，然后其他部分还采用 Search in Rotated Sorted Array 中的方法
+数组中允许出现重复数字, 这个也会影响我们选择哪半边继续搜索, 由于之前那道题不存在相同值, 
+我们在比较中间值和最右值时就完全符合之前所说的规律：如果中间的数小于最右边的数, 
+则右半段是有序的, 若中间数大于最右边数, 则左半段是有序的。而如果可以有重复值, 
+就会出现来面两种情况, [3 1 1] 和 [1 1 3 1], 对于这两种情况中间值等于最右值时, 
+目标值3既可以在左边又可以在右边, 那怎么办么, 对于这种情况其实处理非常简单, 只要把最右值向左一位即可继续循环, 
+如果还相同则继续移, 直到移到不同值为止, 然后其他部分还采用 Search in Rotated Sorted Array 中的方法
 """
 class Solution:
     def search(self, nums: List[int], target: int) -> bool:
@@ -2478,9 +2480,9 @@ Explanation: Your function can return either index number 1 where the peak eleme
 Note:
 Your solution should be in logarithmic complexity!
 
-由于题目中提示了要用对数级的时间复杂度，那么我们就要考虑使用类似于二分查找法来缩短时间，
-由于只是需要找到任意一个峰值，那么我们在确定二分查找折半后中间那个元素后，和紧跟的那个元素比较下大小，
-如果大于，则说明峰值在前面，如果小于则在后面。这样就可以找到一个峰值了
+由于题目中提示了要用对数级的时间复杂度, 那么我们就要考虑使用类似于二分查找法来缩短时间, 
+由于只是需要找到任意一个峰值, 那么我们在确定二分查找折半后中间那个元素后, 和紧跟的那个元素比较下大小, 
+如果大于, 则说明峰值在前面, 如果小于则在后面。这样就可以找到一个峰值了
 """
 class Solution(object):
     def findPeakElement(self, nums):
@@ -2513,9 +2515,9 @@ Input: matrix =
 Output: true
 
 Solution O(m+n)
-如果我们观察题目中给的那个例子，可以发现有两个位置的数字很有特点，左下角和右上角的数。左下角的 18，
-往上所有的数变小，往右所有数增加，那么就可以和目标数相比较，如果目标数大，就往右搜，如果目标数小，
-就往上搜。这样就可以判断目标数是否存在。当然也可以把起始数放在右上角，往左和下搜，停止条件设置正确就行。
+如果我们观察题目中给的那个例子, 可以发现有两个位置的数字很有特点, 左下角和右上角的数。左下角的 18, 
+往上所有的数变小, 往右所有数增加, 那么就可以和目标数相比较, 如果目标数大, 就往右搜, 如果目标数小, 
+就往上搜。这样就可以判断目标数是否存在。当然也可以把起始数放在右上角, 往左和下搜, 停止条件设置正确就行。
 
 Solution 2: O(mlogn)
 For each row, if row[0]<target<row[-1], then use binary search
@@ -2566,7 +2568,7 @@ Output: 10
 Note: Your solution should run in O(log n) time and O(1) space.
 """
 class Solution:
-    def singleNonDuplicate(self, nums: List[int]) -> int:
+    def singleNonDuplicate(self, nums) -> int:
         low, high = 0, len(nums)
         while low < high:
             mid = low + (high - low) // 2
@@ -2575,18 +2577,18 @@ class Solution:
             if nums[mid] == nums[mid + 1]:
                 if mid % 2 == 0:
                     # single on right
-                    low = mid + 1 # + 2 also works
+                    low = mid + 2 # + 1 also works
                 else:
                     high = mid
             elif nums[mid] == nums[mid - 1]:
                 if mid % 2 == 0:
-                    high = mid # - 1 also works 
+                    high = mid - 1 # - 0 also works 
                 else:
                     low = mid + 1
             else:
                 return nums[mid]
         
-        return nums[low-1]
+        return None # will not reach
 
 
 """ 617 · Maximum Average Subarray II ???
@@ -2599,14 +2601,14 @@ Explanation: (-6 + 50 + 3) / 3 = 15.667
 
 Solution 1: 双指针遍历 用hashmap存cumsum方便计算 O(n^2)
 Solution 2: O(nlog (max - min))
-先更新累加和数组 sums，注意这个累加和数组不是原始数字的累加，而是它们和 mid 相减的差值累加。
-我们的目标是找长度大于等于k的子数组的平均值大于 mid，由于每个数组都减去了 mid，
+先更新累加和数组 sums, 注意这个累加和数组不是原始数字的累加, 而是它们和 mid 相减的差值累加。
+我们的目标是找长度大于等于k的子数组的平均值大于 mid, 由于每个数组都减去了 mid, 
 那么就转换为找长度大于等于k的子数组的差累积值大于0。建立差值累加数组的意义就在于通过 sums[i] - sums[j] 
-来快速算出j和i位置中间数字之和，那么只要j和i中间正好差k个数字即可，
-然后 minSum 就是用来保存j位置之前的子数组差累积的最小值，所以当 i >= k 时，我们用 sums[i - k] 来
-更新 minSum，这里的 i - k 就是j的位置，然后判断如果 sums[i] - minSum > 0了，
-说明找到了一段长度大于等k的子数组平均值大于 mid 了，就可以更新 left 为 mid 了，我们标记 check 为 true，
-并退出循环。在 for 循环外面，当 check 为 true 的时候，left 更新为 mid，否则 right 更新为 mid
+来快速算出j和i位置中间数字之和, 那么只要j和i中间正好差k个数字即可, 
+然后 minSum 就是用来保存j位置之前的子数组差累积的最小值, 所以当 i >= k 时, 我们用 sums[i - k] 来
+更新 minSum, 这里的 i - k 就是j的位置, 然后判断如果 sums[i] - minSum > 0了, 
+说明找到了一段长度大于等k的子数组平均值大于 mid 了, 就可以更新 left 为 mid 了, 我们标记 check 为 true, 
+并退出循环。在 for 循环外面, 当 check 为 true 的时候, left 更新为 mid, 否则 right 更新为 mid
 
 # https://www.cnblogs.com/grandyang/p/8021421.html
 # https://www.lintcode.com/problem/617/solution/23436 (suspicious dp)
@@ -2633,7 +2635,7 @@ class Solution:
     def check(self, nums, k, target):
         # whether exists a subarray (>=k) with avg>=target
         # index starts with k
-        # 那么在nums[0:index]中，长度>=k的子数组，区间和最大为pre[index - 1] - min{pre[0 : index - k]}
+        # 那么在nums[0:index]中, 长度>=k的子数组, 区间和最大为pre[index - 1] - min{pre[0 : index - k]}
         cumsums = [0] * (len(nums) + 1)
         for i in range(1, len(nums)+1):
             cumsums[i] = cumsums[i - 1] + nums[i-1] - target
@@ -2650,14 +2652,22 @@ class Solution:
 sol=Solution()
 sol.maxAverage(nums, k)
 
-# follow up: Maximum Sum Subarray with length less or equal to k
+""" follow up
+Given an array with positive and negative numbers, find the maximum average subarray 
+which length should be less or equal to given length k.
+
+单调队列存[0,right]中最小的cumsum右端的index(left),那只要cumsums[right]-cumsums[q[0]]就好,只是要随时保证right-q[0]<=k
+
+Input: nums=[1,12,-5,-6,50,3]; k=3
+Output: 53
+"""
 class maxSumSubarray:
     def maxSumSubarray(self, arr, k):
-        minCumsumq = deque()  # mono increasing
+        minCumsumq = deque()  # minCumsumq[0] has min cumsum index so far
         cumsums = self.cumsum(arr)
-        res = float('-Inf')
+        res = 0
         for r in range(len(cumsums)):
-            # update mono q
+            # minCumsumq: mono increasing, with [0] smallest cumsum index in [0,r]
             while len(minCumsumq) > 0 and cumsums[r] <= cumsums[minCumsumq[-1]]:
                 minCumsumq.pop()
             minCumsumq.append(r)
@@ -2673,7 +2683,7 @@ class maxSumSubarray:
         return cumsumArr
 
 sol = maxSumSubarray()
-sol.maxSumSubarray( [2, -1, 2, -2, 1, -1], 3)
+sol.maxSumSubarray( [3,-2,12,-6,3], 3) 
 
 
 """[LeetCode] Random Pick with Weight 根据权重随机取点
@@ -2702,7 +2712,7 @@ class Solution:
     def pickIndex(self) -> int:
         rand = random.uniform(0, 1)
         low, high = 0, self.size
-        # find the smallest index that larger than rand
+        # find the largest index that smaller/equal than rand
         while low < high:
             mid = low + (high - low) // 2
             if self.cumsums[mid] > rand:
@@ -2741,10 +2751,10 @@ Input: arr = [60864,25176,27249,21296,20204], target = 56803
 Output: 11361
 
 Solution
-思路是二分法。首先遍历input数组，得到数组所有元素的和sum以及数组中最大的数字max。需要寻找的这个res一定介于target//len(arr) - max之间。
-为什么呢？因为被修改的数字一定是需要小于value的，如果这个value大于数组中的最大元素，意味着没有任何一个数字被修改过，
-所以value大于max是不成立的。所以在target//len(arr) - max之间做二分搜索，并且每找到一个mid，就算一次sum和，
-二分法逼近最接近target的sum之后，找到对应的mid即可。NlogN
+思路是二分法。首先遍历input数组, 得到数组所有元素的和sum以及数组中最大的数字max。需要寻找的这个res一定介于target//len(arr) - max之间。
+为什么呢？因为被修改的数字一定是需要小于value的, 如果这个value大于数组中的最大元素, 意味着没有任何一个数字被修改过, 
+所以value大于max是不成立的。所以在target//len(arr) - max之间做二分搜索, 并且每找到一个mid, 就算一次sum和, 
+二分法逼近最接近target的sum之后, 找到对应的mid即可。NlogN
 
 # suspicious O(N) solution
 # https://leetcode.com/problems/sum-of-mutated-array-closest-to-target/discuss/1390461/Python-average-O(N)-solution
@@ -2817,7 +2827,7 @@ nums = [4,7,9,10]; K = 1
 class Solution:
     def missingElement(self, nums, k):
         n = len(nums)
-        total_miss = nums[-1] - nums[0] + 1 - n
+        total_miss = get_num_miss(nums, n-1)
         if k > total_miss:
             return nums[-1] + k - total_miss
         low, high = 0, n
@@ -2892,7 +2902,7 @@ def get_num_ribbons(arr, size):
 greatestLength(arr, k)
 
 
-"""715. Range Module
+"""715. Range Module ???
 A Range Module is a module that tracks ranges of numbers. Design a data structure to track the ranges represented as 
 half-open intervals and query about them.
 A half-open interval [left, right) denotes all the real numbers x where left <= x < right.
@@ -2924,12 +2934,14 @@ class RangeModule:
 
     def addRange(self, left: int, right: int):
         # find the first and last interval overlaps with [left, right]
-        # [[1,3], [4,6], [7,8]], [3,4] -> first=0, last=2 although [)
+        # [[1,3], [4,6], [7,8]], [3,4] -> first=0, last=2 although [) 
+        # -> merge [left, right] with first, ..., last - 1 intervals
         first, last = self.find_first_and_last(left, right)
         if first < last:
             # merge from first to last, pop out all the intervals
             sorted_start_time = self.start2end.keys()
             for key in sorted_start_time[first:last]:
+                # exclude last because no overlap 
                 curr_start = key
                 left = min(left, curr_start)
                 right = max(right, self.start2end[curr_start])
@@ -2943,6 +2955,7 @@ class RangeModule:
         if first < last:
             start, end = self.start2end.peekitem(first) # only need to check left overlap interval
             return start <= left and right <= end
+        # if equal, no overlap [[1,2], [4,5]], [3,4]
         return False
 
     def removeRange(self, left: int, right: int) -> None:
@@ -2979,12 +2992,12 @@ sol.addRange(1, 4)
 sol.addRange(5, 6)
 sol.start2end
 sol.addRange(7,8)
-sol.addRange(6.5, 6.6)
+sol.addRange(6.5, 6.6)10000
 sol.addRange(5,8)
 
 """
 ############################################################################
-双指针（2 Pointer）
+双指针(2 Pointer)
 ############################################################################
 """
 
@@ -3007,10 +3020,10 @@ Note:
 The input string length won't exceed 1000.
 
 Solution
-用递归来做，而且思路非常的简单粗暴。就是以字符串中的每一个字符都当作回文串中间的位置，然后向两边扩散，
-每当成功匹配两个左右两个字符，结果 res 自增1，然后再比较下一对。注意回文字符串有奇数和偶数两种形式，
-如果是奇数长度，那么i位置就是中间那个字符的位置，所以左右两遍都从i开始遍历；如果是偶数长度的，
-那么i是最中间两个字符的左边那个，右边那个就是 i+1，这样就能 cover 所有的情况啦，而且都是不同的回文子字符串
+用递归来做, 而且思路非常的简单粗暴。就是以字符串中的每一个字符都当作回文串中间的位置, 然后向两边扩散, 
+每当成功匹配两个左右两个字符, 结果 res 自增1, 然后再比较下一对。注意回文字符串有奇数和偶数两种形式, 
+如果是奇数长度, 那么i位置就是中间那个字符的位置, 所以左右两遍都从i开始遍历；如果是偶数长度的, 
+那么i是最中间两个字符的左边那个, 右边那个就是 i+1, 这样就能 cover 所有的情况啦, 而且都是不同的回文子字符串
 """
 class Solution:
     def countSubstrings(self, s: str) -> int:
@@ -3057,6 +3070,7 @@ class Solution:
                     l += 1 
                 else:
                     if l == i + 1 or nums[l] != nums[l-1]:
+                        # no need consider r becasue l equals iff r equals
                         res.append(tuple([nums[i], nums[l], nums[r]]))
                     l += 1
                     r -= 1              
@@ -3099,9 +3113,9 @@ public:
     }
 };
 
-我们还可以稍稍进行一下优化，每次判断一下，当 nums[i]*3 > target 的时候，
-就可以直接比较 closest 和 nums[i] + nums[i+1] + nums[i+2] 的值，
-返回较小的那个，因为数组已经排过序了，后面的数字只会越来越大，就不必再往后比较了
+我们还可以稍稍进行一下优化, 每次判断一下, 当 nums[i]*3 > target 的时候, 
+就可以直接比较 closest 和 nums[i] + nums[i+1] + nums[i+2] 的值, 
+返回较小的那个, 因为数组已经排过序了, 后面的数字只会越来越大, 就不必再往后比较了
 """
 
 
@@ -3148,9 +3162,9 @@ public:
         return vector<vector<int>>(res.begin(), res.end());
     }
 };
-那么这道题使用 HashMap 是否也能将时间复杂度降到 O(n2) 呢？答案是肯定的，
-如果把A和B的两两之和都求出来，在 HashMap 中建立两数之和跟其出现次数之间的映射，
-那么再遍历C和D中任意两个数之和，只要看哈希表存不存在target-这两数之和就行了
+那么这道题使用 HashMap 是否也能将时间复杂度降到 O(n2) 呢？答案是肯定的, 
+如果把A和B的两两之和都求出来, 在 HashMap 中建立两数之和跟其出现次数之间的映射, 
+那么再遍历C和D中任意两个数之和, 只要看哈希表存不存在target-这两数之和就行了
 但要注意把index有overlap的去掉
 """
 
@@ -3177,10 +3191,10 @@ The two tuples are:
 2. (1, 1, 0, 0) -> A[1] + B[1] + C[0] + D[0] = 2 + (-1) + (-1) + 0 = 0
 
 Solution: 
-遍历所有的情况，时间复杂度为 O(n4)。但是既然 Two Sum 那道都能将时间复杂度缩小一倍，
-那么这道题使用 HashMap 是否也能将时间复杂度降到 O(n2) 呢？答案是肯定的，
-如果把A和B的两两之和都求出来，在 HashMap 中建立两数之和跟其出现次数之间的映射，
-那么再遍历C和D中任意两个数之和，只要看哈希表存不存在这两数之和的相反数就行了
+遍历所有的情况, 时间复杂度为 O(n4)。但是既然 Two Sum 那道都能将时间复杂度缩小一倍, 
+那么这道题使用 HashMap 是否也能将时间复杂度降到 O(n2) 呢？答案是肯定的, 
+如果把A和B的两两之和都求出来, 在 HashMap 中建立两数之和跟其出现次数之间的映射, 
+那么再遍历C和D中任意两个数之和, 只要看哈希表存不存在这两数之和的相反数就行了
 
 class Solution {
 public:
@@ -3262,8 +3276,8 @@ Explanation: The above vertical lines are represented by array [1,8,6,2,5,4,8,3,
 In this case, the max area of water (blue section) the container can contain is 49.
 
 Solution:
-定义i和j两个指针分别指向数组的左右两端，然后两个指针向中间搜索，
-每移动一次算一个值和结果比较取较大的，容器装水量的算法是找出左右两个边缘中较小的那个乘以两边缘的距离
+定义i和j两个指针分别指向数组的左右两端, 然后两个指针向中间搜索, 
+每移动一次算一个值和结果比较取较大的, 容器装水量的算法是找出左右两个边缘中较小的那个乘以两边缘的距离
 移动长边指针是不可能增加容量的
 """
 class Solution:
@@ -3360,6 +3374,7 @@ class Solution:
             
         for char, freq in Counter(s).items():
             if freq < k:
+                # solution must not contain char
                 return max(self.longestSubstring(w,k) for w in s.split(char))
             
         return len(s)
@@ -3386,6 +3401,7 @@ class Solution3:
         res = 0
         max_number_of_unique_letters = len(Counter(s))  # 26 is hard max
         for i in range(max_number_of_unique_letters):
+            # find a substring has i+1个unique letters, satisfying the condition
             res = max(res, self.longestSubstring_k_unique(s, i+1, k))
         return res
 
@@ -3504,7 +3520,8 @@ class Solution:
                 l = l + 1
                 maxCnt = max(m.values())  # O(26n), can be removed, but why?
             res = max(res, r-l+1)
-        
+            if res >= n:
+                return n
         return res
 
 # O(n): AABAC
@@ -3513,7 +3530,9 @@ class Solution:
 # for example when i=3: 
 # d_idx['a'] = [0, 1, 3]; d_idx['b'] = [2]
 # d['a'] = 3, d['b'] = 1
-class Solution:
+
+# iteration on right index, 每次check以s[right]结束的最长的满足条件的substring
+class Solution2:
     def characterReplacement(self, s: str, k: int) -> int:
         n = len(s)
         if k + 1 >= n: # cannot > n
@@ -3586,21 +3605,21 @@ class Solution:
 
 class Solution2:
     def minWindow(self, s: str, t: str) -> str:
-        m = Counter(t)  # number of remaining letters
+        remain_letter_ct = Counter(t)  # number of remaining letters
         l = 0
         min_len = len(s) + 1
         res = ""
         for r in range(len(s)):
-            if s[r] in m:
-                m[s[r]] = m[s[r]] - 1
-            while max(m.values()) <= 0:  # o(26n)
+            if s[r] in remain_letter_ct:
+                remain_letter_ct[s[r]] = remain_letter_ct[s[r]] - 1
+            while max(remain_letter_ct.values()) <= 0:  # o(26n)
                 # if all gets covered
                 if r+1-l < min_len:
                     res = s[l:r+1]
                     min_len = r+1-l
                 # if s[l:r+1] covers T
-                if s[l] in m:
-                    m[s[l]] = m[s[l]] + 1
+                if s[l] in remain_letter_ct:
+                    remain_letter_ct[s[l]] = remain_letter_ct[s[l]] + 1
                 l = l + 1 
         return res
 sol = Solution()
@@ -3624,16 +3643,12 @@ class Solution:
         l = 0
         res = 0
         for r in range(len(nums)):
-            if nums[r] == 1:
-                num_ones = num_ones + 1
-            if num_ones + k >= r + 1 - l:
-                # fit
-                res = max(r - l + 1, res)
-            else:
-                # move l
-                while num_ones + k < r + 1 - l:
-                    num_ones = num_ones - 1 if nums[l] == 1 else num_ones
-                    l = l + 1
+            num_ones = num_ones + nums[r]
+            # move l
+            while num_ones + k < r + 1 - l:
+                num_ones = num_ones - nums[l]
+                l = l + 1
+            res = max(r - l + 1, res)
         
         return res
 
@@ -3645,9 +3660,9 @@ sol.longestOnes(nums, k)
 
 """
 ############################################################################
-宽度优先搜索（BFS）
+宽度优先搜索(BFS)
 ############################################################################
-迷宫遍历求最短路径
+迷宫遍历求最短路径:记得用一个visited set去记录避免重复
 建立距离场
 有向图遍历
 拓扑排序
@@ -3783,12 +3798,12 @@ class Codec:
         while len(q) > 0:
             for _ in range(len(q)):
                 curr_node = q.popleft()
-                if idx < len(data) and data[idx] != '#':
+                if data[idx] != '#':
                     # idx < len(data) can be rm, will never violate
                     curr_node.left = TreeNode(int(data[idx]))
                     q.append(curr_node.left)
                 idx = idx + 1
-                if idx < len(data) and data[idx] != '#':
+                if data[idx] != '#':
                     curr_node.right = TreeNode(int(data[idx]))
                     q.append(curr_node.right)
                 idx = idx + 1
@@ -3797,6 +3812,7 @@ class Codec:
 
 
 # solution 2: dfs
+from collections import deque
 class Codec:
     def serialize(self, root):
         """Encodes a tree to a single string.
@@ -3822,16 +3838,17 @@ class Codec:
         :rtype: TreeNode
         """
         data = data.split(',')
+        data = deque(data)
         if data[0] == '' or data[0] == '#':
             return None
         return self.deserialize_helper(data)
         
-    def deserialize_helper(self, res):
+    def deserialize_helper(self, res: deque):
         # res is a list
         if res[0] == '#':
             return None
         root = TreeNode(int(res[0]))
-        res = res[1:] # need to change res
+        res.popleft() # need to remove the first
         root.left = self.deserialize_helper(res)
         root.right = self.deserialize_helper(res)
         return root
@@ -3889,7 +3906,7 @@ Output:
 BFS: use (node, order_idx (vertical order), time (horizontal order)) to push, 
 left child has order_idx - 1, right + 1
 for every new node, has time+1  # in case order, if order and val is the same, need to use time to sort
-用一个 TreeMap 来建立序号和其对应的节点值的映射，用 TreeMap 的另一个好处是其自动排序功能可以让列从左到右
+用一个 TreeMap 来建立序号和其对应的节点值的映射, 用 TreeMap 的另一个好处是其自动排序功能可以让列从左到右
 """
 # Definition for a binary tree node.
 from collections import defaultdict
@@ -4026,7 +4043,6 @@ routes = [[7,12],[4,5,15],[6],[15,19],[9,12,13]]
 source = 15
 target = 12
 
-from collections import defaultdict, deque
 # use stop instead of bus
 class Solution:
     def numBusesToDestination(self, routes: List[List[int]], source: int, target: int) -> int:        
@@ -4037,6 +4053,7 @@ class Solution:
         q = deque()
         q.append((source, 0))
         visited_bus = set()  # visit at bus level is more efficient
+        visited_stop = set()
         while len(q) > 0:
             size = len(q)
             for _ in range(size):
@@ -4047,9 +4064,40 @@ class Solution:
                     if curr_bus not in visited_bus:
                         visited_bus.add(curr_bus)
                         for stop in routes[curr_bus]:
-                            q.append((stop, curr_step+1))
-        
+                            if stop not in visited_stop:
+                                visited_stop.add(stop)
+                                q.append((stop, curr_step+1))
         return -1
+
+# Build stop2stop graph. Time should be fast. but OOM issue
+from collections import defaultdict, deque
+class Solution:
+    def numBusesToDestination(self, routes, S, T):
+        if S == T: return 0  # Already at destination
+        # Build a graph of bus stop connections
+        graph = defaultdict(set)
+        for route in routes:
+            for i in range(len(route)):
+                for j in range(i):
+                    graph[route[i]].add(route[j])
+                    graph[route[j]].add(route[i])
+
+        # Initialize BFS queue and visited stops
+        queue = deque([(S, 0)])  # (stop, bus count)
+        visited_stops = {S}
+        # visited_buses = set()  # Track visited buses to avoid loops
+        while queue:
+            stop, bus_count = queue.popleft()
+            if stop == T:
+                return bus_count
+            for next_stop in graph[stop]:
+                if next_stop not in visited_stops:
+                    visited_stops.add(next_stop)
+                    # for rount_id, route in enumerate(routes):
+                    #     if next_stop in route and rount_id not in visited_buses:
+                    #         visited_buses.add(rount_id)  # Mark bus as visited
+                    queue.append((next_stop, bus_count + 1))
+        return -1  # Destination not reachable
 
 class Solution:
     def numBusesToDestination(self, routes: List[List[int]], source: int, target: int) -> int:
@@ -4059,14 +4107,12 @@ class Solution:
         for bus_idx, route in enumerate(routes):
             for stop in route:
                 stop2bus[stop].append(bus_idx)
-        
         res = 1
         q = deque()
         visited_bus = set()
         for bus in stop2bus[source]:
             q.append(bus)
             visited_bus.add(bus)
-
         while len(q) > 0:
             for _ in range(len(q)):
                 curr_bus = q.popleft()
@@ -4081,9 +4127,8 @@ class Solution:
             res = res + 1
         return -1
 
-routes = [[1,2,7],[3,6,7]]
-source = 1
-target = 6
+sol=Solution()
+sol.numBusesToDestination(routes=[[1,2,7],[3,6,7]], S=1, T=6)
 
 
 """317 Shortest Distance from All Buildings 建筑物的最短距离 
@@ -4108,7 +4153,7 @@ Note:
 There will be at least one building. If it is not possible to build such house 
 according to the above rules, return -1.
 
-BFS遍历，对每个building都建立一个dist的距离场，加起来。实际中可以有一个去cumulate
+BFS遍历, 对每个building都建立一个dist的距离场, 加起来。实际中可以有一个去cumulate
 """
 grid = [
     [1, 0, 2, 0, 1], 
@@ -4294,8 +4339,8 @@ Output:true
 Input:org = [4,1,5,2,6,3], seqs = [[5,2,6,3],[4,1,5,2]]
 Output:true
 
-和course schedule ii 思路相似，利用seqs来重构org，如果发现1）无法重构2）有多种情况就返回false
-多种情况的判断基于是否每一步q里都只有一个元素加进来（indegree为0的只有一个）
+和course schedule ii 思路相似, 利用seqs来重构org, 如果发现1)无法重构2)有多种情况就返回false
+多种情况的判断基于是否每一步q里都只有一个元素加进来(indegree为0的只有一个)
 # https://www.lintcode.com/problem/605/solution/34974
 """
 from collections import defaultdict, deque
@@ -4349,10 +4394,10 @@ Example 2
 Input：["z","x"]
 Output："zx"
 Explanation：
-from "z" and "x"，we can get 'z' < 'x'
+from "z" and "x", we can get 'z' < 'x'
 So return "zx"
 
-# 如果同时在indegree==0的字符里出现了 b 和 c，先输出正常字典序最小的，所以这里使用最小堆很对口。
+# 如果同时在indegree==0的字符里出现了 b 和 c, 先输出正常字典序最小的, 所以这里使用最小堆很对口。
 """
 from collections import defaultdict
 import heapq
@@ -4402,12 +4447,12 @@ sol.alienOrder( ["ca", "cb"])
 
 """
 ##############################################################################
-深度优先搜索（DFS）
+深度优先搜索(DFS)
 ##############################################################################
-1) 图中（有向无向皆可）的符合某种特征（比如最长）的路径以及长度
-2）排列组合
-3）遍历一个图（或者树）, 复制图或者树
-4）找出图或者树中符合题目要求的全部方案
+1) 图中(有向无向皆可)的符合某种特征(比如最长)的路径以及长度
+2)排列组合
+3)遍历一个图(或者树), 复制图或者树
+4)找出图或者树中符合题目要求的全部方案
 About the time and space complexity of recursion 
 https://www.youtube.com/watch?v=OQi4n8EKRD8
 """
@@ -4486,11 +4531,11 @@ Return 3, which is the length of the path [4,2,1,3] or [5,2,1,3].
 
 Follow up: what if N ary tree instead of binary?  https://www.cnblogs.com/cnoodle/p/14349421.html
 
-根结点1的左右两个子树的深度之和呢。那么我们只要对每一个结点求出其左右子树深度之和，
-这个值作为一个候选值，然后再对左右子结点分别调用求直径对递归函数，这三个值相互比较，
-取最大的值更新结果res，因为直径不一定会经过根结点，所以才要对左右子结点再分别算一次。
+根结点1的左右两个子树的深度之和呢。那么我们只要对每一个结点求出其左右子树深度之和, 
+这个值作为一个候选值, 然后再对左右子结点分别调用求直径对递归函数, 这三个值相互比较, 
+取最大的值更新结果res, 因为直径不一定会经过根结点, 所以才要对左右子结点再分别算一次。
 
-为了减少重复计算，我们用哈希表建立每个结点和其深度之间的映射，这样某个结点的深度之前计算过了，就不用再次计算了
+为了减少重复计算, 我们用哈希表建立每个结点和其深度之间的映射, 这样某个结点的深度之前计算过了, 就不用再次计算了
 """
 # Definition for a binary tree node.
 class TreeNode:
@@ -4567,8 +4612,8 @@ class Solution_DFS:
 
 
 class Solution_BFS:
-    # 先把根节点排入队列中，然后从队中取出来，交换其左右节点，如果存在则分别将
-    # 左右节点在排入队列中，以此类推直到队列中木有节点了停止循环，返回root即可
+    # 先把根节点排入队列中, 然后从队中取出来, 交换其左右节点, 如果存在则分别将
+    # 左右节点在排入队列中, 以此类推直到队列中木有节点了停止循环, 返回root即可
     def invertTree(self, root: Optional[TreeNode]) -> Optional[TreeNode]:
         if root is None:
             return None
@@ -4711,10 +4756,10 @@ Input: [-10,9,20,null,null,15,7]
    15   7
 Output: 42
 
-讨论：这道题有一个很好的 Follow up，就是返回这个最大路径，那么就复杂很多，因为这样递归函数就不能返回路径和了，
-而是返回该路径上所有的结点组成的数组，递归的参数还要保留最大路径之和，同时还需要最大路径结点的数组，
-然后对左右子节点调用递归函数后得到的是数组，要统计出数组之和，并且跟0比较，如果小于0，和清零，数组清空。
-然后就是更新最大路径之和跟数组啦，还要拼出来返回值数组，代码长了很多
+讨论：这道题有一个很好的 Follow up, 就是返回这个最大路径, 那么就复杂很多, 因为这样递归函数就不能返回路径和了, 
+而是返回该路径上所有的结点组成的数组, 递归的参数还要保留最大路径之和, 同时还需要最大路径结点的数组, 
+然后对左右子节点调用递归函数后得到的是数组, 要统计出数组之和, 并且跟0比较, 如果小于0, 和清零, 数组清空。
+然后就是更新最大路径之和跟数组啦, 还要拼出来返回值数组, 代码长了很多
 """
 """
 // Author: Huahua
@@ -4761,26 +4806,34 @@ class Solution:
 
 class Solution2:
     # TLE
+    def __init__(self):
+        self.one_side_max_cache = dict()
+        self.maxPathSum_cache = dict()
+
     def maxPathSum(self, root: Optional[TreeNode]) -> int:
         if root is None:
             return 0
-        m = dict()
+        if root in self.maxPathSum_cache:
+            return self.maxPathSum_cache[root]
         res_including_root = root.val + \
             max(self.maxPathOnOneSide(root.left), 0) + \
             max(self.maxPathOnOneSide(root.right), 0)
         max_left = self.maxPathSum(root.left) if root.left else float('-Inf')  # repeat maxPathOnOneSide, should use a dict to save
         max_right = self.maxPathSum(root.right) if root.right else float('-Inf')
         res = max(max_left, max_right)
+        self.maxPathSum_cache[root] = max(res, res_including_root)
         return max(res, res_including_root)
 
-    @lru_cache(None)
     def maxPathOnOneSide(self, root):
         # via root
         if root is None:
             return 0
+        if root in self.one_side_max_cache:
+            return self.one_side_max_cache[root]
         left_max = max(self.maxPathOnOneSide(root.left), 0)
         right_max = max(self.maxPathOnOneSide(root.right), 0)
-        return root.val + max(left_max, right_max)
+        self.one_side_max_cache[root] = root.val + max(left_max, right_max)
+        return self.one_side_max_cache[root]
 
 
 """ LeetCode 1644. Lowest Common Ancestor of a Binary Tree II
@@ -4829,7 +4882,7 @@ class Solution:
         right_node, right_num = self.getLCAAndNum(root.right)
         if root == p or root == q:
             return (root, 1 + left_num + right_num)
-        if left_node and right_node:
+        if left_node and right_node: # num_left > 0 and num_right > 0?
             return (root, 2)
         return (left_node, left_num) if left_node else (right_node, right_num)
 
@@ -4852,8 +4905,8 @@ Return the following binary tree:
    15   7
 Output: [3,9,20,null,null,15,7]
 
-Solution: 由于先序的顺序的第一个肯定是根，所以原二叉树的根节点可以知道，题目中给了一个很关键的条件就是树中没有相同元素，
-有了这个条件就可以在中序遍历中也定位出根节点的位置，并以根节点的位置将中序遍历拆分为左右两个部分，分别对其递归调用原函数
+Solution: 由于先序的顺序的第一个肯定是根, 所以原二叉树的根节点可以知道, 题目中给了一个很关键的条件就是树中没有相同元素, 
+有了这个条件就可以在中序遍历中也定位出根节点的位置, 并以根节点的位置将中序遍历拆分为左右两个部分, 分别对其递归调用原函数
 """
 class Solution:
     def buildTree(self, preorder: List[int], inorder: List[int]) -> Optional[TreeNode]:
@@ -4927,7 +4980,23 @@ Return the following binary tree:
    15   7
 hint: the last num in postorder is root
 """
-# skip 
+# similar as before, identify root, and then 
+# find the index of the root value in the inorder traversal.
+class TreeNode:
+    def __init__(self, x):
+        self.val = x
+        self.left = None
+        self.right = None
+
+def buildTree(inorder, postorder):
+    if not inorder or not postorder:
+        return None
+    root_val = postorder[-1]
+    root = TreeNode(root_val)
+    i = inorder.index(root_val)
+    root.left = buildTree(inorder[:i], postorder[:i])
+    root.right = buildTree(inorder[i+1:], postorder[i:-1])
+    return root
 
 
 """[LeetCode] 1485. Clone Binary Tree With Random Pointer !!!
@@ -4955,10 +5024,10 @@ The random pointer of node 7 is node 1, so it is represented as [7, 0]
 where 0 is the index of node 1 in the array representing the tree.
 
 Solution: 
-既然是深度复制，又是树的遍历，所以比较直观的感受是用BFS或者DFS做，在遍历树的每个节点的同时，将每个节点复制，用hashmap储存。
+既然是深度复制, 又是树的遍历, 所以比较直观的感受是用BFS或者DFS做, 在遍历树的每个节点的同时, 将每个节点复制, 用hashmap储存。
 
-首先是BFS。还是常规的层序遍历的思路去遍历树的每个节点，但是注意在做层序遍历的时候，
-只需要将左孩子和右孩子加入queue进行下一轮遍历，不需要加入random节点。
+首先是BFS。还是常规的层序遍历的思路去遍历树的每个节点, 但是注意在做层序遍历的时候, 
+只需要将左孩子和右孩子加入queue进行下一轮遍历, 不需要加入random节点。
 
 时间O(n)
 空间O(n)
@@ -4972,7 +5041,7 @@ class TreeNode:
         self.right = right
         self.random = random
 
-class Solution:
+class Solution_BFS:
     def copyRandomBinaryTree(self, root):
         if root is None:
             return None
@@ -4981,7 +5050,7 @@ class Solution:
         q.append(root)
         m[root] = TreeNode(root.val)
 
-        while len(q) > 0:
+        while q:
             curr_node = q.popleft()
 
             if curr_node.left:
@@ -5008,7 +5077,7 @@ class Solution:
         
 class Solution_DFS:
     def __init__(self):
-        self.m = dict()
+        self.m = dict()  # bcz random pter can point to any node, which may be visited
     
     def copyRandomBinaryTree(self, root):
         if root is None:
@@ -5037,8 +5106,8 @@ Note that the inputs "root" and "target" are actually TreeNodes.
 The descriptions of the inputs above are just serializations of these objects.
 
 Solution: 
-建立一个邻接链表，即每个结点最多有三个跟其相连的结点，左右子结点和父结点，
-使用一个 HashMap 来建立每个结点和其相邻的结点数组之间的映射，这样就几乎完全将其当作图来对待了
+建立一个邻接链表, 即每个结点最多有三个跟其相连的结点, 左右子结点和父结点, 
+使用一个 HashMap 来建立每个结点和其相邻的结点数组之间的映射, 这样就几乎完全将其当作图来对待了
 
 Follow up:
 Can you use O(1) extra space? 
@@ -5442,8 +5511,8 @@ Explanation: The Largest BST Subtree in this case is the highlighted one.
 Follow up:
 Can you figure out ways to solve it with O(n) time complexity?
 """
-# 下面我们来看一种更简洁的写法，对于每一个节点，都来验证其是否是 BST，
-# 如果是的话，就统计节点的个数即可，参见代码如下
+# 下面我们来看一种更简洁的写法, 对于每一个节点, 都来验证其是否是 BST, 
+# 如果是的话, 就统计节点的个数即可, 参见代码如下
 """
 class Solution {
 public:
@@ -5602,10 +5671,10 @@ class Solution:
             # means all nodes in left subtree < p
             return root
         
-# 递归iterative：这种方法充分地利用到了 BST 的性质，首先看根节点值和p节点值的大小，
-# 如果根节点值大，说明p节点肯定在左子树中，那么此时先将 res 赋为 root，然后 root 移到其左子节点
-# ，循环的条件是 root 存在，再比较此时 root 值和p节点值的大小，如果还是 root 值大，重复上面的操作
-# ，如果p节点值，那么将 root 移到其右子节点，这样当 root 为空时，res 指向的就是p的后继节点，
+# 递归iterative：这种方法充分地利用到了 BST 的性质, 首先看根节点值和p节点值的大小, 
+# 如果根节点值大, 说明p节点肯定在左子树中, 那么此时先将 res 赋为 root, 然后 root 移到其左子节点
+# , 循环的条件是 root 存在, 再比较此时 root 值和p节点值的大小, 如果还是 root 值大, 重复上面的操作
+# , 如果p节点值, 那么将 root 移到其右子节点, 这样当 root 为空时, res 指向的就是p的后继节点, 
 class Solution:
     def inorderSuccessor(self, root, p):
         res = None
@@ -5640,11 +5709,11 @@ Follow up:
 Could you solve it without looking up any of the node's values?
 
 Solution:
-这道题并没有确定给我们根结点，只是给了树的任意一个结点.
+这道题并没有确定给我们根结点, 只是给了树的任意一个结点.
 
-仔细观察例子不难发现，当某个结点存在右子结点时，其中序后继结点就在子孙结点中，反之则在祖先结点中。
-这样我们就可以分别来处理，当右子结点存在时，我们需要找到右子结点的最左子结点，这个不难，就用个 while 循环就行了。
-当右子结点不存在，我们就要找到第一个比其值大的祖先结点，也是用个 while 循环去找即可，参见代码如下
+仔细观察例子不难发现, 当某个结点存在右子结点时, 其中序后继结点就在子孙结点中, 反之则在祖先结点中。
+这样我们就可以分别来处理, 当右子结点存在时, 我们需要找到右子结点的最左子结点, 这个不难, 就用个 while 循环就行了。
+当右子结点不存在, 我们就要找到第一个比其值大的祖先结点, 也是用个 while 循环去找即可, 参见代码如下
 """
 def inorderSuccessor(node):
     if node is None:
@@ -5662,12 +5731,12 @@ def inorderSuccessor(node):
     
     return node.parent  # node.parent.val > node.val
 
-# 本题的 Follow up 让我们不要访问结点值，那么上面的解法就不行了。因为当 node 没有右子结点时，
-# 我们没法通过比较结点值来找到第一个大于 node 的祖先结点。虽然不能比较结点值了，
-# 我们还是可以通过 node 相对于其 parent 的位置来判断，当 node 是其 parent 的左子结点时，
-# 我们知道此时 parent 的结点值一定大于 node，因为这是二叉搜索树的性质。
-# 若 node 是其 parent 的右子结点时，则将 node 赋值为其 parent，继续向上找，直到其 parent 结点不存在了，
-# 此时说明不存在大于 node 值的祖先结点，这说明 node 是 BST 的最后一个结点了，没有后继结点，直接返回 nullptr 即可
+# 本题的 Follow up 让我们不要访问结点值, 那么上面的解法就不行了。因为当 node 没有右子结点时, 
+# 我们没法通过比较结点值来找到第一个大于 node 的祖先结点。虽然不能比较结点值了, 
+# 我们还是可以通过 node 相对于其 parent 的位置来判断, 当 node 是其 parent 的左子结点时, 
+# 我们知道此时 parent 的结点值一定大于 node, 因为这是二叉搜索树的性质。
+# 若 node 是其 parent 的右子结点时, 则将 node 赋值为其 parent, 继续向上找, 直到其 parent 结点不存在了, 
+# 此时说明不存在大于 node 值的祖先结点, 这说明 node 是 BST 的最后一个结点了, 没有后继结点, 直接返回 nullptr 即可
 
 def inorderSuccessor(node):
     if node is None:
@@ -5811,9 +5880,9 @@ class Solution2:
                 self.getSum(nestedList[i], lv+1)
         self.d[lv] += res
         return 
-# Solution 2 把每一层的数字都先加起来放到一个变量 unweighted 中，然后每层遍历完了之后，
-# 就加到 weighted 变量中。再遍历下一层，再把数字加到 unweighted 中，当前层遍历完成了之后再次加到 weighted 变量中，
-# 注意此时 unweighted 中还包含上一层的数字和，此时就相当于上一层的数字和加了两次
+# Solution 2 把每一层的数字都先加起来放到一个变量 unweighted 中, 然后每层遍历完了之后, 
+# 就加到 weighted 变量中。再遍历下一层, 再把数字加到 unweighted 中, 当前层遍历完成了之后再次加到 weighted 变量中, 
+# 注意此时 unweighted 中还包含上一层的数字和, 此时就相当于上一层的数字和加了两次
 """
 class Solution {
 public:
@@ -6008,14 +6077,14 @@ def decodeString(s):
         if s[i].isdigit():
             temp_num = temp_num + s[i]
         elif s[i] == '[':
-            # 如果遇到左括号，我们把当前 temp_num 压入数字栈中，把当前temp_str压入字符串栈中；
+            # 如果遇到左括号, 我们把当前 temp_num 压入数字栈中, 把当前temp_str压入字符串栈中；
             s_num.append(int(temp_num))
             s_str.append(temp_str)
             temp_num = ""
             temp_str = ""
         elif s[i] == ']':
-            # 如果遇到右括号时，我们取出数字栈中顶元素，存入变量num0，
-            # 然后给字符串栈的顶元素循环加上num0个t字符串，然后取出顶元素存入字符串t中
+            # 如果遇到右括号时, 我们取出数字栈中顶元素, 存入变量num0, 
+            # 然后给字符串栈的顶元素循环加上num0个t字符串, 然后取出顶元素存入字符串t中
             num0 = s_num.pop()  # current multipler
             str0 = s_str.pop()  # previous string 
             temp_str = str0 + temp_str * num0
@@ -6050,9 +6119,9 @@ There exist two distinct solutions to the 4-queens puzzle:
 
 Input: n = 4
 Output: [[".Q..","...Q","Q...","..Q."],["..Q.","Q...","...Q",".Q.."]]
-经典的N皇后问题，基本所有的算法书中都会包含的问题，经典解法为回溯递归，一层一层的向下扫描，需要用到一个pos数组，
-其中pos[i]表示第i行皇后的位置，初始化为-1，然后从第0开始递归，每一行都一次遍历各列，判断如果在该位置放置皇后会不会有冲突，
-以此类推，当到最后一行的皇后放好后，一种解法就生成了，将其存入结果res中，然后再还会继续完成搜索所有的情况，代码如下：
+经典的N皇后问题, 基本所有的算法书中都会包含的问题, 经典解法为回溯递归, 一层一层的向下扫描, 需要用到一个pos数组, 
+其中pos[i]表示第i行皇后的位置, 初始化为-1, 然后从第0开始递归, 每一行都一次遍历各列, 判断如果在该位置放置皇后会不会有冲突, 
+以此类推, 当到最后一行的皇后放好后, 一种解法就生成了, 将其存入结果res中, 然后再还会继续完成搜索所有的情况, 代码如下：
 """
 from copy import deepcopy
 class Solution:
@@ -6173,10 +6242,10 @@ pattern = "aabb"
 str = "xyzabcxzyabc"
 Output: false
 
-取出当前位置的模式字符，然后从单词串的r位置开始往后遍历，每次取出一个单词，如果模式字符已经存在 HashMap 中，
-而且对应的单词和取出的单词也相等，那么再次调用递归函数在下一个位置，如果返回 true，那么就返回 true。
-反之如果该模式字符不在 HashMap 中，要看有没有别的模式字符已经映射了当前取出的单词，如果没有的话，
-建立新的映射，并且调用递归函数，注意如果递归函数返回 false 了，要在 HashMap 中删去这个映射
+取出当前位置的模式字符, 然后从单词串的r位置开始往后遍历, 每次取出一个单词, 如果模式字符已经存在 HashMap 中, 
+而且对应的单词和取出的单词也相等, 那么再次调用递归函数在下一个位置, 如果返回 true, 那么就返回 true。
+反之如果该模式字符不在 HashMap 中, 要看有没有别的模式字符已经映射了当前取出的单词, 如果没有的话, 
+建立新的映射, 并且调用递归函数, 注意如果递归函数返回 false 了, 要在 HashMap 中删去这个映射
 """
 class Solution:
     """
@@ -6668,8 +6737,8 @@ class Solution:
 
 
 # sol 4: recursion 2
-# 使用一个计数器，遇到左括号，计数器自增1，反之右括号计数器自减1，那么当计数器为0的时候，就是一个合法的字符串了，
-# 我们对除去最外层的括号的中间内容调用递归，然后把返回值乘以2，并和1比较，取二者间的较大值加到结果 res 中
+# 使用一个计数器, 遇到左括号, 计数器自增1, 反之右括号计数器自减1, 那么当计数器为0的时候, 就是一个合法的字符串了, 
+# 我们对除去最外层的括号的中间内容调用递归, 然后把返回值乘以2, 并和1比较, 取二者间的较大值加到结果 res 中
 # https://www.youtube.com/watch?v=tiAaVfMcL9w
 class Solution:
     def scoreOfParentheses(self, s: str) -> int:
@@ -7939,15 +8008,15 @@ exention -> exection (replace 'n' with 'c')
 exection -> execution (insert 'u')
 
 # Solution 1
-比较的时候，要尝试三种操作，因为谁也不知道当前的操作会对后面产生什么样的影响。
-对于当前比较的两个字符 word1[i] 和 word2[j]，若二者相同，一切好说，直接跳到下一个位置。
-若不相同，有三种处理方法，
-首先是直接插入一个 word2[j]，那么 word2[j] 位置的字符就跳过了，接着比较 word1[i] 和 word2[j+1] 即可。
-第二个种方法是删除，即将 word1[i] 字符直接删掉，接着比较 word1[i+1] 和 word2[j] 即可。
-第三种则是将 word1[i] 修改为 word2[j]，接着比较 word1[i+1] 和 word[j+1] 即可。
+比较的时候, 要尝试三种操作, 因为谁也不知道当前的操作会对后面产生什么样的影响。
+对于当前比较的两个字符 word1[i] 和 word2[j], 若二者相同, 一切好说, 直接跳到下一个位置。
+若不相同, 有三种处理方法, 
+首先是直接插入一个 word2[j], 那么 word2[j] 位置的字符就跳过了, 接着比较 word1[i] 和 word2[j+1] 即可。
+第二个种方法是删除, 即将 word1[i] 字符直接删掉, 接着比较 word1[i+1] 和 word2[j] 即可。
+第三种则是将 word1[i] 修改为 word2[j], 接着比较 word1[i+1] 和 word[j+1] 即可。
 
-分析到这里，就可以直接写出递归的代码，但是很可惜会 Time Limited Exceed，所以必须要优化时间复杂度，
-需要去掉大量的重复计算，这里使用记忆数组 memo 来保存计算过的状态，从而可以通过 OJ，
+分析到这里, 就可以直接写出递归的代码, 但是很可惜会 Time Limited Exceed, 所以必须要优化时间复杂度, 
+需要去掉大量的重复计算, 这里使用记忆数组 memo 来保存计算过的状态, 从而可以通过 OJ, 
 """
 class Solution_DFS:
     def minDistance(self, word1: str, word2: str):
@@ -7983,14 +8052,14 @@ sol.minDistance(word1, word2)
 
 """ Solution 2: DP
 dp[i][j] 表示从 word1 的前i个字符转换到 word2 的前j个字符所需要的步骤
-先给这个二维数组 dp 的第一行第一列赋值，这个很简单，因为第一行和第一列对应的总有一个字符串是空串，于是转换步骤完全是另一个字符串的长度
+先给这个二维数组 dp 的第一行第一列赋值, 这个很简单, 因为第一行和第一列对应的总有一个字符串是空串, 于是转换步骤完全是另一个字符串的长度
   Ø a b c d
 Ø 0 1 2 3 4
 b 1 1 1 2 3
 b 2 2 1 2 3
 c 3 3 2 1 2
-通过观察可以发现，当 word1[i] == word2[j] 时，dp[i][j] = dp[i - 1][j - 1]，
-其他情况时，dp[i][j] 是其左，左上，上的三个值中的最小值加1，那么可以得到状态转移方程为
+通过观察可以发现, 当 word1[i] == word2[j] 时, dp[i][j] = dp[i - 1][j - 1], 
+其他情况时, dp[i][j] 是其左, 左上, 上的三个值中的最小值加1, 那么可以得到状态转移方程为
 
 dp[i][j] =      /    dp[i - 1][j - 1]    if word1[i - 1] == word2[j - 1]
 
@@ -8054,10 +8123,10 @@ output: 39882198
 # may use DP as well
 
 """ DP 
-需要一个一维数组 dp，其中 dp[i] 表示目标数为i的解的个数，然后从1遍历到 target，对于每一个数i，
-遍历 nums 数组，如果 i>=x, dp[i] += dp[i - x]。这个也很好理解，比如说对于 [1,2,3] 4，
-这个例子，当计算 dp[3] 的时候，3可以拆分为 1+x，而x即为 dp[2]，3也可以拆分为 2+x，
-此时x为 dp[1]，3同样可以拆为 3+x，此时x为 dp[0]
+需要一个一维数组 dp, 其中 dp[i] 表示目标数为i的解的个数, 然后从1遍历到 target, 对于每一个数i, 
+遍历 nums 数组, 如果 i>=x, dp[i] += dp[i - x]。这个也很好理解, 比如说对于 [1,2,3] 4, 
+这个例子, 当计算 dp[3] 的时候, 3可以拆分为 1+x, 而x即为 dp[2], 3也可以拆分为 2+x, 
+此时x为 dp[1], 3同样可以拆为 3+x, 此时x为 dp[0]
 """
 class Solution:
     def combinationSum4(self, nums, target: int) -> int:
@@ -8491,11 +8560,11 @@ class Solution:
 sol=Solution()
 sol.findAllConcatenatedWordsInADict(["cat","cats","catsdogcats","dog","dogcatsdog","hippopotamuses","rat","ratcatdogcat"])
 """Solution 2 : DP
-思路是：对于words中的每个单词w，我们定义一个数组dp[n+1]，如果dp[i] == true，
+思路是：对于words中的每个单词w, 我们定义一个数组dp[n+1], 如果dp[i] == true, 
 则表示w.substr(0, i)可以由words中的已有单词连接而成。那么状态转移方程就是
-dp[i] = || {dp[j] && w[j:i] is in words}，
-其中j < i。最终检查dp[n]是否为true，如果是则将其加入结果集中。为了加速对words中的单词的查找，
-我们用一个哈希表来保存各个单词。这样时间复杂度可以降低到O(n * m^2)，其中n是words中的单词的个数，m是每个单词的平均长度（或者最大长度？）
+dp[i] = || {dp[j] && w[j:i] is in words}, 
+其中j < i。最终检查dp[n]是否为true, 如果是则将其加入结果集中。为了加速对words中的单词的查找, 
+我们用一个哈希表来保存各个单词。这样时间复杂度可以降低到O(n * m^2), 其中n是words中的单词的个数, m是每个单词的平均长度(或者最大长度？)
 """
 class Solution:
     def findAllConcatenatedWordsInADict(self, words):
@@ -8595,7 +8664,7 @@ sol.canCross([0,1,2,3,4,8,9,11])
 sol.canCross([0,2,4,5,6,8,9,11,14,17,18,19,20,22,23,24,25,27,30])
 
 # SOlution 2: DP
-# 其中 dp[i] 表示在位置为i的石头青蛙的弹跳力(只有青蛙能跳到该石头上，dp[i] 才大于0)
+# 其中 dp[i] 表示在位置为i的石头青蛙的弹跳力(只有青蛙能跳到该石头上, dp[i] 才大于0)
 """
 Idea 1:
             
@@ -8706,9 +8775,9 @@ Output: 1
 0 <= matrix[i][j] <= 231 - 1
 """
 # DFS: 
-# 用 DP 的原因是为了提高效率，避免重复运算。这里需要维护一个二维动态数组dp，
-# 其中 dp[i][j] 表示数组中以 (i,j) 为起点的最长递增路径的长度，初始将 dp 数组都赋为0，
-# 当用递归调用时，遇到某个位置 (x, y), 如果 dp[x][y] 不为0的话，直接返回 dp[x][y] 即可，
+# 用 DP 的原因是为了提高效率, 避免重复运算。这里需要维护一个二维动态数组dp, 
+# 其中 dp[i][j] 表示数组中以 (i,j) 为起点的最长递增路径的长度, 初始将 dp 数组都赋为0, 
+# 当用递归调用时, 遇到某个位置 (x, y), 如果 dp[x][y] 不为0的话, 直接返回 dp[x][y] 即可, 
 class Solution:
     def longestIncreasingPath(self, matrix) -> int:
         dp = [[0 for _ in range(len(matrix[0]))] for _ in range(len(matrix))]
@@ -8738,7 +8807,7 @@ sol.dfs(matrix, 0, 0, dp)
 sol.longestIncreasingPath(matrix)
 # BFS: 
 # Every element in dp can be updated for several times but not as initial point
-# 需要优化的是，如果当前点的 dp 值大于0了，说明当前点已经计算过了
+# 需要优化的是, 如果当前点的 dp 值大于0了, 说明当前点已经计算过了
 # will be faster if we sort the matrix, and visit from largest to smallest
 from collections import deque
 class Solution_BFS:
@@ -8771,10 +8840,10 @@ sol.longestIncreasingPath(matrix)
 
 """
 ############################################################################
-前缀和（Prefix Sum）
+前缀和(Prefix Sum)
 ############################################################################
-基础知识：前缀和本质上是在一个list当中，用O（N）的时间提前算好从第0个数字到第i个数字之和，
-在后续使用中可以在O（1）时间内计算出第i到第j个数字之和，一般很少单独作为一道题出现，而是很多题目中的用到的一个小技巧
+基础知识：前缀和本质上是在一个list当中, 用O(N)的时间提前算好从第0个数字到第i个数字之和, 
+在后续使用中可以在O(1)时间内计算出第i到第j个数字之和, 一般很少单独作为一道题出现, 而是很多题目中的用到的一个小技巧
 cumsum[j] - cumsum[i] = sum(nums[i+1:j+1])
 cumsum[j-1] - cumsum[i-1] = sum(nums[i:j])
 [1,2,3,4]
@@ -8817,8 +8886,8 @@ class Solution:
         
         return res
 
-# 题目还要求我们用分治法 Divide and Conquer Approach 来解，这个分治法的思想就类似于二分搜索法，
-# 需要把数组一分为二，分别找出左边和右边的最大子数组之和，然后还要从中间开始向左右分别扫描，
+# 题目还要求我们用分治法 Divide and Conquer Approach 来解, 这个分治法的思想就类似于二分搜索法, 
+# 需要把数组一分为二, 分别找出左边和右边的最大子数组之和, 然后还要从中间开始向左右分别扫描, 
 # 求出的最大值分别和左右两边得出的最大值相比较取最大的那一个
 """
 class Solution {
@@ -9019,7 +9088,7 @@ Output: false
 0 <= nums[i] <= 10**9
 
 Hint
-若数字a和b分别除以数字c，若得到的余数相同，那么 (a-b) 必定能够整除c
+若数字a和b分别除以数字c, 若得到的余数相同, 那么 (a-b) 必定能够整除c
 注意k=0的时候 无法取余
 """
 class Solution:
@@ -9071,9 +9140,9 @@ Input
 Output
 [null, 8, 11, 12]
 
-# 维护一个二维数组dp，其中dp[i][j]表示累计区间(0, 0)到(i, j)这个矩形区间所有的数字之和，
-# 那么此时如果我们想要快速求出(r1, c1)到(r2, c2)的矩形区间时，
-# 只需dp[r2][c2] - dp[r2][c1 - 1] - dp[r1 - 1][c2] + dp[r1 - 1][c1 - 1]即可，
+# 维护一个二维数组dp, 其中dp[i][j]表示累计区间(0, 0)到(i, j)这个矩形区间所有的数字之和, 
+# 那么此时如果我们想要快速求出(r1, c1)到(r2, c2)的矩形区间时, 
+# 只需dp[r2][c2] - dp[r2][c1 - 1] - dp[r1 - 1][c2] + dp[r1 - 1][c1 - 1]即可, 
 """
 class NumMatrix:
     def __init__(self, matrix):
@@ -9299,10 +9368,10 @@ class NumArray:
 
 """
 ############################################################################
-并查集（Union Find）：把两个或者多个集合合并为一个集合
+并查集(Union Find)：把两个或者多个集合合并为一个集合
 ############################################################################
-如果数据不是实时变化，本类问题可以用BFS或者DFS的方式遍历，如果数据实时变化（data stream）
-则并查集每次的时间复杂度可以视为O（1）；需要牢记合并与查找两个操作的模板
+如果数据不是实时变化, 本类问题可以用BFS或者DFS的方式遍历, 如果数据实时变化(data stream)
+则并查集每次的时间复杂度可以视为O(1)；需要牢记合并与查找两个操作的模板
 """
 
 """[LeetCode] Accounts Merge 账户合并
@@ -9334,12 +9403,12 @@ The length of accounts[i] will be in the range [1, 10].
 The length of accounts[i][j] will be in the range [1, 30].
 """
 # Solution 1: Union Find
-# 首先遍历每个账户和其中的所有邮箱，先将每个邮箱的 root 映射为其自身，然后将 owner 赋值为用户名。
-# 然后开始另一个循环，遍历每一个账号，首先对帐号的第一个邮箱调用 find 函数，得到其父串p，
-# 然后遍历之后的邮箱，对每个遍历到的邮箱先调用 find 函数，将其父串的 root 值赋值为p，
-# 这样做相当于将相同账号内的所有邮箱都链接起来了。接下来要做的就是再次遍历每个账户内的所有邮箱，
-# 先对该邮箱调用 find 函数，找到父串，然后将该邮箱加入该父串映射的集合汇总，这样就就完成了合并。
-# 最后只需要将集合转为字符串数组，加入结果 res 中，通过 owner 映射找到父串的用户名，加入字符串数组的首位置
+# 首先遍历每个账户和其中的所有邮箱, 先将每个邮箱的 root 映射为其自身, 然后将 owner 赋值为用户名。
+# 然后开始另一个循环, 遍历每一个账号, 首先对帐号的第一个邮箱调用 find 函数, 得到其父串p, 
+# 然后遍历之后的邮箱, 对每个遍历到的邮箱先调用 find 函数, 将其父串的 root 值赋值为p, 
+# 这样做相当于将相同账号内的所有邮箱都链接起来了。接下来要做的就是再次遍历每个账户内的所有邮箱, 
+# 先对该邮箱调用 find 函数, 找到父串, 然后将该邮箱加入该父串映射的集合汇总, 这样就就完成了合并。
+# 最后只需要将集合转为字符串数组, 加入结果 res 中, 通过 owner 映射找到父串的用户名, 加入字符串数组的首位置
 from collections import defaultdict
 
 class UF:
@@ -9633,7 +9702,7 @@ Output: [1,1,2,3]
 Follow up:
 Can you do it in time complexity O(k log mn), where k is the length of the positions?
 """
-# 将二维数组 encode 为一维的，于是需要一个长度为 m*n 的一维数组来标记各个位置属于哪个岛屿
+# 将二维数组 encode 为一维的, 于是需要一个长度为 m*n 的一维数组来标记各个位置属于哪个岛屿
 # Every time a new land is built, check its surroundings, if also island, then union
 # slightly modify UF to update current number of island
 class UF:
@@ -9695,9 +9764,9 @@ numIslands2(3, 3, [[0,0], [0,1], [1,2], [2,1]])
 
 """
 ############################################################################
-字典树（Trie）
+字典树(Trie)
 ############################################################################
-多数情况下可以通过用一个set来记录所有单词的prefix来替代，时间复杂度不变，但空间复杂度略高
+多数情况下可以通过用一个set来记录所有单词的prefix来替代, 时间复杂度不变, 但空间复杂度略高
 """
 
 """208. Implement Trie (Prefix Tree)
@@ -10024,9 +10093,9 @@ def suggestedProducts(self, products, word):
 
 """
 ############################################################################
-单调栈与单调队列（Monotone Stack／Queue）
+单调栈与单调队列(Monotone Stack／Queue)
 ############################################################################
-栈还是普通栈，不论单调栈还是单调队列，单调的意思是保留在栈或者队列中的数字是单调递增或者单调递减的
+栈还是普通栈, 不论单调栈还是单调队列, 单调的意思是保留在栈或者队列中的数字是单调递增或者单调递减的
 """
 
 """84. Largest Rectangle in Histogram
@@ -10159,11 +10228,11 @@ Example:
 Input: [0,1,0,2,1,0,1,3,2,1,2,1]
 Output: 6
 
-遍历高度，如果此时栈为空，或者当前高度小于等于栈顶高度，则把当前高度的坐标压入栈，注意这里不直接把高度压入栈，
-而是把坐标压入栈，这样方便在后来算水平距离。当遇到比栈顶高度大的时候，就说明有可能会有坑存在，可以装雨水。
-此时栈里至少有一个高度，如果只有一个的话，那么不能形成坑，直接跳过，如果多余一个的话，
-那么此时把栈顶元素取出来当作坑，新的栈顶元素就是左边界，当前高度是右边界，只要取二者较小的，减去坑的高度，
-长度就是右边界坐标减去左边界坐标再减1，二者相乘就是盛水量啦
+遍历高度, 如果此时栈为空, 或者当前高度小于等于栈顶高度, 则把当前高度的坐标压入栈, 注意这里不直接把高度压入栈, 
+而是把坐标压入栈, 这样方便在后来算水平距离。当遇到比栈顶高度大的时候, 就说明有可能会有坑存在, 可以装雨水。
+此时栈里至少有一个高度, 如果只有一个的话, 那么不能形成坑, 直接跳过, 如果多余一个的话, 
+那么此时把栈顶元素取出来当作坑, 新的栈顶元素就是左边界, 当前高度是右边界, 只要取二者较小的, 减去坑的高度, 
+长度就是右边界坐标减去左边界坐标再减1, 二者相乘就是盛水量啦
 Time complexity: O(n)
 """
 [0,1,0,2,1,0,1,3,2,1,2,1]
@@ -10401,12 +10470,12 @@ class Solution:
         for i in range(n*2):
             curr_i = i % n
             if len(stack) != 0:
-                # 如果此时栈不为空，且栈顶元素小于当前数字，说明当前数字就是栈顶元素的右边第一个较大数，那么建立二者的映射
+                # 如果此时栈不为空, 且栈顶元素小于当前数字, 说明当前数字就是栈顶元素的右边第一个较大数, 那么建立二者的映射
                 while len(stack) != 0 and nums[curr_i] > nums[stack[-1]]:
                     res[stack[-1]] = nums[curr_i]
                     stack.pop()
             if i < n:
-                # 因为 res 的长度必须是n，超过n的部分我们只是为了给之前栈中的数字找较大值，所以不能压入栈，
+                # 因为 res 的长度必须是n, 超过n的部分我们只是为了给之前栈中的数字找较大值, 所以不能压入栈, 
                 # actually it does not matter...
                 stack.append(i)
         return res
@@ -10518,7 +10587,7 @@ class Solution(object):
 
 """
 ############################################################################
-扫描线算法（Sweep Line）
+扫描线算法(Sweep Line)
 ############################################################################
 一个很巧妙的解决时间安排冲突的算法
 """
@@ -10538,7 +10607,7 @@ Output: 1
 NOTE: input types have been changed on April 15, 2019. Please reset to default code definition to get new method signature.
 
 Solution:
-遍历时间区间，可以按照每个区间的起点排序,对于起始时间，映射值自增1，对于结束时间，映射值自减1，然后定义结果变量 res，和房间数 rooms
+遍历时间区间, 可以按照每个区间的起点排序,对于起始时间, 映射值自增1, 对于结束时间, 映射值自减1, 然后定义结果变量 res, 和房间数 rooms
 NlogN
 """
 from collections import defaultdict
@@ -10723,9 +10792,9 @@ d.popitem(k) will pop the kth smallest item  - logN
 d.bisect_left(val) # return the index of val (from left) if inserted - logN
 
 
-基于红黑树（平衡二叉搜索树）的一种树状 hashmap，增删查改、找求大最小均为logN复杂度，Python当中可以使用SortedDict替代
-SortedDict继承了普通的dict全部的方法，除此之外还可以peekitem(k)来找key里面第k大的元素，
-popitem(k)来删除掉第k大的元素，弥补了Python自带的heapq没法logN时间复杂度内删除某个元素的缺陷
+基于红黑树(平衡二叉搜索树)的一种树状 hashmap, 增删查改、找求大最小均为logN复杂度, Python当中可以使用SortedDict替代
+SortedDict继承了普通的dict全部的方法, 除此之外还可以peekitem(k)来找key里面第k大的元素, 
+popitem(k)来删除掉第k大的元素, 弥补了Python自带的heapq没法logN时间复杂度内删除某个元素的缺陷
 """
 
 """729. My Calendar I
@@ -11091,7 +11160,7 @@ To the right of 2 there is only 1 smaller element (1).
 To the right of 6 there is 1 smaller element (1).
 To the right of 1 there is 0 smaller element.
 
-Idea: 用二分法插入到一个新的数组，这样新数组就是有序的，那么此时该数字在新数组中的坐标就是原数组中其右边所有较小数字的个数
+Idea: 用二分法插入到一个新的数组, 这样新数组就是有序的, 那么此时该数字在新数组中的坐标就是原数组中其右边所有较小数字的个数
 """
 # Solution 1: insertion sort (O(n^2))
 class Solution:
@@ -11147,9 +11216,9 @@ def countSmaller(self, nums):
 
 """
 ############################################################################
-动态规划（Dynamic Programming）
+动态规划(Dynamic Programming)
 ############################################################################
-常见的题目包括找最大最小，找可行性，找总方案数等
+常见的题目包括找最大最小, 找可行性, 找总方案数等
 """
 
 """674. Longest Continuous Increasing Subsequence
@@ -11172,8 +11241,8 @@ Output: 1
 Explanation: The longest continuous increasing subsequence is [2] with length 1. Note that it must be strictly
 increasing.
 """
-# Idea: 使用一个计数器，如果遇到大的数字，计数器自增1；如果是一个小的数字，则计数器重置为1。
-# 用一个变量 cur 来表示前一个数字，初始化为整型最大值，当前遍历到的数字 num 就和 cur 比较就行了，
+# Idea: 使用一个计数器, 如果遇到大的数字, 计数器自增1；如果是一个小的数字, 则计数器重置为1。
+# 用一个变量 cur 来表示前一个数字, 初始化为整型最大值, 当前遍历到的数字 num 就和 cur 比较就行了, 
 # 每次用 cnt 来更新结果 res
 """
 class Solution {
@@ -11514,7 +11583,7 @@ Output: 1
 # skip
 
 # Solution 2: nlogn, similar to length of LIS
-# 信封的宽度还是从小到大排，但是宽度相等时，我们让高度大的在前面 (w,h)
+# 信封的宽度还是从小到大排, 但是宽度相等时, 我们让高度大的在前面 (w,h)
 # In this way, if envs[i+1][height] > envs[i][height] then envs[i+1][width] must bigger
 # use dp[i] to save the last ("largest") envelop of length i
 # keep dp[i] be as small as possible 
@@ -11948,8 +12017,8 @@ Output: 5
 
 # Use dynamic programming. dp[i][j] will be the answer for inputs A[i:], B[j:].
 其中 dp[i][j] 表示数组A的前i个数字和数组B的前j个数字在尾部匹配的最长子数组的长度
-如果 dp[i][j] 不为0，则A中第i个数组和B中第j个数字必须相等，且 dp[i][j] 的值就是往前推分别相等的个数
-每次算出一个 dp 值，都要用来更新结果 res
+如果 dp[i][j] 不为0, 则A中第i个数组和B中第j个数字必须相等, 且 dp[i][j] 的值就是往前推分别相等的个数
+每次算出一个 dp 值, 都要用来更新结果 res
   3 1 2
 1 0 1 0
 2 0 0 2
@@ -11997,7 +12066,7 @@ s consists of lowercase English letters.
 # we use binary search to find such max K
 # Pay attention that it is non trivial to push a very long string into hash!
 # need to use  Rabin-Karp algorithm to convert string into an integer
-# 编码的方法是用 26 进制，因为限制了都是小写字母，为了防止整型溢出，需要对一个超大的质数取余
+# 编码的方法是用 26 进制, 因为限制了都是小写字母, 为了防止整型溢出, 需要对一个超大的质数取余
 # abce -> (1*26^1 + 2*26^2 + 3*26^3 + 5*26^4) % m, m=1e7+7
 # May use double hash to further decrease the chance
 s="ttwphlndxvcruhoaapgcfovcqopxbyzcidwhbwmpbdaiyanfhotksdvamvtpzvvugyr"
@@ -12068,7 +12137,7 @@ Explanation: The initial health of the knight must be at least 7 if he follows t
 
 Greedy does not work - can find counter example [[1,-3,3],[0,-2,0],[-3,-3,-3]]
 
-逆着往回推，骑士逆向进入房间后 PK 后所剩的血量就是骑士正向进入房间时 pk 前的起始血量。
+逆着往回推, 骑士逆向进入房间后 PK 后所剩的血量就是骑士正向进入房间时 pk 前的起始血量。
 所以用当前房间的右边和下边房间中骑士的较小血量减去当前房间的数字
 dp[i][j]: min health needed when entering room[i][j]
 dp[i][j] = min(dp[i+1][j], dp[i][j+1]) - dungeon[i][j], go backward
@@ -12424,8 +12493,8 @@ Input: nums = [2,3,2]
 Output: 3
 Explanation: You cannot rob house 1 (money = 2) and then rob house 3 (money = 2), because they are adjacent houses.
 """
-# hint: 这道题是之前那道House Robber 打家劫舍的拓展，现在房子排成了一个圆圈，则如果抢了第一家，就不能抢最后一家，因为首尾相连了，
-# 所以第一家和最后一家只能抢其中的一家，或者都不抢，那我们这里变通一下，如果我们把第一家和最后一家分别去掉，各算一遍能抢的最大值，
+# hint: 这道题是之前那道House Robber 打家劫舍的拓展, 现在房子排成了一个圆圈, 则如果抢了第一家, 就不能抢最后一家, 因为首尾相连了, 
+# 所以第一家和最后一家只能抢其中的一家, 或者都不抢, 那我们这里变通一下, 如果我们把第一家和最后一家分别去掉, 各算一遍能抢的最大值, 
 # 然后比较两个值取其中较大的一个即为所求。
 class Solution:
     def rob(self, nums) -> int:
@@ -12801,7 +12870,7 @@ Example 3:
 Input: coins = [1], amount = 0
 Output: 0
 
-# dp[i] 表示钱数为i时的最小硬币数的找零，
+# dp[i] 表示钱数为i时的最小硬币数的找零, 
 # can also use dfs+memo, key is i, value is 钱数为i时的最小硬币数的找零
 """
 class Solution(object):
@@ -12860,7 +12929,7 @@ Continue will be
 makeChange(6 using 0-2) = makeChange(6-0 using 1's) = 1 (because 6%1==0)
 makeChange(6 using 1-2) = makeChange(6-2 using 1's) = 1
 """
-# 用到最后一个硬币时，判断当前还剩的钱数是否能整除这个硬币，不能的话就返回0，否则返回1
+# 用到最后一个硬币时, 判断当前还剩的钱数是否能整除这个硬币, 不能的话就返回0, 否则返回1
 # memo: key is (remain_amount, curr_coin_idx)
 class Solution:
     def change(self, amount: int, coins) -> int:
@@ -13433,10 +13502,10 @@ class Solution:
 
 
 """ 01 Knapsack Problem 
-一共有N件物品，第i（i从1开始）件物品的重量为weights[i]，价值为values[i]。在总重量不超过背包承载上限W的情况下，能够装入背包的最大价值是多少？
+一共有N件物品, 第i(i从1开始)件物品的重量为weights[i], 价值为values[i]。在总重量不超过背包承载上限W的情况下, 能够装入背包的最大价值是多少？
 
 动态规划的核心思想避免重复计算在01背包问题中体现得淋漓尽致。第i件物品装入或者不装入而获得的最大价值
-完全可以由前面i-1件物品的最大价值决定，暴力枚举忽略了这个事实。
+完全可以由前面i-1件物品的最大价值决定, 暴力枚举忽略了这个事实。
 """ 
 def Knapsack01(values, weights, W):
     # dp[i][j] : max value by taking from first i items, with weight at most j
@@ -13462,8 +13531,8 @@ for i = 1,...,N
 """
 
 """Unbounded Knapsack problem
-完全背包（unbounded knapsack problem）与01背包不同就是每种物品可以有无限多个：一共有N种物品，每种物品有无限多个，
-第i（i从1开始）种物品的重量为weights[i]，价值为v[i]。在总重量不超过背包承载上限W的情况下，能够装入背包的最大价值是多少？
+完全背包(unbounded knapsack problem)与01背包不同就是每种物品可以有无限多个：一共有N种物品, 每种物品有无限多个, 
+第i(i从1开始)种物品的重量为weights[i], 价值为v[i]。在总重量不超过背包承载上限W的情况下, 能够装入背包的最大价值是多少？
 
 dp[i][j]表示将前i种物品装进限重为j的背包可以获得的最大价值, 0<=i<=N, 0<=j<=W
 这个状态转移方程与01背包问题唯一不同就是max第二项不是dp[i-1]而是dp[i]。
@@ -13491,7 +13560,7 @@ The size of given string array won't exceed 600.
 Input: strs = ["10","0001","111001","1","0"]; m = 5; n = 3 
 Output: 4
 """
-# 其中dp[i][j][k]表示用如果使用strs[:i]，有j个0和k个1时能组成的最多字符串的个数
+# 其中dp[i][j][k]表示用如果使用strs[:i], 有j个0和k个1时能组成的最多字符串的个数
 from collections import Counter
 strs = ["10","0001","111001","1","0"]; m = 5; n = 3 
 strs = ["10","0","1"]; m=1; n=1
