@@ -5097,6 +5097,13 @@ Return a list of the values of all nodes that have a distance K from the target 
 
 Example 1:
 Input: root = [3,5,1,6,2,0,8,null,null,7,4], target = 5, K = 2
+     3
+    / \
+   5   1
+  / \ / \
+ 6  2 0  8
+    / \
+   7   4
 Output: [7,4,1]
 Explanation:
 The nodes that are a distance 2 from the target node (with value 5)
@@ -5136,7 +5143,7 @@ class Solution:
                     res.append(curr_node.val)
                 elif curr_dist < k:
                     for neighbor in m[curr_node]:
-                        if neighbor not in visited and curr_dist+1 <=k:
+                        if neighbor not in visited:
                             q.append((neighbor, curr_dist+1))
                         visited.add(neighbor)
         
@@ -5162,13 +5169,25 @@ Given the root of a binary tree, each node in the tree has a distinct value.
 After deleting all nodes with a value in to_delete, we are left with a forest (a disjoint union of trees).
 
 Return the roots of the trees in the remaining forest. You may return the result in any order.
- 
+
 Example 1:
 Input: root = [1,2,3,4,5,6,7], to_delete = [3,5]
+       1
+      / \
+     2   3
+    / \   \
+   4   5   6
+      / 
+     7   
 Output: [[1,2,null,4],[6],[7]]
 
 Example 2:
 Input: root = [1,2,4,null,3], to_delete = [3]
+       1
+      / \
+     2   4
+        /
+       3
 Output: [[1,2,4]]
 """
 # Definition for a binary tree node.
@@ -5224,6 +5243,7 @@ class Solution2:
             node.left = self.helper(node.left, True, delete_set, res)
             node.right = self.helper(node.right, True, delete_set, res)
         else:
+            # if node.left is in delete then node.left=None
             node.left = self.helper(node.left, False, delete_set, res)
             node.right = self.helper(node.right, False, delete_set, res)
         return node if node.val not in delete_set else None
@@ -5282,39 +5302,45 @@ class Solution:
         return None
 
 """中序遍历的非递归写法: use stack first push left till end, then right (repeat)
+"""
 def kthSmallest(root, k):
     res = []
     stack = []
-    p, pre = root, None
-    while p or stack:
-        while p:
+    curr_node = root
+    while curr_node or stack:
+        while curr_node:
             stack.append(p)
-            p = p.left
-        p = stack.pop()
-        res.append(p)
-        p = p.right
+            curr_node = curr_node.left
+        curr_node = stack.pop()
+        res.append(curr_node.val)
+        curr_node = curr_node.right
     return res[k-1]
-"""
 
+#
 # Solution 2: binary search 
-"""
-class Solution {
-public:
-    int kthSmallest(TreeNode* root, int k) {
-        int cnt = count(root->left);
-        if (k <= cnt) {  
-            return kthSmallest(root->left, k);
-        } else if (k > cnt + 1) {
-            return kthSmallest(root->right, k - cnt - 1);
-        }
-        return root->val; //cnt = k-1
-    }
-    int count(TreeNode* node) {
-        if (!node) return 0;
-        return 1 + count(node->left) + count(node->right);
-    }
-};
-"""
+#
+class Solution:
+    def kthSmallest(self, root, k):
+        self.count = 0  # Counter for the number of visited nodes
+        self.result = None  # Store the kth smallest element
+        self.target = k
+        self.inorder_traversal(root)
+        return self.result
+
+    def inorder_traversal(self, node):
+        if self.result:
+            return 
+        if node:
+            self.inorder_traversal(node.left)
+            if self.result:
+                return 
+            self.count += 1
+            if self.count == self.target:
+                self.result = node.val
+                return  # Stop traversal once the kth element is found
+            self.inorder_traversal(node.right)
+        return 
+
 # Follow up: 
 # we can modify the sol 2 to handle follow up
 # modify the tree node structure to let it also save cnt information
@@ -5555,10 +5581,30 @@ public:
     }
 """
 class Solution:
-    def __init__():
-        self.res = 0
-    
     def largestBSTSubtree(self, root):
+        self.res = 0 
+        size, isBST, mn, mx = self.largestBST_helper(self, root)
+        return self.res
+    
+    def largestBST_helper(self, node):
+        # size = -1 if not BST
+        # also return min and max number under root
+        if not node:
+            # for none, always make min inf and max -inf so its parent will be BST
+            return 0, True, float('inf'), float('-inf')
+        left_size, left_is_BST, left_min, left_max = self.largestBST_helper(node.left)
+        right_size, right_is_BST, right_min, right_max = self.largestBST_helper(node.right)
+        if left_max < node.val < right_min and left_is_BST and right_is_BST:
+            self.res = max(self.res, left_size + 1 + right_size, True, left_min, right_max)
+            # min(node.val, left_min) in case of none kid
+            return left_size + 1 + right_size, True, min(node.val, left_min), max(right_max, node.val)
+        else:
+            return -1, False, left_min, right_max
+
+
+class Solution2:
+    def largestBSTSubtree(self, root):
+        self.res = 0
         self.GetBSTSize(root, float('-Inf'), float('Inf'))
         return self.res
 
@@ -5576,41 +5622,6 @@ class Solution:
         # node is not BST but still
         return -1
 
-
-class Solution:
-    def __init__():
-        self.res = 0
-    
-    def largestBSTSubtree(self, root):
-        self.GetBSTSize(root)
-        return self.res
-
-    def GetBSTSize(self, node):
-        size = self.helper(node, float('-Inf'), float('Inf'))
-        if size != -1:
-            # node is root of a BST, any of is subtree is BST
-            # no need to go deeper
-            self.res = max(size, self.res)
-            return None
-        # else check its kids
-        self.GetBSTSize(node.left)
-        self.GetBSTSize(node.right)
-
-    def helper(self, node, mn, mx):
-        # return the size of BST with node as root,
-        # return -1 if node is not root of a BST
-        if node is None:
-            return 0
-        if node.val <= mn or node.val >= mx:
-            return -1 # not a BST
-        left = self.helper(node.left, mn, node.val)
-        if left == -1:
-            # if left node is not a root of BST, then node is not
-            return -1
-        right = self.helper(node.right, node.val, mx)
-        if right == -1:
-            return -1
-        return left + right + 1
 
 # follow up:
 # https://www.cnblogs.com/grandyang/p/5188938.html
@@ -5644,6 +5655,13 @@ public:
 Given a binary search tree and a node in it, find the in-order successor of that node in the BST.
 
 The successor of a node p is the node with the smallest key greater than p.val.
+p = 3; 4
+        5
+       / \
+      3   8
+     / \   \
+    1   4   10
+output: 4; 5
 """
 # 首先要确定中序遍历的后继:
 # - 如果该节点有右子节点, 那么后继是其右子节点的子树中最左端的节点
@@ -5750,14 +5768,6 @@ def inorderSuccessor(node):
         node = node.parent
     
     return node.parent  # node.parent.left = node (node.val is smaller)
-    # while node:
-    #     if node.parent is None:
-    #         return None
-    #     if node == node.parent.left:
-    #         # node is left child, then parent.val > node.val
-    #         return node.parent
-    #     node = node.parent
-    # return None
 
 
 """341. Flatten Nested List Iterator
@@ -5844,14 +5854,14 @@ Explanation: One 1 at depth 3, one 4 at depth 2, and one 6 at depth 1; 1*3 + 4*2
 class Solution:
     def depthSumInverse(self, nestedList):
         res_vector = [] # or can use a dict: depth -> sum at depth
-        self.depthSumByLevel(nestedList, res_vector, 1)
+        self.depthSumByLevel(nestedList, res_vector, 0)
         wsum = 0
         for i in range(len(res_vector)):
             wsum = res_vector[i] * (len(res_vector) - i)
         return wsum
 
     def depthSumByLevel(self, nestedList, res_vector, depth):
-        if len(res_vector) < depth:
+        if len(res_vector) < depth + 1:
             res_vector.append(0)
         for i in range(len(nestedList)):
             if nestedList[i].isInteger():
@@ -5880,6 +5890,7 @@ class Solution2:
                 self.getSum(nestedList[i], lv+1)
         self.d[lv] += res
         return 
+
 # Solution 2 把每一层的数字都先加起来放到一个变量 unweighted 中, 然后每层遍历完了之后, 
 # 就加到 weighted 变量中。再遍历下一层, 再把数字加到 unweighted 中, 当前层遍历完成了之后再次加到 weighted 变量中, 
 # 注意此时 unweighted 中还包含上一层的数字和, 此时就相当于上一层的数字和加了两次
@@ -6096,7 +6107,7 @@ def decodeString(s):
 
 
 """51. N-Queens !!!
-The n-queens puzzle is the problem of placing n queens on an n×n chessboard such that no two queens attack each other.
+The n-queens puzzle is the problem of placing n queens on an nxn chessboard such that no two queens attack each other.
 Given an integer n, return all distinct solutions to the n-queens puzzle.
 
 Each solution contains a distinct board configuration of the n-queens' placement, where 'Q' and '.' both indicate a 
@@ -6160,7 +6171,36 @@ sol=Solution()
 len(sol.solveNQueens(8))
 len(sol.solveNQueens(10))
 
-# optimize the memory usage
+# Bard solutin
+def solveNQueens(n):
+    def is_valid(board, row, col):
+        """
+        Checks if placing a queen at (row, col) is valid. O(n)
+        """
+        for i in range(row):
+            if board[i][col] == 'Q' or (board[i][col+row-i] == 'Q' and col+row-i < len(board)) or (board[i][col-row+i] == 'Q' and col-row+i >= 0):
+                return False
+        return True
+
+    def backtrack(board, row):
+        """
+        Recursively places queens on the board using backtracking.
+        """
+        if row == n:
+            solutions.append([''.join(row) for row in board])
+            return
+
+        for col in range(n):
+            if is_valid(board, row, col):
+                board[row][col] = 'Q'
+                backtrack(board, row + 1)
+                board[row][col] = '.'  # Backtrack
+    solutions = []
+    board = [['.'] * n for _ in range(n)]
+    backtrack(board, 0)
+    return solutions
+
+# optimize the memory usage from above
 class Solution:
     def solveNQueens(self, n: int) -> List[List[str]]:
         res = []
@@ -6215,8 +6255,7 @@ class Solution:
 
 
 """ 829 · Word Pattern II !!!
-Description
-Given a pattern and a string str, find if str follows the same pattern.
+Description Given a pattern and a string str, find if str follows the same pattern.
 
 Here follow means a full match, such that there is a bijection between a letter in pattern 
 and a non-empty substring in str.(i.e if a corresponds to s, then b cannot correspond to s. 
@@ -6235,8 +6274,8 @@ pattern = "aaaa"
 str = "asdasdasdasd"
 Output: true
 Explanation: "a"->"asd"
-Example 3
 
+Example 3
 Input:
 pattern = "aabb"
 str = "xyzabcxzyabc"
@@ -6258,7 +6297,6 @@ class Solution:
         m = dict()
         used = set() # save how many map values, diff keys cannot map to the same value
         res = self.helper(pattern, 0, str1, 0, m, used)
-        print(m)
         return res
     
     def helper(self, pattern, p, str1, r, m, used):
@@ -6269,7 +6307,8 @@ class Solution:
         curr_c = pattern[p]
         if curr_c in m:
             # if already mapped, then stick to it
-            if len(str1[r:]) < len(m[curr_c]) or str1[r:r+len(m[curr_c])] != m[curr_c]:
+            # if len(str1[r:]) < len(m[curr_c]) or str1[r:r+len(m[curr_c])] != m[curr_c]:
+            if str1[r:].startswith(m[pattern[p]]):
                 return False
             return self.helper(pattern, p+1, str1, r+len(m[curr_c]), m, used)
         
@@ -6648,7 +6687,7 @@ class Solution:
         res = 0
         while i <= end:
             if s[i] == '(':
-                if s[i+1] == ')':
+                if s[i+1] == ')': # i==self.m[i]-1
                     # "()" cannot be taken care by dfs directly, i never reach end so i+1 is valid
                     res += 1
                     i = i + 2
@@ -6954,16 +6993,20 @@ class Solution:
                 str_num = str(num)
                 if str_num in row_set[i] or str_num in col_set[j] or str_num in block_set[self.block_map(i, j)]:
                     continue
-                board[i][j] = str_num
+                board[i][j] = str_num  # try
+
                 row_set[i].add(str_num)
                 col_set[j].add(str_num)
                 block_set[self.block_map(i, j)].add(str_num)
+
                 if self.dfs(board, i, j+1, row_set, col_set, block_set, res):
                     return True
+                
                 row_set[i].remove(str_num)
                 col_set[j].remove(str_num)
                 block_set[self.block_map(i, j)].remove(str_num)
-                board[i][j] = "."
+
+                board[i][j] = "."  # trackback
 
         return False
 
@@ -6982,7 +7025,7 @@ or vertically neighboring. The same letter cell may not be used more than once.
 Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
 Output: true
 """
-
+# runtime: M*N*4^L 
 class Solution:
     def exist(self, board: List[List[str]], word: str) -> bool:
         if word is None:
@@ -7178,6 +7221,8 @@ class Solution:
     def expand(self, s):
         s_list = re.split("{|}", s)
         s_list = [i.split(",") for i in s_list if len(i)>0]
+        # "{a,b}c{d,e}f" -> 
+        # [['a', 'b'], ['c'], ['d', 'e'], ['f']]
         res = []
         self.expand_list(s_list, 0, "", res)
         return res
@@ -7186,12 +7231,7 @@ class Solution:
         if start_idx == len(s_list):
             res.append(out)
             return None
-        
-        if isinstance(s_list[start_idx], str):
-            self.expand_list(s_list, start_idx+1, out+s_list[start_idx], res)
-            return None
 
-        # list
         for i in s_list[start_idx]:
             self.expand_list(s_list, start_idx+1, out+i, res)
         return None
@@ -7396,6 +7436,28 @@ class Solution:
 sol = Solution()
 sol.numOfMinutes(6, 2, [2,2,-1,2,2,2], [0,0,1,0,0,0])
 
+from collections import deque
+class Solution_BFS:
+    def numOfMinutes(self, n: int, headID: int, manager, informTime):
+        mgr2ic = defaultdict(list) # manager -> direct report 
+        for report_id, manager_id in enumerate(manager):
+            mgr2ic[manager_id].append(report_id)
+
+        q = deque()
+        q.append((headID, 0))
+        res = 0
+        while q:
+            pid, curr_time = q.popleft()
+            if len(mgr2ic[pid]) == 0:
+                res = max(res, curr_time)
+            for report_id in mgr2ic[pid]:
+                q.append((report_id, curr_time+informTime[pid]))
+        
+        return res
+
+sol = Solution_BFS()
+sol.numOfMinutes(6, 2, [2,2,-1,2,2,2], [0,0,1,0,0,0])
+
 
 """131. Palindrome Partitioning 
 Given a string s, partition s such that every substring of the partition is a
@@ -7434,6 +7496,7 @@ class Solution:
         return None
         
     def is_Palindrome(self, s):
+        # return string == string[::-1]
         l, r = 0, len(s) - 1
         while l<r:
             if s[l] != s[r]:
@@ -7453,6 +7516,9 @@ class Solution:
                     for each in dp[i]:
                         dp[j].append(each + [s[i:j]])
         return dp[-1]
+
+sol=Solution()
+sol.partition("abbc")
 
 """77. Combinations
 Given two integers n and k, return all possible combinations of k numbers out of the range [1, n].
@@ -7478,6 +7544,7 @@ class Solution:
         return res
     
     def dfs(self, nums, k, start, out, res):
+        # out: current output list
         if k==0:
             res.append(out)
             return None
@@ -7696,7 +7763,7 @@ sol.permuteUnique([1,1,2])
 
 """698. Partition to K Equal Sum Subsets 分割K个等和的子集 
 Given an array of integers nums and a positive integer k, find whether it's 
-possible to divide this array into knon-empty subsets whose sums are all equal.
+possible to divide this array into k non-empty subsets whose sums are all equal.
 
 Example 1:
 Input: nums = [4, 3, 2, 3, 5, 2, 1], k = 4
@@ -7739,6 +7806,7 @@ Idea: it is like combination, but record all that sum up to target
 #             else:
 #                 continue
 #         return False
+
 class Solution:
     def canPartitionKSubsets(self, nums, k: int):
         self.raw_target = sum(nums) / k
@@ -7747,7 +7815,7 @@ class Solution:
         nums.sort(reverse=True)
         visited = ['0' for _ in range(len(nums))]
         memo = dict()
-        def dfs(k, target, start_idx, memo):
+        def dfs(k, rem_target, start_idx, memo):
             if k == 1: # if k-1 targets, then the last one must be sum to target(target=sums/k)
                 return True
             visited_str = ''.join(visited)
@@ -7756,16 +7824,16 @@ class Solution:
             for i in range(start_idx, len(nums)):
                 if visited[i] == '1':
                     continue
-                if nums[i] == target:
+                if nums[i] == rem_target:
                     visited[i] = '1'
                     res = dfs(k-1, self.raw_target, 0, memo)
                     if res:
                         memo[''.join(visited)] = True
                         return True
                     visited[i] = '0'
-                elif nums[i] < target:
+                elif nums[i] < rem_target:
                     visited[i] = '1'
-                    res = dfs(k, target - nums[i], i+1, memo)
+                    res = dfs(k, rem_target - nums[i], i+1, memo)
                     if res:
                         memo[''.join(visited)] = True
                         return True
@@ -7945,13 +8013,11 @@ class Solution:
         self.dfs(s, 0, "")
         return [i.strip() for i in self.res]
     
-    @lru_cache(None)  # may not be useful?
     def dfs(self, s, start_idx, out):
         if start_idx == len(s):
             self.res.append(out) 
             return None
-        # if s[start_idx:] in self.wordSet:
-        #     res.append(out + " " + s[start_idx:])
+
         for i in range(start_idx, len(s)):
             if i > start_idx + self.max_len:
                 break
@@ -8330,6 +8396,7 @@ class Solution:
                 max_difficult = 0
                 for j in list(range(k-1, i))[::-1]:
                     max_difficult = max(max_difficult, jobDifficulty[j])  # max(jobs[j+1:i]), cannot take i
+                    # can also use a max_dp[i][j] to precompute max(jobs[i:j+1]) first: dp_max[i][j] = max(dp_max[i][j-1], jobs[j+1]) for j>=i
                     dp[i][k] = min(dp[i][k], dp[j][k-1] + max_difficult)
 
         return dp[n][d] if dp[n][d]<float('Inf') else -1
@@ -8527,7 +8594,7 @@ Example 2:
 Input: words = ["cat","dog","catdog"]
 Output: ["catdog"]
 
-Solution 1: DFS with memorization
+Solution 1: DFS with memorization, num_word * word_len^2 if memo
 """
 from collections import defaultdict
 class Solution:
@@ -8774,7 +8841,7 @@ Output: 1
 
 0 <= matrix[i][j] <= 231 - 1
 """
-# DFS: 
+# DFS: m*n
 # 用 DP 的原因是为了提高效率, 避免重复运算。这里需要维护一个二维动态数组dp, 
 # 其中 dp[i][j] 表示数组中以 (i,j) 为起点的最长递增路径的长度, 初始将 dp 数组都赋为0, 
 # 当用递归调用时, 遇到某个位置 (x, y), 如果 dp[x][y] 不为0的话, 直接返回 dp[x][y] 即可, 
@@ -8805,7 +8872,8 @@ class Solution:
 sol=Solution()
 sol.dfs(matrix, 0, 0, dp)
 sol.longestIncreasingPath(matrix)
-# BFS: 
+
+# BFS: m*n*LIS: not recommended. dp[][]存的不是LIS，而是这个点在比它更小的LIS的位置
 # Every element in dp can be updated for several times but not as initial point
 # 需要优化的是, 如果当前点的 dp 值大于0了, 说明当前点已经计算过了
 # will be faster if we sort the matrix, and visit from largest to smallest
@@ -9533,6 +9601,7 @@ Input: isConnected = [[1,0,0],[0,1,0],[0,0,1]]
 Output: 3
 
 # BFS should work. can you use union find, what is the time complexity? O(n^2)?
+UF takes n^2 * a(n) = n^2
 """
 class Solution:
     def findCircleNum(self, isConnected) -> int:
@@ -9551,7 +9620,7 @@ class Solution:
                 province_set.add(root)
         
         return len(province_set)
-text 
+
 
 """[LeetCode] 737. Sentence Similarity II 句子相似度之二
 
@@ -9582,7 +9651,7 @@ The length of pairs will not exceed 2000.
 The length of each pairs[i] will be 2.
 The length of each words[i] and pairs[i][j] will be in the range [1, 20]
 """
-# Use the UF above 
+# Use the UF above: O(n) * a(n) 
 def areSentencesSimilarTwo(words1, words2, pairs):
     # you can revise the UF by making parents a dict (from word to its parent word)
     # if keep using the same, then first build a word to id map 
@@ -9741,15 +9810,21 @@ def numIslands2(m, n, positions):
     res = []
     for position in positions:
         x, y = position
-        island_vector[map2dto1d(x, y, n)] = 1
+        curr_index = map2dto1d(x, y, n)
+        island_vector[curr_index] = 1
         uf.count += 1
         for dx, dy in [(-1 ,0), (1, 0), (0, -1), (0, 1)]:
             next_x, next_y = x+dx, y+dy
+            new_index = map2dto1d(next_x, next_y, n)
             if 0<=next_x<m and 0<=next_y<n:
-                if island_vector[map2dto1d(next_x, next_y, n)] == 1:
+                if island_vector[new_index] == 1:
                     # island next to island
-                    uf.union(map2dto1d(x, y, n), map2dto1d(next_x, next_y, n))
-                    uf.count -= 1
+                    p_new = uf.find(new_index)
+                    p_curr = uf.find(curr_index)
+                    if p_new != p_curr: 
+                        # used to be separate
+                        uf.count -= 1
+                    uf.union(curr_index, new_index) # link them
         res.append(uf.count)
     return res
 
@@ -9954,19 +10029,19 @@ class WordDictionary:
         current.is_word = True
 
     def search(self, word: str) -> bool:
-        return self.dfs(self.root, word)
+        return self.dfs(self.root, word, 0)
     
-    def dfs(self, node, word):
-        if len(word) == 0:
+    def dfs(self, node, word, idx):
+        if idx == len(word):
             return True if node.is_word else False
         if word[0] != '.':
             if word[0] in node.children:
-                return self.dfs(node.children[word[0]], word[1:])
+                return self.dfs(node.children[word[0]], word, idx+1)
             else:
                 return False
         else:
             for letter in node.children.keys():
-                if self.dfs(node.children[letter], word[1:]):
+                if self.dfs(node.children[letter], word, idx+1):
                     return True
             return False
         
@@ -10093,7 +10168,7 @@ def suggestedProducts(self, products, word):
 
 """
 ############################################################################
-单调栈与单调队列(Monotone Stack／Queue)
+单调栈与单调队列(Monotone Stack/Queue)
 ############################################################################
 栈还是普通栈, 不论单调栈还是单调队列, 单调的意思是保留在栈或者队列中的数字是单调递增或者单调递减的
 """
@@ -10204,6 +10279,7 @@ public:
     int ans = 0;
     for (int i = 0; i < r; ++i)
       for (int j = 0; j < c; ++j) {
+        // for each i, j, find each k > i, the largest rec end at [i -> k, j]
         int len = INT_MAX;
         for (int k = i; k < r; k++) {
           len = min(len, dp[k][j]);
@@ -10323,38 +10399,26 @@ class Solution:
     def sumSubarrayMins(self, arr) -> int:
         n = len(arr)
         left, right = [0]*n, [0]*n
-        stack_left, stack_right = [], []
+        stack = []
         # first left
         for i in range(n):
-            cnt = 1  # itself
-            if len(stack_left) == 0 or arr[i] >= arr[stack_left[-1]]:
-                left[i] = cnt  # no element on left < arr[i]
-                stack_left.append(i)
-            else:
-                while len(stack_left) > 0 and arr[i] < arr[stack_left[-1]]:
-                    # left element > arr[i] (not including equal)
-                    prev_i = stack_left.pop()
-                    cnt += left[prev_i]
-                left[i] = cnt
-                stack_left.append(i)
-        
+            while stack and arr[stack[-1]] >= arr[i]:
+                stack.pop()
+            left[i] = i + 1 if not stack else i - stack[-1]  # plus 1 itself
+            stack.append(i)
+        print(left)
+        stack = []
         # second, right 
-        for i in range(n)[::-1]:
-            cnt = 1
-            if len(stack_right) == 0 or arr[i] > arr[stack_right[-1]]:
-                right[i] = cnt # no element on right <= arr[i]
-                stack_right.append(i)
-            else:
-                while len(stack_right) > 0 and arr[i] <= arr[stack_right[-1]]:
-                    prev_i = stack_right.pop()
-                    cnt += right[prev_i]
-                right[i] = cnt
-                stack_right.append(i)
-        
+        for i in range(n - 1, -1, -1):
+            while stack and arr[stack[-1]] > arr[i]:
+                stack.pop()
+            right[i] = n - i if not stack else stack[-1] - i 
+            stack.append(i)
+        print(right)
         # combine
         res = 0
         for i in range(n):
-            res += arr[i] * (left[i]) * (right[i])
+            res += arr[i] * (left[i]) * (right[i]) % (10**9 + 7)
         
         return res % (10**9 + 7)
 
@@ -10528,18 +10592,18 @@ At each step the head of the deque is the max element in [i-(k-1),i]
 from collections import deque
 class Solution:
     def maxSlidingWindow(self, nums, k: int):
-        q = deque()  # save idx, need to measure k length
+        max_q = deque()  # save idx, need to measure k length, decreasing
         res = []
-        for i in range(len(nums)):
-            if len(q) > 0 and i - q[0] == k:
-                # q is k+1 long
-                q.popleft()
-            while len(q)>0 and nums[i] > nums[q[-1]]:
-                q.pop()
-            q.append(i)  # q may not k-long but in desc order
-            if i >= k-1:
+        for r in range(len(nums)):
+            while max_q and nums[r] > nums[max_q[-1]]:
+                max_q.pop()
+            max_q.append(r)  # q may not k-long but in desc order
+            while r - max_q[0] >= k:
+                # pop out if left beyond k size window
+                max_q.popleft()
+            if r >= k-1:
                 # q[0] is always the largest of q
-                res.append(nums[q[0]])
+                res.append(nums[max_q[0]])
         return res
 
 sol=Solution()
@@ -10898,6 +10962,7 @@ class MyCalendar:
         keys = self.treemap.keys() # sorted, O(1)
         floor = bisect.bisect(keys, start) - 1  # keys[i] < start for i <= floor
         ceiling = floor + 1
+        # [[1,3], [6, 8]], [2,4] -> floor=0, ceiling=1
         if floor >= 0:
             # [s, e) (floor), [start, end), [s, e) (ceiling)
             s, e = keys[floor], self.treemap[keys[floor]]
@@ -10947,7 +11012,9 @@ class TimeMap:
         # find first after timestamp, then l-1
         while l < r:
             mid = l + (r-l) // 2
-            if arr[mid][0] <= timestamp:
+            if arr[mid][0] == timestamp:
+                return arr[mid][1]
+            elif arr[mid][0] < timestamp:
                 l = mid + 1
             else:
                 r = mid
@@ -11161,6 +11228,7 @@ To the right of 6 there is 1 smaller element (1).
 To the right of 1 there is 0 smaller element.
 
 Idea: 用二分法插入到一个新的数组, 这样新数组就是有序的, 那么此时该数字在新数组中的坐标就是原数组中其右边所有较小数字的个数
+或者类似Sliding Window Median，用SortedList,再binary search,NlogN
 """
 # Solution 1: insertion sort (O(n^2))
 class Solution:
@@ -11446,14 +11514,16 @@ class Solution:
                 decks[deck_idx].append(-num)
                 ends_decks[deck_idx] = num
                 paths[deck_idx].append(n_paths + paths[deck_idx][-1])
-        print(decks)
-        print(ends_decks)
-        print(paths)
+        print(f"{decks=}")
+        print(f"{ends_decks=}")
+        print(f"{paths=}")
+        # Reconstruct LIS from decks and paths
         return paths[-1][-1]
+
 
 sol=Solution()
 sol.findNumberOfLIS( [1,3,0,5,4,9, 7])
-sol.findNumberOfLIS( [1,3,5,4])
+sol.findNumberOfLIS( [1, 3, 6, 7, 2,5])
 
 """63. Unique Paths II
 A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
@@ -11474,7 +11544,7 @@ Input: obstacleGrid = [[0,1],[0,0]]
 Output: 1
 """
 # DP 
-# dp[i][j]: num of unique paths to (i,j)
+# dp[i][j]: num of unique paths to (i-1,j-1)
 class Solution:
     def uniquePathsWithObstacles(self, obstacleGrid: List[List[int]]) -> int:
         dp = [[0 for _ in range(len(obstacleGrid[0])+1)] for _ in range(len(obstacleGrid)+1)]
@@ -11521,6 +11591,7 @@ class Solution:
                 if nums[i] % nums[j] == 0:
                     # nums[i]>nums[j] so nums[j]%nums[i]=0
                     # if lens[i] == lens[j] + 1:
+                    # only store 1 for each i
                     #     continue
                     if lens[i] < lens[j] + 1:
                         lens[i] = lens[j] + 1
@@ -11576,7 +11647,7 @@ Input: envelopes = [[1,1],[1,1],[1,1]]
 Output: 1
 """
 # Solution 1: n^2
-# sort decreasing, and dp[i]: max number if env[i] is the smallest envelop
+# sort decreasing, and dp[i]: max number if env[i] is the largest envelop
 # dp = [1]^n
 # dp[i] = dp[j] + 1 if envelops[i] can fit into env[j], for 0<=j<i
 # return max(dp)
@@ -11590,7 +11661,7 @@ Output: 1
 envelopes = [[5,4],[5,5],[6,7],[2,3],[6,3],[7,5]]
 # [2,3], [5,5], [5,4], [6,7], [6,3], [7,5]
 # [2,3] -> [2,3], [5, 5] -> [2,3], [5,4], [6,7] -> [6,3], [5,4], [6,7] -> [6,3], [5,4], [7,5]
-# core is to keep width as small as possible because weight already sorted
+# core is to keep width as small as possible because width already sorted
 class Solution:
     def maxEnvelopes(self, envelopes) -> int:
         dp = []
@@ -11668,10 +11739,29 @@ Output: 2
 # O(n^2)
 
 # solution 2: Gready: O(n)
+# dp[i] represent furthest reachable distance at ith jump
 # We can iterate over all indices maintaining the furthest reachable position from current index - maxReachable 
 #  and currently furthest reached position - lastJumpedPos. 
 # Everytime we will try to update lastJumpedPos to furthest possible reachable index - maxReachable.
 class Solution:
+    def jump(self, nums) -> int:
+        current_end = 0  # maximum reachable for current
+        res = 0
+        next_end = 0  # maximum reachable for next 
+        for i in range(len(nums)): # may only need range(len(nums)-1)
+            if current_end >= len(nums) - 1:
+                return res
+            next_end = max(next_end, nums[i]+i)
+            if i == current_end:
+                res += 1
+                current_end = next_end
+                if next_end <= i:
+                    return -1
+        
+        return res
+
+class Solution2:
+    # not work for unreachable 
     def jump(self, nums) -> int:
         if len(nums) == 1:
             # can del this by initialize res, lastJumpedPos, maxReachable with 0
@@ -11679,7 +11769,6 @@ class Solution:
         lastJumpedPos = nums[0]
         maxReachable = nums[0]
         res = 1
-        i = 0
         for i in range(len(nums)):
             if i > lastJumpedPos:
                 # if i goes beyond current longest step, res+1
@@ -11688,10 +11777,13 @@ class Solution:
             maxReachable = max(maxReachable, i+nums[i])
             if lastJumpedPos >= len(nums) - 1:
                 return res
-            # if i>maxReachable:
-            #     return -1  # if not reachable
         
         return -1
+
+
+sol=Solution()
+sol.jump([2,1,0,1,4])
+sol.jump([2,3,0,1,4])
 
 
 """132. Palindrome Partitioning II

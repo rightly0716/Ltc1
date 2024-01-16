@@ -13,8 +13,16 @@ hashmap.pop(key)
 hashmap.popitem(last=False) # O(1)
 
 
-""" SortedDict: sorted dict inherits from dict to store items and maintains a sorted list of keys.
+""" TreeMap: 红黑树，用logN 来存取，能用logN来读第k大元素
+python里面可以用SortedDict来实现
+SortedDict: sorted dict inherits from dict to store items and maintains a sorted list of keys.
+d.popitem(k) will pop the kth smallest item  - logN
+d.bisect_left(val) # return the index of val (from left) if inserted - logN
+可以和bisect.bisect(sd.keys(), new_start)配合使用用logN查找插入的index
+
+有时候也可以用SortedList来实现, 比如Sliding Window Median, Count of Smaller Numbers After Self
 """
+# SortedDict
 from sortedcontainers import SortedDict
 sd = SortedDict({'a': 1, 'b': 2, 'c': 3})
 sd.pop('c') # 3, O(logn)
@@ -27,6 +35,11 @@ sd.bisect_left('b') # return 1, logn
 # bisect_right=bisect_left except when exists
 sd.bisect_right('b') # return 2, logn
 
+# SortedList
+lst = SortedList()
+lst.add(x) 
+lst.remove(x)
+lst[k] # kth smallest 
 
 """ Stack and (de)queue in python
 """
@@ -64,6 +77,15 @@ heapq.nlargest(k, q, key=None)  # return k largest , klogn
 tags = [ ("python", 30), ("ruby", 25), ("c++", 50), ("lisp", 20) ]
 heapq.nlargest(2, tags, key=lambda e:e[1]) # Gives [ ("c++", 50), ("python", 30) ]
 
+
+"""单调栈与单调队列(Monotone Stack/Queue)
+栈还是普通栈, 不论单调栈还是单调队列, 单调的意思是保留在栈或者队列中的数字是单调递增或者单调递减的
+1. longest subarray with limitation (such as limit diff < k)
+2. Largest Rectangle in Histogram: mono increasing
+    - add sentinel 0 on right of heights
+    - prev_area = heights[prev_i] * (i - 1 - stack[-1])
+    - prev_area = heights[prev_i] * i if not stack
+"""
 
 """ Dictionary
 """
@@ -131,7 +153,7 @@ class Solution:
 
 """ BFS: 用deque来存, for loop对每一层来处理
 
-1. 二叉树层序遍历
+BFS 1. 二叉树层序遍历
 For example: Given binary tree {3,9,20,#,#,15,7},
     3
    / \
@@ -146,24 +168,6 @@ return its level order traversal as:
 ]
 recursive的写法是引入一个level parameter
 self.getLevelOrder(root, 0, res)
-
-2. 无权重的最短路径. 记得用一个visited set去记录避免重复, q里面存的一般是(row,col,distance), 停止条件是(row,col)=target or distance=target.push进q的条件一般是没有visit过和在边界以内.
-
-3. 根据prerequisite关系构建次序列:比如course schedule. 需要构建indegree和pre_hashmap.每次从indegree为0的拿,如果多于1个就不唯一。拿出来后根据pre_hashmap更新indegree，如果为0就push进deque。
-q = deque([node for node in org if indegree[node] == 0])
-res = []  # reconstruct results
-while q:
-    if len(q) > 1:
-        # have +1 option for the next
-        return False
-    curr_num = q.popleft()
-    res.append(curr_num)
-    # update indegree based on pre_m
-    for num in pre_m[curr_num]:
-        indegree[num] -= 1
-        if indegree[num] == 0:
-            q.append(num)
-    # print(res)
 """
 from collections import deque
 class TreeNode:
@@ -210,16 +214,206 @@ class Solution:
         self.getLevelOrder(root.right, level+1, res)
         return None
 
+"""
+BFS 2. 无权重的最短路径. 记得用一个visited set去记录避免重复, q里面存的一般是(row,col,distance), 停止条件是(row,col)=target or distance=target.push进q的条件一般是没有visit过和在边界以内. 
+
+如果要返回所有最短路径，那么每一次for之前用一个空的curr_visited来记录当前这一步visit到的点，for loop结束的时候统一用visited.update(curr_visited)的方式加到visited。这样避免漏掉比如从1->2 / 3->4->5. 另外注意有一个flag mark是否最短路线已经到达target,作为停止条件。例子见126. Word Ladder II
+"""
+from collections import defaultdict, deque
+graph = [[3,1],[3,2,4],[3],[4],[]]; start=0; target=4
+def getShortestPaths_bfs1(graph, start, target):
+    # save path in q, drawback is memory usage
+    q = deque()
+    parent = defaultdict(list)
+    q.append((start, [start]))
+    visited = set()
+    find_target = False  # mark whether stop
+    res = []
+    while len(q) > 0:
+        curr_visited = set() # for current step
+        for _ in range(len(q)):
+            curr_node, curr_path = q.popleft()
+            if curr_node == target:
+                find_target = True
+                res.append(curr_path)
+                continue
+            for next_node in graph[curr_node]:
+                if next_node not in visited:
+                    curr_visited.add(next_node)
+                    q.append((next_node, curr_path + [next_node]))
+        visited.update(curr_visited) # add for current step
+        if find_target:
+            return res
+    return res   # no path is found
+
+"""
+3. 根据prerequisite关系构建次序列:比如course schedule. 需要构建indegree和pre_hashmap.每次从indegree为0的拿,如果多于1个就不唯一。拿出来后根据pre_hashmap更新indegree，如果为0就push进deque。
+q = deque([node for node in org if indegree[node] == 0])
+res = []  # reconstruct results
+while q:
+    if len(q) > 1:
+        # have +1 option for the next
+        return False
+    curr_num = q.popleft()
+    res.append(curr_num)
+    # update indegree based on pre_m
+    for num in pre_m[curr_num]:
+        indegree[num] -= 1
+        if indegree[num] == 0:
+            q.append(num)
+    # print(res)
+"""
+
 
 """ DFS
-Merge trees (BFS也可以做，需要修改其中一棵当成结果，需要两个deque)
-Deep copy tree
-图中(有向无向皆可)的符合某种特征(比如最长)的路径以及长度
+1.Merge trees (BFS也可以做，需要修改其中一棵当成结果，需要两个deque)
+2.Deep copy tree
+3.图中(有向无向皆可)的符合某种特征(比如最长)的路径以及长度
+4.图中两个点的距离（边有weights）:不是最短距离(dijkstra).用visited来记录已经走过的路径，注意trackback
+5. Permutation和combination,注意如果permutation里有重复，比如[1,1,2]的所有perm，需要一个visited=[0]*len(nums)来dedup以及如果: nums[i] == nums[i-1] and visited[i-1] == 0, continue (we can use this number only if its previous is used)
+6. LIS matrix里的最长上升路径 (用dp记录结果避免重复)
+没有特别好的优化 runtime一般都是2^N
+"""
+
+
+""" Union Find 并查集
+如果数据不是实时变化, 本类问题可以用BFS或者DFS的方式遍历,
+如果数据实时变化, 则并查集每次的时间复杂度可以视为O(1)
+
+- Functions: 一般是先union建图，在find连接
+    - init(N): 
+        - self.parents = list(range(N))
+        - self.weights = [1] * N  
+    - Union(a, b): find root of child and parent, link child's root to parent's root, O(a(n))=O(1)  #  inverse Ackermann function
+    - Find(x): link x's parent to the root, return, O(a(n))=O(1)
+
+Application 1: Accounts merge
+Application 2: number of islands when addLand
+    Input: m = 3, n = 3, positions = [[0,0], [0,1], [1,2], [2,1]]
+    Output: [1,1,2,3]
+"""
+from collections import defaultdict
+class UF:
+    def __init__(self, N):
+        self.parents = list(range(N))
+        # when union, less weights node -> larger
+        self.weights = [1] * N  
+        
+    def find(self, x):
+        # link x's parent to the root, return
+        if x!= self.parents[x]:
+            # not root
+            curr_parent = self.parents[x]
+            self.parents[x] = self.find(curr_parent)
+        return self.parents[x]
+    
+    def union(self, a, b):
+        # find root of child and parent
+        # link child's root to parent's root
+        a_root = self.find(a)
+        b_root = self.find(b)
+        if a_root == b_root:
+            return None
+        if self.weights[a_root] <= self.weights[b_root]:
+            self.parents[a_root] = b_root
+            self.weights[b_root] += self.weights[a_root]
+        else:
+            self.parents[b_root] = a_root
+            self.weights[a_root] += self.weights[b_root]
+        return None
+
+
+""" Trie 
+一般用Trie来做word search problem。
+
+Example: Word Search II
+"""
+class TrieNode:
+    # Initialize your data structure here.
+    def __init__(self):
+        self.children = dict()
+        self.is_word = False
+        
+class Trie:
+    def __init__(self):
+        self.root = TrieNode()
+        
+    def insert(self, word: str) -> None: # O(len(word))
+        current = self.root
+        for letter in word:
+            if letter not in current.children:
+                current.children[letter] = TrieNode()
+            current = current.children[letter]
+        current.is_word = True
+
+    # Returns if the word is in the trie.
+    def search(self, word: str) -> bool:
+        current = self.root
+        for letter in word:
+            if letter in current.children:
+                current = current.children[letter]
+            else:
+                return False
+        return current.is_word
+    
+    # Returns if there is any word in the trie that starts with the given prefix.
+    def startsWith(self, prefix: str) -> bool:
+        current = self.root
+        for letter in prefix:
+            if letter in current.children:
+                current = current.children[letter]
+            else:
+                return False
+        return True
+
+
+""" 前缀和(Prefix Sum), cumsum
+cumsum[i] = sum(nums[:i+1])
+cumsum[j] - cumsum[i] = sum(nums[i+1:j+1])
+cumsum[j-1] - cumsum[i-1] = sum(nums[i:j])
+
+1. Maximum Subarray O(n) 
+nums = [-2,1,-3,4,-1,2,1,-5,4], Output: 6
+hint: reset when cumsum<0
+
+2. expand to 2D, range sum query
+hint: 
+self.dp = [[0 for _ in range(len(matrix[0])+1)] for _ in range(len(matrix)+1)]
+self.dp[i][j] = self.dp[i-1][j] + self.dp[i][j-1] - self.dp[i-1][j-1] + matrix[i-1][j-1]
+"""
+
+"""
+线段树 (Segment Tree or binary index tree): 一般用于处理上述Prefix sum但array会更新的情况. 
+
+FenwickTree/binary index tree: 
+- Each element whose index i is a power of 2 contains the sum of the first i elements. 
+
+- Functions
+    - init: self.cumsum # cumsum of numbers in the same branch instead of not nums[:i] https://en.wikipedia.org/wiki/Fenwick_tree
+    - update(i, delta): add delta to nums[i-1]  # logn
+    - query(i): sum(nums[:i])   # logn
+- runtime: Init nlogn, query logn, update logn
+
+
+Application 1: (307. Range Sum Query - Mutable)
+1. Update the value of an element in nums.
+2. Calculate the sum of the elements of nums between indices left and right inclusive where left <= right.
+"""
+
+
+
+
+""" DP
+Print all Longest Increasing Subsequence: patience sort ???
+
+Sometimes greedy can work: Jump Game II
 
 
 """
 
-
+#
+# Start of practices 
+#
 """写一个quicksort来找arr的第k大的数字
 1. partition 
 - 函数 while是<=, 先写swap的逻辑(不然可能在不满足left<=right的条件下错误swap)
@@ -834,5 +1028,260 @@ class Solution:
         # if child is larger, it will not update res
         self.res = max(self.res, left_max + right_max + node.val)
         return node.val + max(left_max, right_max)
+
+
+"""中序遍历的非递归写法: use stack first push left till end, then right (repeat)
+       5
+      / \
+     3   6
+    / \
+   2   4
+  /
+ 1
+"""
+def kthSmallest(root, k):
+    res = []
+    stack = []
+    curr_node = root
+    while curr_node or stack:
+        while curr_node:
+            stack.append(p)
+            curr_node = curr_node.left
+        curr_node = stack.pop()
+        res.append(curr_node.val)
+        curr_node = curr_node.right
+    return res[k-1]
+
+
+"""[LeetCode] 126. Word Ladder II 词语阶梯之二
+Given two words (beginWord and endWord), and a dictionary's word list, 
+find all shortest transformation sequence(s) from beginWord to endWord, 
+such that:
+
+Only one letter can be changed at a time
+Each transformed word must exist in the word list. Note that beginWord is not a transformed word.
+Note:
+
+Return an empty list if there is no such transformation sequence.
+All words have the same length.
+All words contain only lowercase alphabetic characters.
+You may assume no duplicates in the word list.
+You may assume beginWord and endWord are non-empty and are not the same.
+Example 1:
+
+Input:
+beginWord = "hit",
+endWord = "cog",
+wordList = ["hot","dot","dog","lot","log","cog"]
+
+Output:
+[
+  ["hit","hot","dot","dog","cog"],
+  ["hit","hot","lot","log","cog"]
+]
+Example 2:
+
+Input:
+beginWord = "hit"
+endWord = "cog"
+wordList = ["hot","dot","dog","lot","log"]
+
+Output: []
+
+Explanation: The endWord "cog" is not in wordList, therefore no possible transformation.
+"""
+
+
+"""698. Partition to K Equal Sum Subsets 分割K个等和的子集 
+Given an array of integers nums and a positive integer k, find whether it's 
+possible to divide this array into k non-empty subsets whose sums are all equal.
+
+Example 1:
+Input: nums = [4, 3, 2, 3, 5, 2, 1], k = 4
+Output: True
+Explanation: It's possible to divide it into 4 subsets (5), (1, 4), (2,3), (2,3) with equal sums.
+
+Note:
+•1 <= k <= len(nums) <= 16.
+•0 < nums[i] < 10000.
+
+Idea: it is like combination, but record all that sum up to target
+"""
+class Solution:
+    def canPartitionKSubsets(self, nums, k: int):
+        self.raw_target = sum(nums) / k
+        if self.raw_target != int(self.raw_target):
+            return False
+        nums.sort(reverse=True)
+        visited = ['0' for _ in range(len(nums))]
+        memo = dict()
+        def dfs(k, rem_target, start_idx, memo):
+            if k == 1: # if k-1 targets, then the last one must be sum to target(target=sums/k)
+                return True
+            visited_str = ''.join(visited)
+            if visited_str in memo:
+                return memo[visited_str]
+            for i in range(start_idx, len(nums)):
+                if visited[i] == '1':
+                    continue
+                if nums[i] == rem_target:
+                    visited[i] = '1'
+                    res = dfs(k-1, self.raw_target, 0, memo)
+                    if res:
+                        memo[''.join(visited)] = True
+                        return True
+                    visited[i] = '0'
+                elif nums[i] < rem_target:
+                    visited[i] = '1'
+                    res = dfs(k, rem_target - nums[i], i+1, memo)
+                    if res:
+                        memo[''.join(visited)] = True
+                        return True
+                    visited[i] = '0'
+                else:
+                    continue
+            memo[''.join(visited)] = False
+            return False
+        return dfs(k, self.raw_target, 0, memo)
+
+
+"""[LeetCode] 42. Trapping Rain Water 收集雨水
+Given n non-negative integers representing an elevation map where the width of each bar is 1, 
+compute how much water it is able to trap after raining.
+
+The above elevation map is represented by array [0,1,0,2,1,0,1,3,2,1,2,1]. 
+In this case, 6 units of rain water (blue section) are being trapped. Thanks Marcos for contributing this image!
+
+Example:
+Input: [0,1,0,2,1,0,1,3,2,1,2,1]
+Output: 6
+"""
+
+# Solution 2: DP
+# left[i]: max height on the left of height[i]
+# right[i]:max height on the right of height[i]
+# the water that point i can contribute is: min(l, r) - height[i]
+# left[i] = max(height[i], left[i-1]) if i>0 else height[i]
+# right[i] = max(height[i], right[i+1]) if i<len(height)-1 else height[i]
+"""
+// Author: Huahua
+class Solution {
+public:
+  int trap(vector<int>& height) {
+    const int n = height.size();
+    vector<int> l(n);
+    vector<int> r(n);
+    int ans = 0;
+    for (int i = 0; i < n; ++i)
+      l[i] = i == 0 ? height[i] : max(l[i - 1], height[i]);
+    for (int i = n - 1; i >= 0; --i)
+      r[i] = i == n - 1 ? height[i] : max(r[i + 1], height[i]);
+    for (int i = 0; i < n; ++i)
+      ans += min(l[i], r[i]) - height[i];
+    return ans;
+  }
+};
+"""
+
+"""218. The Skyline Problem
+https://leetcode.com/problems/the-skyline-problem/description/
+
+Pseudo code:
+events = {{x: left, h: heights, type:enter}, {x:right, h:heights, type:leaving}}
+events.sorted(by=(x, type, h*type))
+ds = DS()  # provide 1) max, 2) remove a given element
+for e in events:
+    if e.type == enter:
+        if e.h > ds.max():
+            res.append([e.x, e.h])
+        ds.add(e.h)
+    if e.type == leaving:
+        ds.remove(e.h)
+        if e.h > ds.max():
+            # current e.h is the max before removing
+            res.append([x, ds.max()])
+"""
+# O(nlogn) time. O(n) space
+# ds: max heap, use a active set to pseudo "remove"
+
+
+
+"""673. Number of Longest Increasing Subsequence
+Given an integer array nums, return the number of longest increasing subsequences.
+Notice that the sequence has to be strictly increasing.
+
+Example 1:
+Input: nums = [1,3,5,4,7]
+Output: 2
+Explanation: The two longest increasing subsequences are [1, 3, 4, 7] and [1, 3, 5, 7].
+
+Example 2:
+Input: nums = [2,2,2,2,2]
+Output: 5
+Explanation: The length of longest continuous increasing subsequence is 1, 
+and there are 5 subsequences' length is 1, so output 5.
+
+** Follow up: what if you need to print all the LIS? 
+
+Idea 1: n^2
+将 dp[i] 定义为以 nums[i] 为结尾的递推序列的个数
+用 len[i] 表示以 nums[i] 为结尾的递推序列的长度
+
+In the Longest Increasing Subsequence problem, the DP array simply had to store the longest length. 
+In this variant, each element in the DP array needs to store two things: 
+(1) Length of longest subsequence ending at this index and 
+(2) Number of longest subsequences that end at this index. 
+I use a two element list for this purpose.
+In each loop as we build up the DP array, find the longest length for this index and then 
+sum up the numbers at these indices that contribute to this longest length.
+https://leetcode.com/problems/number-of-longest-increasing-subsequence/discuss/107320/Python-DP-with-explanation-(Beats-88)
+
+Idea 2: 
+"""
+# ???
+
+
+"""45 Jump Game II
+Given an array of non-negative integers nums, you are initially positioned at the first index of the array.
+Each element in the array represents your maximum jump length at that position.
+Your goal is to reach the last index in the minimum number of jumps.
+You can assume that you can always reach the last index.
+
+Example 1:
+Input: nums = [2,3,1,1,4]
+Output: 2
+Explanation: The minimum number of jumps to reach the last index is 2. Jump 1 step from index 0 to 1, then 3 steps to the last index.
+
+Example 2:
+Input: nums = [2,3,0,1,4]
+Output: 2
+"""
+# solution 1: dp[i]: denotes minimum jumps required from current index to reach till the end.
+# initial: dp = [inf]*n, dp[0]=1
+# iteration: dp[i] = min(dp[j] + 1) if nums[i] >= i-j for j in range(i,n)
+# O(n^2)
+
+# solution 2: Gready: O(n)
+# dp[i] represent furthest reachable distance at ith jump
+# We can iterate over all indices maintaining the furthest reachable position from current index - maxReachable 
+#  and currently furthest reached position - lastJumpedPos. 
+# Everytime we will try to update lastJumpedPos to furthest possible reachable index - maxReachable.
+class Solution:
+    def jump(self, nums) -> int:
+        current_end = 0  # maximum reachable for current
+        res = 0
+        next_end = 0  # maximum reachable for next 
+        for i in range(len(nums)): # may only need range(len(nums)-1)
+            if current_end >= len(nums) - 1:
+                return res
+            next_end = max(next_end, nums[i]+i)
+            if i == current_end:
+                res += 1
+                current_end = next_end
+                if next_end <= i:
+                    return -1
+        
+        return res
+
 
 
