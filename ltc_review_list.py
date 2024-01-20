@@ -411,6 +411,46 @@ Sometimes greedy can work: Jump Game II
 
 """
 
+
+""" 01 Knapsack Problem 
+一共有N件物品, 第i(i从1开始)件物品的重量为weights[i], 价值为values[i]。在总重量不超过背包承载上限W的情况下, 能够装入背包的最大价值是多少？
+
+动态规划的核心思想避免重复计算在01背包问题中体现得淋漓尽致。第i件物品装入或者不装入而获得的最大价值
+完全可以由前面i-1件物品的最大价值决定, 暴力枚举忽略了这个事实。
+""" 
+def Knapsack01(values, weights, W):
+    # dp[i][j]: max value by taking from first i items, with weight at most j
+    n = len(values)
+    dp = [[0 for _ in range(W+1)] for _ in range(n+1)]
+    for i in range(1, n+1):
+        for j in range(1, W+1):
+            dp[i][j] = max(dp[i-1][j], dp[i-1][j-weights[i-1]] + values[i-1]) if \
+                j-weights[i-1]>=0 else dp[i-1][j]
+    return dp[n][W]
+
+def Knapsack01(values, weights, W):
+    # dp[i]: max value with weight at most j
+    n = len(values)
+    dp = [0 for _ in range(W+1)]
+    for i in range(1, n+1):
+        for j in range(W+1)[::-1]:
+            if j-weights[i-1] < 0:
+                continue
+            dp[j] = max(dp[j], dp[j-weights[i-1]] + values[i-1])
+    return dp[W]
+
+
+"""Unbounded Knapsack problem
+完全背包(unbounded knapsack problem)与01背包不同就是每种物品可以有无限多个：一共有N种物品, 每种物品有无限多个, 
+第i(i从1开始)种物品的重量为weights[i], 价值为v[i]。在总重量不超过背包承载上限W的情况下, 能够装入背包的最大价值是多少？
+
+dp[i][j]表示将前i种物品装进限重为j的背包可以获得的最大价值, 0<=i<=N, 0<=j<=W
+这个状态转移方程与01背包问题唯一不同就是max第二项不是dp[i-1]而是dp[i]。
+i.e., 
+dp[i][j] = max(dp[i-1][j], dp[i][j-weights[i-1]] + values[i-1])
+
+"""
+
 #
 # Start of practices 
 #
@@ -1284,4 +1324,124 @@ class Solution:
         return res
 
 
+""" [LeetCode] 518. Coin Change 2 硬币找零之二
+You are given an integer array coins representing coins of different denominations and 
+an integer amount representing a total amount of money.
+Return the number of combinations that make up that amount. If that amount of money cannot 
+be made up by any combination of the coins, return 0.
+You may assume that you have an infinite number of each kind of coin.
+The answer is guaranteed to fit into a signed 32-bit integer.
+
+Example 1:
+Input: amount = 5, coins = [1,2,5]
+Output: 4
+Explanation: there are four ways to make up the amount:
+5=5
+5=2+2+1
+5=2+1+1+1
+5=1+1+1+1+1
+
+Example 2:
+Input: amount = 3, coins = [2]
+Output: 0
+Explanation: the amount of 3 cannot be made up just with coins of 2.
+
+Example 3:
+Input: amount = 10, coins = [10]
+Output: 1
+
+Solution: 
+makeChange(11) = makeChange(11 using 0-5) + makeChange(11 using 1-5) + makeChange(11 using 2-5) + ...
+
+Each child will continue using 
+makeChange(11 using 1-5) = makeChange(6 using 0-2) + makeChange(6 using 1-2) + ... 
+
+Continue will be
+makeChange(6 using 0-2) = makeChange(6-0 using 1's) = 1 (because 6%1==0)
+makeChange(6 using 1-2) = makeChange(6-2 using 1's) = 1
+"""
+# 用到最后一个硬币时, 判断当前还剩的钱数是否能整除这个硬币, 不能的话就返回0, 否则返回1
+# memo: key is (remain_amount, curr_coin_idx)
+class Solution:
+    def change(self, amount: int, coins) -> int:
+        memo = dict()
+        sorted_coins = sorted(coins, reverse=True)
+        return self.dfs(sorted_coins, amount, memo, 0)
+
+    def dfs(self, coins, rem_amount, memo, coin_idx):
+        if coin_idx == len(coins) - 1:
+            # last coin
+            # rem=0 will also return 1
+            return 1 if rem_amount % coins[coin_idx] == 0 else 0
+        if (rem_amount, coin_idx) in memo:
+            return memo[(rem_amount, coin_idx)]
+        res = 0
+        for num_curr_coin in range(1+rem_amount//coins[coin_idx]):
+            next_rem_amount = rem_amount - num_curr_coin*coins[coin_idx]
+            res += self.dfs(coins, next_rem_amount, memo, coin_idx+1)
+        memo[(rem_amount, coin_idx)] = res
+        # print(memo)
+        return res
+
+sol=Solution()
+sol.change(5, [1, 2, 5])
+sol.change(10, [1, 2, 5])
+
+# DFS+cache trick
+class Solution:
+    def change(self, amount: int, coins) -> int:
+        self.coins = sorted(coins)
+        self.dp = [[-1]*(amount+1) for _ in range(len(coins)+1)]
+        return self.dfs(amount, 0)
+    
+    def dfs(self, rem_amount, start_idx):
+        if self.dp[start_idx][rem_amount] > 0:
+            return self.dp[start_idx][rem_amount]
+        if rem_amount == 0:
+            return 1
+        if start_idx == len(self.coins):
+            return 0
+        if start_idx == len(self.coins) - 1:
+            # last coin
+            # rem=0 will also return 1
+            return 1 if rem_amount % self.coins[start_idx] == 0 else 0
+        res = 0
+        for i in range(start_idx, len(self.coins)):
+            if rem_amount - self.coins[i] >= 0:
+                res += self.dfs(rem_amount-self.coins[i], i)
+            else:
+                break
+        self.dp[start_idx][rem_amount] = res
+        return res
+
+# DP: Unbounded Knapsack
+# dp[i][j]: number of comb to achieve j amount, if only using first i kinds of coins
+class Solution:
+    def change(self, amount: int, coins) -> int:
+        n = len(coins)
+        dp = [[0 for _ in range(amount+1)] for _ in range(n+1)]
+        dp[0][0] = 1
+        for i in range(1, n+1):
+            for j in range(amount+1):
+                if j == 0: # note if i=0 but j>0, should be 0
+                    dp[i][j] = 1
+                else:
+                    dp[i][j] = dp[i-1][j] # first include all sols that only use first i-1 kinds
+                    if j >= coins[i-1]:
+                        # add coins[i-1]: note that not i-1 due to unbounded! 
+                        # we can use multiple coins[i] till j-coins[i]<0
+                        dp[i][j] += dp[i][j-coins[i-1]]
+        return dp[n][amount]
+
+# may reduce space complexity by using 1-d array
+"""
+def change(self, amount, coins):
+    dp = [0] * (amount + 1)
+    dp[0] = 1
+    for i in coins:
+        for j in range(1, amount + 1):
+            if j >= i:
+                dp[j] += dp[j - i]
+    return dp[amount]
+"""
 

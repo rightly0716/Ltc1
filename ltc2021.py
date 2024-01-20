@@ -12247,7 +12247,7 @@ class Solution:
                 dp[i][j] = max(1, min(dp[i+1][j], dp[i][j+1]) - dungeon[i][j])
         
         return dp[0][0]
-        
+
 
 """115. Distinct Subsequences
 Given two strings s and t, return the number of distinct subsequences of s which equals t.
@@ -12498,15 +12498,17 @@ class Solution:
         @lru_cache(None)
         def dfs(s, idx):
             if idx == len(s):
-                return 1
+                # multiplier * dfs(s, idx+2) when idx=len(s)-2
+                return 1  
             if s[idx] == '0':
                 return 0
             res = 0
             if s[idx] == '*':
-                res += 9*dfs(s, idx+1)
+                res += 9*dfs(s, idx+1) # [*, X]
                 if idx < len(s) - 1:
                     if s[idx+1] == '*':
-                        res += 15 * dfs(s, idx+2) # * cannot be 0!! 11~26 \ 20
+                        # **: 11-26 \ 20
+                        res += 15 * dfs(s, idx+2)
                     elif s[idx+1] in ['7', '8', '9']:
                         # *7 - *9
                         res += dfs(s, idx+2)
@@ -12514,10 +12516,10 @@ class Solution:
                         # *0 - *6
                         res += 2 * dfs(s, idx+2)
             else: # 1-9
-                res += dfs(s, idx+1)
+                res += dfs(s, idx+1)  # [A, X]
                 if idx < len(s) - 1:
                     if s[idx+1] == '*':
-                        if s[idx] == '1': # 1*
+                        if s[idx] == '1': # 1*, [A, *] already covered 
                             res += 9 * dfs(s, idx+2)
                         elif s[idx] == '2': # 2*
                             res += 6 * dfs(s, idx+2)
@@ -12780,13 +12782,19 @@ Explanation: You can perform the following operations:
 - Delete a 3 again to earn 3 points. nums = [3].
 - Delete a 3 once more to earn 3 points. nums = [].
 You earn a total of 9 points.
+
+# dp[i]: max score if taking up to nums[:i]
+# if nums[i-1] - nums[i-2] == 1
+# dp[i] = max(dp[i-1], dp[i-2]+nums[i-1]*counts[i-1])
+# else 
+# dp[i] = dp[i-1] + nums[i-1]*counts[i-1]
 """
 nums = [1,3]
 from collections import Counter
 class Solution:
     def deleteAndEarn(self, nums) -> int:
         m = Counter(nums)
-        dp = [0]*(len(m)+1)
+        dp = [0]*(len(m)+1)  
         sorted_keys = sorted(m.keys())
         dp[1] = sorted_keys[0] * m[sorted_keys[0]]  # max of up to first
         for i in range(1, len(sorted_keys)):
@@ -12908,6 +12916,8 @@ hint: Use dynamic programming: the states are (i, m) for the answer of piles[i:]
 Or use DFS+memo, the same idea
 
 dfs(piles[i:], m) = max(sum(piles[i:i+x]) + sum(piles[i+x:]) - dfs(piles[i+x:], max(m, x))) for 1<=x<=2m and x+i<=n-1
+
+runtime: n^3; space: n^2
 """
 class Solution:
     def stoneGameII(self, piles) -> int:
@@ -12928,7 +12938,7 @@ class Solution:
         if (m, i) in memo:
             return memo[(m, i)]
         res = 0
-        for x in range(1, min(2*m+1, n-i)):
+        for x in range(1, 2*m+1): # do we need min because n-i > 2m?
             cur_sum = cumsums[i] - cumsums[i+x] # sum(piles[i:x+i])
             res = max(res, cur_sum + cumsums[i+x] - self.dfs(max(m, x), i+x, memo, cumsums))
         memo[(m, i)] = res
@@ -12938,6 +12948,9 @@ class Solution:
 sol=Solution()
 sol.stoneGameII([2,7,9,4,4])
 sol.stoneGameII([1,2,3,4,5,100])
+
+# DP solution - Bard
+# dp[i][m] = max(sum(piles[i:]) - dp[i+k][k]) -- for k in range(1, n-i) if n-i<2m
 
 
 """322. Coin Change
@@ -13046,25 +13059,33 @@ class Solution:
 
 sol=Solution()
 sol.change(5, [1, 2, 5])
+sol.change(10, [1, 2, 5])
 
 # DFS+cache trick
 class Solution:
     def change(self, amount: int, coins) -> int:
         self.coins = sorted(coins)
+        self.dp = [[-1]*(amount+1) for _ in range(len(coins)+1)]
         return self.dfs(amount, 0)
     
-    @lru_cache(None)
     def dfs(self, rem_amount, start_idx):
+        if self.dp[start_idx][rem_amount] > 0:
+            return self.dp[start_idx][rem_amount]
         if rem_amount == 0:
             return 1
         if start_idx == len(self.coins):
             return 0
+        if start_idx == len(self.coins) - 1:
+            # last coin
+            # rem=0 will also return 1
+            return 1 if rem_amount % self.coins[start_idx] == 0 else 0
         res = 0
         for i in range(start_idx, len(self.coins)):
             if rem_amount - self.coins[i] >= 0:
                 res += self.dfs(rem_amount-self.coins[i], i)
             else:
                 break
+        self.dp[start_idx][rem_amount] = res
         return res
 
 # DP: Unbounded Knapsack
@@ -13344,6 +13365,7 @@ class Solution:
 
     @lru_cache(None)
     def isMatchhelper(self, s, p, i, j):
+        # never let p[j]='*'!
         if i == len(s) and j == len(p):
             return True
         if j == len(p):
@@ -13360,9 +13382,9 @@ class Solution:
                 for idx in range(i, len(s)+1):
                     # .* can match any string
                     if self.isMatchhelper(s, p, idx, j+2):
-                            return True
+                        return True
                 return False
-            else:
+            else: # p[j:]='A*XXXX'
                 if i == len(s) or s[i] != p[j]:
                     # ignore the previous char before *
                     return self.isMatchhelper(s, p, i, j+2)
@@ -13430,6 +13452,7 @@ class Solution:
             else:
                 idx = i
                 while idx < len(s) and (s[idx] == p[j] or p[j] == '.'):
+                    # p[j:]: .* -> s[idx]=s[i]=p[j]
                     res = self.dfs(s, p, idx, j+2, memo)
                     if res:
                         memo[(i, j)] = res
@@ -13606,20 +13629,21 @@ def Knapsack01(values, weights, W):
     # for j in range(W+1):
     #     dp[0][j] = 0 # value is 0 if no item
     for i in range(1, n+1):
-        for j in range(1, W):
+        for j in range(1, W+1):
             # if j == 0: # first 0 items
             #     dp[i][j] = 0
             # else: # either take i or not
             # i row results only depend on i-1 row
-            dp[i][j] = max(dp[i-1][j], dp[i-1][j-weights[i-1]] + values[i-1]) if j>=weights[i] else dp[i-1][j]
+            dp[i][j] = max(dp[i-1][j], dp[i-1][j-weights[i-1]] + values[i-1]) if j>=weights[i-1] else dp[i-1][j]
     return dp[n][W]
+
 
 """Simplify the space time complexity
 dp[j] : max value by weights up to j
 dp[0,...,W] = 0
 for i = 1,...,N
-    for j = W,...,weights[i] // 必须逆向枚举!!! 否则dp[i-1][j-weights[i]]已经被overwrite成dp[i][j-weights[i]]
-        dp[j] = max(dp[j], dp[j−weights[i]]+v[i])
+    for j = W,...,weights[i-1] // 必须逆向枚举!!! 否则dp[i-1][j-weights[i]]已经被overwrite成dp[i][j-weights[i-1]]
+        dp[j] = max(dp[j], dp[j−weights[i-1]]+v[i-1])
 """
 
 """Unbounded Knapsack problem
@@ -13629,7 +13653,7 @@ for i = 1,...,N
 dp[i][j]表示将前i种物品装进限重为j的背包可以获得的最大价值, 0<=i<=N, 0<=j<=W
 这个状态转移方程与01背包问题唯一不同就是max第二项不是dp[i-1]而是dp[i]。
 i.e., 
-dp[i][j] = max(dp[i-1][j], dp[i][j-weights[i]] + values[i-1])
+dp[i][j] = max(dp[i-1][j], dp[i][j-weights[i-1]] + values[i-1])
 
 if reduce space complexity using 1-d
 // 完全背包问题思路一伪代码(空间优化版)
